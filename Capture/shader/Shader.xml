@@ -2,7 +2,7 @@
 
 <shd
 #ifdef GLES2
-    compiler="..\..\..\Tools\tools\Release\ShaderCompiler.exe"
+    compiler="..\izanagi\Tools\tools\Release\ShaderCompiler.exe"
 #else
     compiler="%DXSDK_DIR%Utilities\Bin\x86\fxc"
 #endif
