@@ -2,8 +2,8 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
     <PROJECT_MAIN_DIR>$(ProjectDir)..\..\$(ProjectName)\</PROJECT_MAIN_DIR>
-    <TOOL_DIR>$(ProjectDir)..\..\..\..\Tools\tools\</TOOL_DIR>
-    <DATA_DIR>$(ProjectDir)..\..\..\..\Media\</DATA_DIR>
+    <TOOL_DIR>$(ProjectDir)..\..\izanagi\Tools\tools\</TOOL_DIR>
+    <DATA_DIR>$(ProjectDir)..\..\izanagi\Media\</DATA_DIR>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
@@ -27,7 +27,7 @@
   </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\..\..\External\glew\include;..\..\..\..\Libs\include;..\..\SampleKit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\izanagi\External\glew\include;..\..\izanagi\Libs\include;..\..\SampleKit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__IZ_OGL__;__IZ_GLUT__;__IZANAGI_NO_USE_D3D__;_XKEYCHECK_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
@@ -37,12 +37,12 @@
     <Link>
       <AdditionalDependencies>winmm.lib;freeglut.lib;SampleKit\$(Configuration)\SampleKit.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\..\Libs\project\lib\$(Configuration);..\..\..\..\External\freeglut\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\izanagi\Libs\project\lib\$(Configuration);..\..\izanagi\External\freeglut\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y ..\..\..\..\External\freeglut\bin\Release\*.dll ..\..\$(ProjectName)
-copy /B /Y ..\..\..\..\External\glew\bin\Release\$(PlatformName)\glew32*.dll ..\..\$(ProjectName)</Command>
+      <Command>copy /B /Y ..\..\izanagi\External\freeglut\bin\Release\*.dll ..\..\$(ProjectName)
+copy /B /Y ..\..\izanagi\External\glew\bin\Release\$(PlatformName)\glew32*.dll ..\..\$(ProjectName)</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
 </Project>
