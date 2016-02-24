@@ -403,7 +403,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\izanagi\Media\earth.xml">
+    <CustomBuild Include="..\..\..\izanagi\Media\earth.xml">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug_DX9|Win32'">$(TOOL_DIR)Release\ImageBuilder.exe -i "%(FullPath)" -o "$(PROJECT_MAIN_DIR)data\%(Filename).img"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug_DX9|x64'">$(TOOL_DIR)Release\ImageBuilder.exe -i "%(FullPath)" -o "$(PROJECT_MAIN_DIR)data\%(Filename).img"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug_GLES2|Win32'">$(TOOL_DIR)Release\ImageBuilder.exe -i "%(FullPath)" -o "$(PROJECT_MAIN_DIR)data\%(Filename).img"</Command>
