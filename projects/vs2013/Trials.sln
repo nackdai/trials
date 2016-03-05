@@ -21,6 +21,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "liblz4", "..\..\lz4\visual\2013\liblz4\liblz4.vcxproj", "{2BD4E8A3-796B-4D0C-A46B-09A1DDD7625C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RUDP", "RUDP.vcxproj", "{6ECC7C18-D0F5-40B0-A561-BC0711DB5A3B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4FEF44F5-BC2E-33F0-BBAE-67394EA9DA52} = {4FEF44F5-BC2E-33F0-BBAE-67394EA9DA52}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "..\..\enet\enet.vcxproj", "{4FEF44F5-BC2E-33F0-BBAE-67394EA9DA52}"
 EndProject
