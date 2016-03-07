@@ -27,18 +27,61 @@ IzMain(0, 0)
         ENET_PACKET_FLAG_RELIABLE);
     IZ_ASSERT(packet != NULL);
 
-    ENetPeer peer;
-    memset(&peer, 0, sizeof(peer));
+    ENetAddress address;
+    enet_address_set_host(&address, "127.0.0.1");
+    address.port = 8000;
 
-    peer.address.host = ENET_HOST_ANY;
-    peer.address.port = 8000;
+    auto peer = ::enet_host_connect(
+        client,
+        &address,
+        0,
+        0);
+    IZ_ASSERT(peer != NULL);
+
+    ENetEvent event;
+
+    // Wait for connecting to server.
+    for (;;) {
+        auto result = ::enet_host_service(client, &event, 0);
+
+        IZ_BOOL isConnected = IZ_FALSE;
+
+        if (result > 0) {
+            switch (event.type) {
+            case ENetEventType::ENET_EVENT_TYPE_NONE:
+                break;
+            case ENetEventType::ENET_EVENT_TYPE_CONNECT:
+                IZ_PRINTF(
+                    "A new client connected from %x:%u.\n",
+                    event.peer->address.host,
+                    event.peer->address.port);
+                isConnected = IZ_TRUE;
+                break;
+            case ENetEventType::ENET_EVENT_TYPE_RECEIVE:
+                // TODO
+
+                // Clean up the packet now that we're done using it.
+                ::enet_packet_destroy(event.packet);
+                break;
+            case ENetEventType::ENET_EVENT_TYPE_DISCONNECT:
+                // Reset the peer's client information.
+                event.peer->data = NULL;
+                break;
+            }
+        }
+
+        if (isConnected) {
+            break;
+        }
+    }
 
     /* Send the packet to the peer over channel id 0. */
     /* One could also broadcast the packet by         */
     /* enet_host_broadcast (host, 0, packet);         */
-    auto res = enet_peer_send(&peer, 0, packet);
+    auto res = enet_peer_send(peer, 0, packet);
     IZ_ASSERT(res == 0);
 
+    // Send queued packets earlier than in a call to enet_host_service().
     ::enet_host_flush(client);
 
     ::enet_host_destroy(client);
