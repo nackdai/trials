@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\BINPointReader.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\GridCell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\LASPointReader.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\LASPointWriter.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\PointAttributes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\PotreeConverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\PotreeWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\PTXPointReader.cpp">
+      <Filter>Source Files\io</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\SparseGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\stuff.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\AABB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\GridCell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\GridIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\LASPointReader.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PlyPointReader.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\Point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PointReader.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PotreeConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PotreeException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PotreeWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PTXPointReader.h">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\SparseGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\stuff.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\Vector3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\BINPointReader.hpp">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\BINPointWriter.hpp">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\CloudJS.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\definitions.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\LASPointWriter.hpp">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PointAttributes.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PointWriter.hpp">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\XYZPointReader.hpp">
+      <Filter>Header Files\io</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\allocators.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\document.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\encodedstream.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\encodings.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\error\en.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\error\error.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\filereadstream.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\filewritestream.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\biginteger.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\diyfp.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\dtoa.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\ieee754.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\itoa.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\meta.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\pow10.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\stack.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\strfunc.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\strtod.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\swap.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\memorybuffer.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\memorystream.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\msinttypes\inttypes.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\msinttypes\stdint.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\pointer.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\prettywriter.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\rapidjson.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\reader.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\stringbuffer.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\writer.h">
+      <Filter>lib\rapidjson</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="lib\rapidjson">
+      <UniqueIdentifier>{7FE2073C-7DBB-4687-9D78-D593EF573F63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\io">
+      <UniqueIdentifier>{E00339F9-8E96-4FB3-93F4-47A923F342DE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\io">
+      <UniqueIdentifier>{74A3525B-5E88-4596-A22A-67E9BAEAAFB9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{A0F9039A-6E97-44DA-9368-F809603E856D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{03CF3C06-6F26-4F22-BC42-486B762448C3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{6BB4A24F-DCFF-4CEB-A17D-4BF9287F3D95}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
