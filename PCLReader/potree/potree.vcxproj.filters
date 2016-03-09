@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="proxy">
+      <UniqueIdentifier>{110a78ec-c787-4e0c-972d-73df58b2b4f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\definitions.hpp">
@@ -62,6 +65,9 @@
     <ClInclude Include="include\BINPointReader.hpp">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="proxy.h">
+      <Filter>proxy</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\PointAttributes.cpp">
@@ -84,6 +90,9 @@
     </ClCompile>
     <ClCompile Include="src\LASPointReader.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="proxy.cpp">
+      <Filter>proxy</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

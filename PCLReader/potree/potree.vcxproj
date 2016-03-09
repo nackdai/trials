@@ -28,8 +28,10 @@
     <ClInclude Include="include\stuff.h" />
     <ClInclude Include="include\Vector3.h" />
     <ClInclude Include="include\XYZPointReader.hpp" />
+    <ClInclude Include="proxy.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="proxy.cpp" />
     <ClCompile Include="src\BINPointReader.cpp" />
     <ClCompile Include="src\GridCell.cpp" />
     <ClCompile Include="src\LASPointReader.cpp" />
@@ -48,14 +50,14 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
