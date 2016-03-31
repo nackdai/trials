@@ -149,13 +149,16 @@ PWNode *PWNode::createChild(int childIndex ){
 	return child;
 }
 
+// 自分自身が持っている点を子供に分けていく.
 void PWNode ::split(){
+    // 子供を作成.
 	children.resize(8, NULL);
 
 	for(Point &point : store){
 		add(point);
 	}
 
+    // 空にする.
 	store = vector<Point>();
 }
 
@@ -168,12 +171,19 @@ PWNode *PWNode::add(Point &point){
 
 	if(isLeafNode()){
 		store.push_back(point);
+
+        // NOTE
+        // storeLimit は 20000 で決め打ちされている.
 		if(int(store.size()) >= storeLimit){
+            // 一定数を超えた
 			split();
 		}
 
 		return this;
 	}else{
+        // スペーシンググリッドに登録.
+        // 登録できたかどうかが返ってくる.
+        // 登録済みの点との距離が一定以上空いている場合に登録できる.
 		bool accepted = grid->add(point.position);
 
 		//if(accepted){
@@ -403,7 +413,7 @@ PotreeWriter::PotreeWriter(string workDir, AABB aabb, float spacing, int maxDept
 	this->pointAttributes = pointAttributes;
 
 	if(this->scale == 0){
-		if(aabb.size.length() > 1'000'000){
+		if(aabb.size.length() > 1000000){
 			this->scale = 0.1;
 		}else if(aabb.size.length() > 1000){
 			this->scale = 0.01;
@@ -455,7 +465,7 @@ void PotreeWriter::add(Point &p){
 	store.push_back(p);
 	numAdded++;
 
-	if(store.size() > 10'000){
+	if(store.size() > 10000){
 		processStore();
 	}
 }
@@ -464,6 +474,7 @@ void PotreeWriter::processStore(){
 	vector<Point> st = store;
 	store = vector<Point>();
 
+    // storeThreadの処理が終わるのを待つ.
 	waitUntilProcessed();
 
 	storeThread = thread([this, st]{
