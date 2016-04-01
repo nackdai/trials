@@ -99,16 +99,20 @@ void PotreeConverter::prepare(){
 	}
 	this->sources = sourceFiles;
 
+    // 出力属性設定.
 	pointAttributes = PointAttributes();
-	pointAttributes.add(PointAttribute::POSITION_CARTESIAN);
+	pointAttributes.add(PointAttribute::POSITION_CARTESIAN);    // 位置.
 	for(const auto &attribute : outputAttributes){
 		if(attribute == "RGB"){
+            // カラー.
 			pointAttributes.add(PointAttribute::COLOR_PACKED);
 		}else if(attribute == "INTENSITY"){
+            // 密度.
 			pointAttributes.add(PointAttribute::INTENSITY);
 		}else if(attribute == "CLASSIFICATION"){
 			pointAttributes.add(PointAttribute::CLASSIFICATION);
 		}else if(attribute == "NORMAL"){
+            // 法線.
 			pointAttributes.add(PointAttribute::NORMAL_OCT16);
 		}
 	}
@@ -198,15 +202,18 @@ void PotreeConverter::generatePage(string name){
 void PotreeConverter::convert(){
 	auto start = high_resolution_clock::now();
 
+    // 入力ファイル確定、出力属性設定.
 	prepare();
 
 	long long pointsProcessed = 0;
 
+    // 指定されたAABB or 点群全体を内包するAABB を計算.
 	AABB aabb = calculateAABB();
 	cout << "AABB: " << endl << aabb << endl;
 	aabb.makeCubic();
 	cout << "cubic AABB: " << endl << aabb << endl;
 
+    // 点の間隔を計算.
 	if (diagonalFraction != 0) {
 		spacing = (float)(aabb.size.length() / diagonalFraction);
 		cout << "spacing calculated from diagonal: " << spacing << endl;
@@ -249,6 +256,7 @@ void PotreeConverter::convert(){
 
 		PointReader *reader = createPointReader(source, pointAttributes);
 		while(reader->readNextPoint()){
+            // 処理点数を増やす.
 			pointsProcessed++;
 
 			Point p = reader->getPoint();

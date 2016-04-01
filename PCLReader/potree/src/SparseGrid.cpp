@@ -9,11 +9,18 @@ using std::min;
 
 namespace Potree{
 
+    // spacing を考慮したノード.
+    // ノードに対して 1:1 で紐づく.
+
 SparseGrid::SparseGrid(AABB aabb, float spacing){
 	this->aabb = aabb;
+
+    // ノード内をspacingに応じてセル分割するが、そのサイズ.
+    // 5.0 は何？補正？
 	this->width =	(int)(aabb.size.x / (spacing * 5.0) );
 	this->height =	(int)(aabb.size.y / (spacing * 5.0) );
 	this->depth =	(int)(aabb.size.z / (spacing * 5.0) );
+
 	this->squaredSpacing = spacing * spacing;
 }
 
@@ -24,6 +31,14 @@ SparseGrid::~SparseGrid(){
 	}
 }
 
+void SparseGrid::init(AABB aabb, float spacing)
+{
+    this->aabb = aabb;
+    this->width = (int)(aabb.size.x / (spacing * 5.0));
+    this->height = (int)(aabb.size.y / (spacing * 5.0));
+    this->depth = (int)(aabb.size.z / (spacing * 5.0));
+    this->squaredSpacing = spacing * spacing;
+}
 
 bool SparseGrid::isDistant(const Vector3<double> &p, GridCell *cell){
 	if(!cell->isDistant(p, squaredSpacing)){
@@ -63,6 +78,7 @@ bool SparseGrid::willBeAccepted(const Vector3<double> &p){
 }
 
 bool SparseGrid::add(Vector3<double> &p){
+    // どのセルに所属するかを決める.
 	int nx = (int)(width*(p.x - aabb.min.x) / aabb.size.x);
 	int ny = (int)(height*(p.y - aabb.min.y) / aabb.size.y);
 	int nz = (int)(depth*(p.z - aabb.min.z) / aabb.size.z);
@@ -78,9 +94,14 @@ bool SparseGrid::add(Vector3<double> &p){
 		it = this->insert(value_type(key, new GridCell(this, index))).first;
 	}
 
+    // 指定されたセルに含まれる点との距離が一定以上（spacing）離れているかどうかをチェック.
 	if(isDistant(p, it->second)){
+        // 離れている場合は、セルに登録.
 		this->operator[](key)->add(p);
+
+        // 受け入れた点の数を増やす.
 		numAccepted++;
+
 		return true;
 	}else{
 		return false;

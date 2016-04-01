@@ -80,6 +80,7 @@ AABB childAABB(const AABB &aabb, const int &index){
 
 
 
+#if 0
 /**
  *   y 
  *   |-z
@@ -105,7 +106,33 @@ int nodeIndex(const AABB &aabb, const Point &point){
 
 	return (mx << 2) | (my << 1) | mz;
 }
+#else
+/**
+*   y
+*   |-z
+*   |/
+*   O----x
+*
+*   6----7
+*  /|   /|
+* 2----3 |
+* | 4--|-5
+* |/   |/
+* 0----1
+*
+*/
+int nodeIndex(const AABB &aabb, const Point &point){
+    int mx = (int)(2.0 * (point.position.x - aabb.min.x) / aabb.size.x);
+    int my = (int)(2.0 * (point.position.y - aabb.min.y) / aabb.size.y);
+    int mz = (int)(2.0 * (point.position.z - aabb.min.z) / aabb.size.z);
 
+    mx = min(mx, 1);
+    my = min(my, 1);
+    mz = min(mz, 1);
+
+    return (mx << 2) | (my << 1) | mz;
+}
+#endif
 
 /**
  * from http://stackoverflow.com/questions/5840148/how-can-i-get-a-files-size-in-c

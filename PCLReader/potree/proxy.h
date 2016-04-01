@@ -4,6 +4,8 @@
 #include <string>
 #include "PointReader.h"
 #include "PointAttributes.hpp"
+#include "SparseGrid.h"
+#include "stuff.h"
 
 class Proxy {
 public:

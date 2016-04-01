@@ -20,12 +20,33 @@
     <ClInclude Include="targetver.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Writer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="Exporter.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="JobQueue.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="PCLReader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Writer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="JobQueue.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

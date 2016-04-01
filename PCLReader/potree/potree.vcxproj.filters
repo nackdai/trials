@@ -38,9 +38,6 @@
     <ClInclude Include="include\PointReader.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\PointWriter.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\PotreeException.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -56,13 +53,7 @@
     <ClInclude Include="include\Vector3.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\XYZPointReader.hpp">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="include\AABB.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="include\BINPointReader.hpp">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="proxy.h">
@@ -80,9 +71,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\stuff.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\BINPointReader.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\GridCell.cpp">

@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\AABB.h" />
-    <ClInclude Include="include\BINPointReader.hpp" />
     <ClInclude Include="include\definitions.hpp" />
     <ClInclude Include="include\GridCell.h" />
     <ClInclude Include="include\GridIndex.h" />
@@ -21,18 +20,15 @@
     <ClInclude Include="include\Point.h" />
     <ClInclude Include="include\PointAttributes.hpp" />
     <ClInclude Include="include\PointReader.h" />
-    <ClInclude Include="include\PointWriter.hpp" />
     <ClInclude Include="include\PotreeException.h" />
     <ClInclude Include="include\PTXPointReader.h" />
     <ClInclude Include="include\SparseGrid.h" />
     <ClInclude Include="include\stuff.h" />
     <ClInclude Include="include\Vector3.h" />
-    <ClInclude Include="include\XYZPointReader.hpp" />
     <ClInclude Include="proxy.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="proxy.cpp" />
-    <ClCompile Include="src\BINPointReader.cpp" />
     <ClCompile Include="src\GridCell.cpp" />
     <ClCompile Include="src\LASPointReader.cpp" />
     <ClCompile Include="src\PointAttributes.cpp" />

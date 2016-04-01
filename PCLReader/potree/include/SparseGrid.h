@@ -31,6 +31,8 @@ public:
 	float squaredSpacing;
 	unsigned int numAccepted = 0;
 
+    SparseGrid() {}
+
 	SparseGrid(AABB aabb, float minGap);
 
 	SparseGrid(const SparseGrid &other)
@@ -39,6 +41,8 @@ public:
 	}
 
 	~SparseGrid();
+
+    void init(AABB aabb, float spacing);
 
 	bool isDistant(const Vector3<double> &p, GridCell *cell);
 
