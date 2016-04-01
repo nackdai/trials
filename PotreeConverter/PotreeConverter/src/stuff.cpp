@@ -57,19 +57,29 @@ AABB childAABB(const AABB &aabb, const int &index){
 	Vector3<double> min = aabb.min;
 	Vector3<double> max = aabb.max;
 
-	if((index & 0xb0001) > 0){
+    // NOTE
+    // 0b is literal of binary digit from C++14.
+
+    // Šï”iindex & 0x0001 > 0j‚Ìê‡‚ÍZ•ûŒü‚É‰œ‘¤.
+
+	//if((index & 0b0001) > 0){
+    if ((index & 0x0001) > 0){
 		min.z += aabb.size.z / 2;
 	}else{
 		max.z -= aabb.size.z / 2;
 	}
 
-	if((index & 0xb0010) > 0){
+    // 
+
+	//if((index & 0b0010) > 0){
+    if ((index & 0x0002) > 0){
 		min.y += aabb.size.y / 2;
 	}else{
 		max.y -= aabb.size.y / 2;
 	}
 
-	if((index & 0xb0100) > 0){
+	//if((index & 0b0100) > 0){
+    if ((index & 0x0004) > 0){
 		min.x += aabb.size.x / 2;
 	}else{
 		max.x -= aabb.size.x / 2;

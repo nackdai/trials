@@ -181,6 +181,9 @@ PWNode *PWNode::add(Point &point){
 
 		return this;
 	}else{
+        // Žqƒm[ƒh‚ª‚ ‚éê‡‚ÍA
+        // => “_‚ÌLOD‚ðs‚¤ or LOD‚©‚ç˜R‚ê‚½‚à‚Ì‚ÍŽqƒm[ƒh‚É“o˜^‚·‚é.
+
         // ƒXƒy[ƒVƒ“ƒOƒOƒŠƒbƒh‚É“o˜^.
         // “o˜^‚Å‚«‚½‚©‚Ç‚¤‚©‚ª•Ô‚Á‚Ä‚­‚é.
         // “o˜^Ï‚Ý‚Ì“_‚Æ‚Ì‹——£‚ªˆê’èˆÈã‹ó‚¢‚Ä‚¢‚éê‡‚É“o˜^‚Å‚«‚é.
@@ -462,10 +465,12 @@ void PotreeWriter::add(Point &p){
 		fs::create_directories(tempDir);
 	}
 
+    // ƒm[ƒh‚Ö‚Ì’Ç‰Á‚Íˆ—‚ÉŽžŠÔ‚ª‚©‚©‚é‚Ì‚ÅˆêŽž“I‚Éƒoƒbƒtƒ@‚É’™‚ß‚Ä‚¨‚­.
 	store.push_back(p);
 	numAdded++;
 
 	if(store.size() > 10000){
+        // ˆê’è”‚ð’´‚¦‚½‚Ì‚ÅAƒm[ƒh‚É’Ç‰Á‚·‚é.
 		processStore();
 	}
 }
@@ -477,8 +482,10 @@ void PotreeWriter::processStore(){
     // storeThread‚Ìˆ—‚ªI‚í‚é‚Ì‚ð‘Ò‚Â.
 	waitUntilProcessed();
 
+    // ƒm[ƒh‚Ö‚Ì’Ç‰Á‚Íˆ—‚ÉŽžŠÔ‚ª‚©‚©‚é‚Ì‚Å— ‚Ås‚¤.
 	storeThread = thread([this, st]{
 		for(Point p : st){
+            // Žw’è‚³‚ê‚½“_‚ð“o˜^‚µ‚½æ‚Ìƒm[ƒh‚ª•Ô‚Á‚Ä‚­‚é.
 			PWNode *acceptedBy = root->add(p);
 			if(acceptedBy != NULL){
 				tightAABB.update(p.position);
