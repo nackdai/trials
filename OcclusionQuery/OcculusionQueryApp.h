@@ -1,15 +1,15 @@
-#if !defined(__INSTANCING_APP_H__)
-#define __INSTANCING_APP_H__
+#if !defined(__OCCLUSION_QUERY_APP_H__)
+#define __OCCLUSION_QUERY_APP_H__
 
 #include "izSampleKit.h"
 
 static const IZ_UINT SCREEN_WIDTH = 1280;
 static const IZ_UINT SCREEN_HEIGHT = 720;
 
-class CInstancingApp : public izanagi::sample::CSampleApp {
+class OcclusionQueryApp : public izanagi::sample::CSampleApp {
 public:
-    CInstancingApp();
-    virtual ~CInstancingApp();
+    OcclusionQueryApp();
+    virtual ~OcclusionQueryApp();
 
 protected:
     // 初期化.
@@ -44,4 +44,4 @@ private:
     IZ_BOOL m_enableInstaning{ IZ_TRUE };
 };
 
-#endif    // #if !defined(__INSTANCING_APP_H__)
+#endif    // #if !defined(__OCCLUSION_QUERY_APP_H__)

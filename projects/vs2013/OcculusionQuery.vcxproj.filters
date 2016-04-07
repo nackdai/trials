@@ -26,14 +26,6 @@
     <ClCompile Include="..\..\OcculusionQuery\main.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\OcculusionQuery\OcculusionQueryApp.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\OcculusionQuery\OcculusionQueryApp.h">
-      <Filter>include</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\\OcculusionQuery\shader\Shader.fx">

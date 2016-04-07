@@ -1,10 +1,10 @@
-#include "InstancingApp.h"
+#include "OcclusionQueryApp.h"
 
 static const IZ_FLOAT POS_X = -50.0f;
 static const IZ_FLOAT DISTANCE = 10.0f;
 static const IZ_UINT ORDER = 20;
 
-CInstancingApp::CInstancingApp()
+OcclusionQueryApp::OcclusionQueryApp()
 {
     m_Mesh = IZ_NULL;
 
@@ -16,12 +16,12 @@ CInstancingApp::CInstancingApp()
     m_Shader = IZ_NULL;
 }
 
-CInstancingApp::~CInstancingApp()
+OcclusionQueryApp::~OcclusionQueryApp()
 {
 }
 
 // 初期化.
-IZ_BOOL CInstancingApp::InitInternal(
+IZ_BOOL OcclusionQueryApp::InitInternal(
     izanagi::IMemoryAllocator* allocator,
     izanagi::graph::CGraphicsDevice* device,
     izanagi::sample::CSampleCamera& camera)
@@ -133,7 +133,7 @@ __EXIT__:
 }
 
 // 解放.
-void CInstancingApp::ReleaseInternal()
+void OcclusionQueryApp::ReleaseInternal()
 {
     SAFE_RELEASE(m_Mesh);
 
@@ -146,7 +146,7 @@ void CInstancingApp::ReleaseInternal()
 }
 
 // 更新.
-void CInstancingApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
+void OcclusionQueryApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
 {
     GetCamera().Update();
 }
@@ -169,7 +169,7 @@ namespace {
 }
 
 // 描画.
-void CInstancingApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
+void OcclusionQueryApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
 {
     static const IZ_BOOL isDrawTangentSpaceAxis = IZ_FALSE;
 
@@ -262,7 +262,7 @@ void CInstancingApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
     }
 }
 
-IZ_BOOL CInstancingApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
+IZ_BOOL OcclusionQueryApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
 {
     if (key == izanagi::sys::E_KEYBOARD_BUTTON_SPACE) {
         m_enableInstaning = !m_enableInstaning;
