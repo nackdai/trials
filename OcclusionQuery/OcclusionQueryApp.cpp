@@ -6,10 +6,8 @@ static const IZ_UINT ORDER = 20;
 
 OcclusionQueryApp::OcclusionQueryApp()
 {
-    m_Mesh = IZ_NULL;
-
-    m_InstancingVB = IZ_NULL;
-    m_InstancingVD = IZ_NULL;
+    m_sphere = IZ_NULL;
+    m_cube = IZ_NULL;
 
     m_Img = IZ_NULL;
 
@@ -32,61 +30,41 @@ IZ_BOOL OcclusionQueryApp::InitInternal(
                     | izanagi::E_DEBUG_MESH_VTX_FORM_COLOR
                     | izanagi::E_DEBUG_MESH_VTX_FORM_UV;
 
-    m_Mesh = izanagi::CDebugMeshSphere::CreateDebugMeshSphere(
+    IZ_FLOAT radius = 5.0f;
+    IZ_FLOAT size = radius * 2.0f;
+
+    m_sphere = izanagi::CDebugMeshSphere::CreateDebugMeshSphere(
         allocator,
         device,
         flag,
         IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0xff),
-        5.0f,
+        radius,
         10, 10);
-    VGOTO(result = (m_Mesh != IZ_NULL), __EXIT__);
+    VGOTO(result = (m_sphere != IZ_NULL), __EXIT__);
 
-    {
-        izanagi::graph::SVertexElement elements[10];
-        
-        IZ_UINT count = 0;
+    flag = izanagi::E_DEBUG_MESH_VTX_FORM_POS;
 
-        for (count = 0; count < m_Mesh->GetVD()->GetElementNum(); count++) {
-            elements[count] = m_Mesh->GetVD()->GetElement()[count];
-        }
+    m_cube = izanagi::CDebugMeshBox::CreateDebugMeshBox(
+        allocator,
+        device,
+        flag,
+        IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0xff),
+        size, size, size);
+    VGOTO(result = (m_cube != IZ_NULL), __EXIT__);
 
-        for (IZ_UINT i = 0; i < 4; i++) {
-            elements[count + i].Stream = 1;
-            elements[count + i].Offset = sizeof(IZ_FLOAT) * 4 * i;
-            elements[count + i].Type = izanagi::graph::E_GRAPH_VTX_DECL_TYPE_FLOAT4;
-            elements[count + i].Usage = izanagi::graph::E_GRAPH_VTX_DECL_USAGE_TEXCOORD;
+    for (IZ_UINT i = 0; i < MeshNum; i++) {
+        SAFE_REPLACE(m_meshes[i].sphere, m_sphere);
+        SAFE_REPLACE(m_meshes[i].cube, m_cube);
 
-            // NOTE
-            // TexCoord0 は UV座標に使用されるの、１から開始する
-            elements[count + i].UsageIndex = i + 1;
-        }
+        IZ_FLOAT x = POS_X + DISTANCE * (i % ORDER);
+        IZ_FLOAT y = 0.0f;
+        IZ_FLOAT z = -DISTANCE * (i / ORDER);
 
-        m_InstancingVD = device->CreateVertexDeclaration(elements, count + 4);
-    }
+        izanagi::math::SMatrix44::GetTrans(
+            m_meshes[i].mtxL2W,
+            x, y, z);
 
-    {
-        m_InstancingVB = device->CreateVertexBuffer(
-            sizeof(izanagi::math::SMatrix44),
-            MeshNum,
-            izanagi::graph::E_GRAPH_RSC_USAGE_STATIC);
-        
-        izanagi::math::SMatrix44* mtx;
-
-        m_InstancingVB->Lock(device, 0, 0, (void**)&mtx, IZ_FALSE);
-
-        for (IZ_UINT i = 0; i < MeshNum; i++)
-        {
-            izanagi::math::SMatrix44::SetUnit(mtx[i]);
-            izanagi::math::SMatrix44::GetTrans(
-                mtx[i],
-                POS_X + DISTANCE * (i % ORDER),
-                0.0f,
-                -DISTANCE * (i / ORDER));
-
-            izanagi::math::SMatrix44::Transpose(mtx[i], mtx[i]);
-        }
-
-        m_InstancingVB->Unlock(device);
+        CALL_GL_API(::glGenQueries(1, &m_meshes[i].query));
     }
 
     // テクスチャ
@@ -104,7 +82,7 @@ IZ_BOOL OcclusionQueryApp::InitInternal(
     // シェーダ
     {
         izanagi::CFileInputStream in;
-        VGOTO(result = in.Open("data/InstancingShader.shd"), __EXIT__);
+        VGOTO(result = in.Open("data/Shader.shd"), __EXIT__);
 
         m_Shader = izanagi::shader::CShaderBasic::CreateShader<izanagi::shader::CShaderBasic>(
                     allocator,
@@ -135,10 +113,15 @@ __EXIT__:
 // 解放.
 void OcclusionQueryApp::ReleaseInternal()
 {
-    SAFE_RELEASE(m_Mesh);
+    for (IZ_UINT i = 0; i < MeshNum; i++) {
+        SAFE_RELEASE(m_meshes[i].sphere);
+        SAFE_RELEASE(m_meshes[i].cube);
 
-    SAFE_RELEASE(m_InstancingVB);
-    SAFE_RELEASE(m_InstancingVD);
+        CALL_GL_API(::glDeleteQueries(1, &m_meshes[i].query));
+    }
+
+    SAFE_RELEASE(m_sphere);
+    SAFE_RELEASE(m_cube);
 
     SAFE_RELEASE(m_Img);
 
@@ -148,6 +131,19 @@ void OcclusionQueryApp::ReleaseInternal()
 // 更新.
 void OcclusionQueryApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
 {
+#if 1
+    if (!m_isFirstFrame) {
+        // 前のフレームの結果でクエリ問い合わせ.
+        for (IZ_UINT i = 0; i < MeshNum; i++) {
+            GLuint pixelCnt = 0;
+            CALL_GL_API(::glGetQueryObjectuiv(m_meshes[i].query, GL_QUERY_RESULT, &pixelCnt));
+            m_meshes[i].willDraw = (pixelCnt > 0);
+        }
+    }
+#endif
+
+    m_isFirstFrame = IZ_FALSE;
+
     GetCamera().Update();
 }
 
@@ -171,102 +167,102 @@ namespace {
 // 描画.
 void OcclusionQueryApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
 {
-    static const IZ_BOOL isDrawTangentSpaceAxis = IZ_FALSE;
-
     izanagi::sample::CSampleCamera& camera = GetCamera();
 
     device->SetTexture(0, m_Img->GetTexture(0));
 
-    IZ_UINT techIdx = (m_enableInstaning ? 0 : 1);
-
-    m_Shader->Begin(device, techIdx, IZ_FALSE);
+    m_Shader->Begin(device, 0, IZ_FALSE);
     {
-        if (m_Shader->BeginPass(0)) {
-            // パラメータ設定
-            _SetShaderParam(
-                m_Shader,
-                "g_mW2C",
-                (void*)&camera.GetParam().mtxW2C,
-                sizeof(izanagi::math::SMatrix44));
+        for (IZ_UINT i = 0; i < MeshNum; i++) {
+            CALL_GL_API(::glBeginQuery(
+                GL_SAMPLES_PASSED,
+                m_meshes[i].query));
 
-            if (m_enableInstaning) {
-                m_Shader->CommitChanges(device);
+            if (m_meshes[i].willDraw) {
+                if (m_Shader->BeginPass(0)) {
+                    // パラメータ設定
+                    _SetShaderParam(
+                        m_Shader,
+                        "g_mW2C",
+                        (void*)&camera.GetParam().mtxW2C,
+                        sizeof(izanagi::math::SMatrix44));
 
-                device->SetIndexBuffer(m_Mesh->GetIB());
-
-                device->SetVertexDeclaration(m_InstancingVD);
-                    
-                device->SetVertexBufferInstanced(
-                    0,
-                    0,
-                    m_Mesh->GetVB()->GetStride(),
-                    izanagi::graph::E_GRAPH_VB_USAGE_INDEXEDDATA,
-                    MeshNum,
-                    m_Mesh->GetVB());
-
-                device->SetVertexBufferInstanced(
-                    1,
-                    0,
-                    m_InstancingVB->GetStride(),
-                    izanagi::graph::E_GRAPH_VB_USAGE_INSTANCEDATA,
-                    1,
-                    m_InstancingVB);
-
-                device->DrawIndexedInstancedPrimitive(
-                    m_Mesh->GetPrimitiveType(),
-                    0,
-                    m_Mesh->GetVB()->GetVtxNum(),
-                    0,
-                    m_Mesh->GetPrimitiveCount());
-            }
-            else {
-                izanagi::math::SMatrix44 mtxL2W;
-
-                for (IZ_UINT i = 0; i < MeshNum; i++) {
-                    izanagi::math::SMatrix44::GetTrans(
-                        mtxL2W,
-                        POS_X + DISTANCE * (i % ORDER),
-                        0.0f,
-                        -DISTANCE * (i / ORDER));
+                    device->SetRenderState(
+                        izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_RGB,
+                        IZ_TRUE);
+                    device->SetRenderState(
+                        izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_A,
+                        IZ_TRUE);
+                    device->SetRenderState(
+                        izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+                        IZ_TRUE);
 
                     _SetShaderParam(
                         m_Shader,
                         "g_mL2W",
-                        (void*)&mtxL2W,
+                        (void*)&m_meshes[i].mtxL2W,
                         sizeof(izanagi::math::SMatrix44));
 
                     m_Shader->CommitChanges(device);
 
-                    m_Mesh->Draw(device);
+                    m_meshes->sphere->Draw(device);
+
+                    m_Shader->EndPass();
                 }
             }
+#if 1
+            else {
+                if (m_Shader->BeginPass(1)) {
+                    // パラメータ設定
+                    _SetShaderParam(
+                        m_Shader,
+                        "g_mW2C",
+                        (void*)&camera.GetParam().mtxW2C,
+                        sizeof(izanagi::math::SMatrix44));
 
-            m_Shader->EndPass();
+                    device->SetRenderState(
+                        izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_RGB,
+                        IZ_FALSE);
+                    device->SetRenderState(
+                        izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_A,
+                        IZ_FALSE);
+                    device->SetRenderState(
+                        izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+                        IZ_FALSE);
+
+                    _SetShaderParam(
+                        m_Shader,
+                        "g_mL2W",
+                        (void*)&m_meshes[i].mtxL2W,
+                        sizeof(izanagi::math::SMatrix44));
+
+                    m_Shader->CommitChanges(device);
+
+                    m_meshes->cube->Draw(device);
+
+                    m_Shader->EndPass();
+                }
+            }
+#endif
+
+            CALL_GL_API(::glEndQuery(GL_SAMPLES_PASSED));
         }
     }
     m_Shader->End(device);
 
-    izanagi::CDebugFont* debugFont = GetDebugFont();
-
-    if (device->Begin2D()) {
-        debugFont->Begin(device, 0, izanagi::CDebugFont::FONT_SIZE * 2);
-
-        debugFont->DBPrint(
-            device,
-            "%s\n",
-            m_enableInstaning ? "Instacing" : "No Instacing");
-
-        debugFont->End();
-
-        device->End2D();
-    }
+    // 元に戻す.
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_RGB,
+        IZ_TRUE);
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_A,
+        IZ_TRUE);
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+        IZ_TRUE);
 }
 
 IZ_BOOL OcclusionQueryApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
 {
-    if (key == izanagi::sys::E_KEYBOARD_BUTTON_SPACE) {
-        m_enableInstaning = !m_enableInstaning;
-    }
-
     return IZ_TRUE;
 }
