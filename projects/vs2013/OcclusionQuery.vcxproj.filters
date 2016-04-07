@@ -4,7 +4,7 @@
     <CustomBuild Include="..\..\..\izanagi\Media\earth.xml">
       <Filter>asset</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\OcculusionQuery\shader\Shader.xml">
+    <CustomBuild Include="..\..\OcclusionQuery\shader\Shader.xml">
       <Filter>shader</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -23,13 +23,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\OcculusionQuery\main.cpp">
+    <None Include="..\..\\OcclusionQuery\shader\Shader.fx">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\OcclusionQuery\main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\OcclusionQuery\OcclusionQueryApp.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\\OcculusionQuery\shader\Shader.fx">
-      <Filter>shader</Filter>
-    </None>
+    <ClInclude Include="..\..\OcclusionQuery\OcclusionQueryApp.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
