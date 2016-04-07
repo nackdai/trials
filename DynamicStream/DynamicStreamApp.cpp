@@ -16,35 +16,11 @@ IZ_BOOL DynamicStreamApp::InitInternal(
 {
     IZ_BOOL result = IZ_TRUE;
 
-    {
-        m_vb = device->CreateVertexBuffer(
-            sizeof(Vertex),
-            POINT_NUM,
-            izanagi::graph::E_GRAPH_RSC_USAGE_STATIC);
+    createVertices();
 
-        Vertex* vtx;
-        auto pitch = m_vb->Lock(device, 0, 0, (void**)&vtx, IZ_FALSE);
-
-        static const IZ_COLOR colors[] = {
-            IZ_COLOR_RGBA(0xff, 0, 0, 0xff),
-            IZ_COLOR_RGBA(0, 0xff, 0, 0xff),
-            IZ_COLOR_RGBA(0, 0, 0xff, 0xff),
-        };
-
-        izanagi::math::CMathRand::Init(0);
-
-        for (IZ_UINT i = 0; i < POINT_NUM; i++) {
-            vtx[i].pos[0] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
-            vtx[i].pos[1] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
-            vtx[i].pos[2] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
-
-            vtx[i].pos[3] = 1.0f;
-
-            vtx[i].color = colors[i % COUNTOF(colors)];
-        }
-
-        m_vb->Unlock(device);
-    }
+    // Vertex Buffer.
+    createVBForDynamicStream(allocator, device);
+    createVBForMapUnmap(allocator, device);
 
     {
         izanagi::graph::SVertexElement elems[] = {
@@ -104,10 +80,79 @@ __EXIT__:
     return IZ_TRUE;
 }
 
+void DynamicStreamApp::createVBForDynamicStream(
+    izanagi::IMemoryAllocator* allocator,
+    izanagi::graph::CGraphicsDevice* device)
+{
+    m_vbDynamicStream = device->CreateVertexBuffer(
+        sizeof(Vertex),
+        POINT_NUM,
+        izanagi::graph::E_GRAPH_RSC_USAGE_DYNAMIC);
+
+    CALL_GL_API(::glGenBuffers(1, &m_glVB));
+
+    m_vbDynamicStream->overrideNativeResource(&m_glVB);
+
+    CALL_GL_API(::glBindBuffer(GL_ARRAY_BUFFER, m_glVB));
+
+    const GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+    m_bufferSize = LIST_NUM * sizeof(Vertex) * POINT_NUM;
+
+    CALL_GL_API(::glBufferStorage(
+        GL_ARRAY_BUFFER,
+        m_bufferSize,
+        NULL,
+        flags));
+
+    m_mappedDataPtr = ::glMapBufferRange(GL_ARRAY_BUFFER, 0, m_bufferSize, flags);
+    IZ_ASSERT(m_mappedDataPtr);
+}
+
+void DynamicStreamApp::createVBForMapUnmap(
+    izanagi::IMemoryAllocator* allocator,
+    izanagi::graph::CGraphicsDevice* device)
+{
+    m_vbMapUnmap = device->CreateVertexBuffer(
+        sizeof(Vertex),
+        POINT_NUM,
+        izanagi::graph::E_GRAPH_RSC_USAGE_DYNAMIC);
+}
+
+void DynamicStreamApp::createVertices()
+{
+    static const IZ_COLOR colors[] = {
+        IZ_COLOR_RGBA(0xff, 0, 0, 0xff),
+        IZ_COLOR_RGBA(0, 0xff, 0, 0xff),
+        IZ_COLOR_RGBA(0, 0, 0xff, 0xff),
+    };
+
+    SYSTEMTIME st;
+    GetSystemTime(&st);
+
+    izanagi::math::CMathRand::Init(st.wMilliseconds);
+
+    for (IZ_UINT i = 0; i < LIST_NUM; i++) {
+        for (IZ_UINT n = 0; n < POINT_NUM; n++) {
+            vtx[i][n].pos[0] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+            vtx[i][n].pos[1] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+            vtx[i][n].pos[2] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+
+            vtx[i][n].pos[3] = 1.0f;
+
+            vtx[i][n].color = colors[n % COUNTOF(colors)];
+        }
+    }
+}
+
 // 解放.
 void DynamicStreamApp::ReleaseInternal()
 {
-    SAFE_RELEASE(m_vb);
+    m_vbDynamicStream->overrideNativeResource(nullptr);
+    CALL_GL_API(::glDeleteBuffers(1, &m_glVB));
+
+    SAFE_RELEASE(m_vbDynamicStream);
+    SAFE_RELEASE(m_vbMapUnmap);
+
     SAFE_RELEASE(m_vd);
 
     SAFE_RELEASE(m_vs);
@@ -143,6 +188,12 @@ namespace {
 // 描画.
 void DynamicStreamApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
 {
+    RenderDynamicStream(device);
+    //RenderMapUnmap(device);
+}
+
+void DynamicStreamApp::RenderDynamicStream(izanagi::graph::CGraphicsDevice* device)
+{
     CALL_GL_API(::glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
     CALL_GL_API(::glEnable(GL_POINT_SPRITE));
 
@@ -160,14 +211,75 @@ void DynamicStreamApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
     auto hMtxW2C = m_shd->GetHandleByName("mtxW2C");
     m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2C, &mtxW2C, 4);
 
-    device->SetVertexBuffer(0, 0, sizeof(Vertex), m_vb);
+    device->SetVertexBuffer(0, 0, sizeof(Vertex), m_vbDynamicStream);
     device->SetVertexDeclaration(m_vd);
 
-    device->DrawPrimitive(
-        izanagi::graph::E_GRAPH_PRIM_TYPE_POINTLIST,
-        0,
-        POINT_NUM);
+    IZ_UINT offset = 0;
+    IZ_UINT length = LIST_NUM * sizeof(Vertex) * POINT_NUM;
+
+    // Need to wait for this area to become available. If we've sized things properly, it will always be 
+    // available right away.
+    //m_mgrBufferLock.WaitForLockedRange(offset, length);
+
+    for (IZ_UINT i = 0; i < LIST_NUM; i++) {
+        IZ_UINT8* dst = (IZ_UINT8*)m_mappedDataPtr;
+        dst += offset * sizeof(Vertex);
+
+        memcpy(dst, vtx[i], sizeof(vtx[i]));
+
+        device->DrawPrimitive(
+            izanagi::graph::E_GRAPH_PRIM_TYPE_POINTLIST,
+            offset,
+            POINT_NUM);
+
+        offset += POINT_NUM;
+    }
+
+    //m_mgrBufferLock.LockRange(offset, length);
 }
+
+void DynamicStreamApp::RenderMapUnmap(izanagi::graph::CGraphicsDevice* device)
+{
+    CALL_GL_API(::glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
+    CALL_GL_API(::glEnable(GL_POINT_SPRITE));
+
+    device->SetShaderProgram(m_shd);
+
+    auto& camera = GetCamera();
+
+    izanagi::math::SMatrix44 mtxW2C;
+    izanagi::math::SMatrix44::Copy(mtxW2C, camera.GetParam().mtxW2C);
+
+    IZ_FLOAT pointSize = 100.0f;
+    auto hSize = m_shd->GetHandleByName("size");
+    m_shd->SetFloat(device, hSize, pointSize);
+
+    auto hMtxW2C = m_shd->GetHandleByName("mtxW2C");
+    m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2C, &mtxW2C, 4);
+
+    device->SetVertexBuffer(0, 0, sizeof(Vertex), m_vbMapUnmap);
+    device->SetVertexDeclaration(m_vd);
+
+    for (IZ_UINT i = 0; i < LIST_NUM; i++) {
+        void* dst = nullptr;
+        m_vbMapUnmap->Lock(
+            device,
+            0,
+            0,
+            (void**)&dst,
+            IZ_FALSE);
+
+        memcpy(dst, vtx[i], sizeof(vtx[i]));
+
+        m_vbMapUnmap->Unlock(device);
+
+        device->DrawPrimitive(
+            izanagi::graph::E_GRAPH_PRIM_TYPE_POINTLIST,
+            0,
+            POINT_NUM);
+    }
+}
+
 
 IZ_BOOL DynamicStreamApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
 {

@@ -2,6 +2,7 @@
 #define __DYNAMIC_STREAM_APP_H__
 
 #include "izSampleKit.h"
+#include "bufferlock.h"
 
 static const IZ_UINT SCREEN_WIDTH = 1280;
 static const IZ_UINT SCREEN_HEIGHT = 720;
@@ -18,6 +19,8 @@ protected:
         izanagi::graph::CGraphicsDevice* device,
         izanagi::sample::CSampleCamera& camera);
 
+    void createVertices();
+
     // 解放.
     virtual void ReleaseInternal();
 
@@ -30,14 +33,38 @@ protected:
     virtual IZ_BOOL OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key) override;
 
 private:
+    void createVBForDynamicStream(
+        izanagi::IMemoryAllocator* allocator,
+        izanagi::graph::CGraphicsDevice* device);
+
+    void createVBForMapUnmap(
+        izanagi::IMemoryAllocator* allocator,
+        izanagi::graph::CGraphicsDevice* device);
+
+    void RenderDynamicStream(izanagi::graph::CGraphicsDevice* device);
+    void RenderMapUnmap(izanagi::graph::CGraphicsDevice* device);
+
+private:
     static const IZ_UINT POINT_NUM = 10000;
+    static const IZ_UINT LIST_NUM = 1000;
 
     struct Vertex {
         IZ_FLOAT pos[4];
         IZ_COLOR color;
     };
 
-    izanagi::graph::CVertexBuffer* m_vb{ nullptr };
+    IZ_UINT m_vtxIdx{ 0 };
+    Vertex vtx[LIST_NUM][POINT_NUM];
+
+    GLuint m_glVB{ 0 };
+    void* m_mappedDataPtr{ nullptr };
+
+    BufferLockManager m_mgrBufferLock{ true };
+    GLuint m_bufferSize{ 0 };
+
+    izanagi::graph::CVertexBuffer* m_vbDynamicStream{ nullptr };
+    izanagi::graph::CVertexBuffer* m_vbMapUnmap{ nullptr };
+
     izanagi::graph::CVertexDeclaration* m_vd{ nullptr };
 
     izanagi::graph::CVertexShader* m_vs{ nullptr };

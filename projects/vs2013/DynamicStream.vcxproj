@@ -409,11 +409,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\GLTrials\GLTrialsApp.h" />
+    <ClInclude Include="..\..\DynamicStream\bufferlock.h" />
+    <ClInclude Include="..\..\DynamicStream\DynamicStreamApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\GLTrials\GLTrialsApp.cpp" />
-    <ClCompile Include="..\..\GLTrials\main.cpp" />
+    <ClCompile Include="..\..\DynamicStream\bufferlock.cpp" />
+    <ClCompile Include="..\..\DynamicStream\DynamicStreamApp.cpp" />
+    <ClCompile Include="..\..\DynamicStream\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\DynamicStream\shader\ps.glsl" />
+    <None Include="..\..\DynamicStream\shader\vs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

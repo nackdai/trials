@@ -29,7 +29,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "..\..\enet\enet.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FrustumCulling", "FrustumCulling.vcxproj", "{B8B51B48-B3CC-46BC-AEB4-22A3AE7EEFED}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLTrials", "GLTrials.vcxproj", "{C70F3D10-1693-4D62-B812-5C87EF5A49E2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DynamicStream", "DynamicStream.vcxproj", "{C70F3D10-1693-4D62-B812-5C87EF5A49E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
