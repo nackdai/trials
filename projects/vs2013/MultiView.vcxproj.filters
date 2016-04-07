@@ -36,7 +36,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\izanagi\Media\earth.xml">
+    <CustomBuild Include="..\..\..\izanagi\Media\earth.xml">
       <Filter>asset</Filter>
     </CustomBuild>
   </ItemGroup>

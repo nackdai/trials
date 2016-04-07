@@ -4,7 +4,7 @@
     <CustomBuild Include="..\..\Capture\shader\Shader.xml">
       <Filter>shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\izanagi\Media\earth.xml">
+    <CustomBuild Include="..\..\..\izanagi\Media\earth.xml">
       <Filter>asset</Filter>
     </CustomBuild>
   </ItemGroup>
