@@ -2,8 +2,8 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
     <PROJECT_MAIN_DIR>$(ProjectDir)..\..\$(ProjectName)\</PROJECT_MAIN_DIR>
-    <TOOL_DIR>$(ProjectDir)..\..\izanagi\Tools\tools\</TOOL_DIR>
-    <DATA_DIR>$(ProjectDir)..\..\izanagi\Media\</DATA_DIR>
+    <TOOL_DIR>$(ProjectDir)..\..\..\izanagi\Tools\tools\</TOOL_DIR>
+    <DATA_DIR>$(ProjectDir)..\..\..\izanagi\Media\</DATA_DIR>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
@@ -27,7 +27,7 @@
   </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\izanagi\Libs\include;..\..\SampleKit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\izanagi\Libs\include;..\..\SampleKit;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__IZ_DEBUG__;__IZ_DX9__;_XKEYCHECK_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -40,7 +40,7 @@
     <Link>
       <AdditionalDependencies>d3d9.lib;d3dx9d.lib;dxguid.lib;dinput8.lib;dxerr.lib;winmm.lib;SampleKit\$(Configuration)\SampleKit.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\izanagi\Libs\project\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\izanagi\Libs\project\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
