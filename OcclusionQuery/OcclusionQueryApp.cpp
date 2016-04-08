@@ -50,7 +50,7 @@ IZ_BOOL OcclusionQueryApp::InitInternal(
         flag,
         IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0xff),
         radius,
-        10, 10);
+        300, 300);
     VGOTO(result = (m_sphere != IZ_NULL), __EXIT__);
 
     flag = izanagi::E_DEBUG_MESH_VTX_FORM_POS;
@@ -149,16 +149,16 @@ void OcclusionQueryApp::ReleaseInternal()
 // 更新.
 void OcclusionQueryApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
 {
-#if 1
-    if (!m_isFirstFrame) {
-        // 前のフレームの結果でクエリ問い合わせ.
-        for (IZ_UINT i = 0; i < MeshNum; i++) {
-            GLuint pixelCnt = 0;
-            CALL_GL_API(::glGetQueryObjectuiv(m_meshes[i].query, GL_QUERY_RESULT, &pixelCnt));
-            m_meshes[i].willDraw = (pixelCnt > 0);
+    if (m_enableOcclusionCulling) {
+        if (!m_isFirstFrame) {
+            // 前のフレームの結果でクエリ問い合わせ.
+            for (IZ_UINT i = 0; i < MeshNum; i++) {
+                GLuint pixelCnt = 0;
+                CALL_GL_API(::glGetQueryObjectuiv(m_meshes[i].query, GL_QUERY_RESULT, &pixelCnt));
+                m_meshes[i].willDraw = (pixelCnt > 0);
+            }
         }
     }
-#endif
 
     m_isFirstFrame = IZ_FALSE;
 
@@ -184,6 +184,16 @@ namespace {
 
 // 描画.
 void OcclusionQueryApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
+{
+    if (m_enableOcclusionCulling) {
+        RenderWithOcclusionCulling(device);
+    }
+    else {
+        RenderWithoutOcclusionCulling(device);
+    }
+}
+
+void OcclusionQueryApp::RenderWithOcclusionCulling(izanagi::graph::CGraphicsDevice* device)
 {
     izanagi::sample::CSampleCamera& camera = GetCamera();
 
@@ -403,7 +413,69 @@ void OcclusionQueryApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
     }
 }
 
+void OcclusionQueryApp::RenderWithoutOcclusionCulling(izanagi::graph::CGraphicsDevice* device)
+{
+    izanagi::sample::CSampleCamera& camera = GetCamera();
+
+    device->SetTexture(0, m_Img->GetTexture(0));
+
+    m_Shader->Begin(device, 0, IZ_FALSE);
+    {
+        if (m_Shader->BeginPass(2)) {
+            _SetShaderParam(
+                m_Shader,
+                "g_mW2C",
+                (void*)&camera.GetParam().mtxW2C,
+                sizeof(izanagi::math::SMatrix44));
+
+            izanagi::math::CMatrix44 mtxL2W;
+            mtxL2W.RotByX(IZ_DEG2RAD(90.0f));
+            mtxL2W.Trans(0.0f, 0.0f, 20.0f);
+
+            _SetShaderParam(
+                m_Shader,
+                "g_mL2W",
+                (void*)&mtxL2W,
+                sizeof(izanagi::math::SMatrix44));
+
+            m_Shader->CommitChanges(device);
+
+            m_plane->Draw(device);
+
+            m_Shader->EndPass();
+        }
+
+        for (IZ_UINT i = 0; i < MeshNum; i++) {
+            if (m_Shader->BeginPass(0)) {
+                // パラメータ設定
+                _SetShaderParam(
+                    m_Shader,
+                    "g_mW2C",
+                    (void*)&camera.GetParam().mtxW2C,
+                    sizeof(izanagi::math::SMatrix44));
+
+                _SetShaderParam(
+                    m_Shader,
+                    "g_mL2W",
+                    (void*)&m_meshes[i].mtxL2W,
+                    sizeof(izanagi::math::SMatrix44));
+
+                m_Shader->CommitChanges(device);
+
+                m_meshes[i].sphere->Draw(device);
+
+                m_Shader->EndPass();
+            }
+        }
+    }
+    m_Shader->End(device);
+}
+
 IZ_BOOL OcclusionQueryApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
 {
+    if (key == izanagi::sys::E_KEYBOARD_BUTTON_SHIFT) {
+        m_enableOcclusionCulling = !m_enableOcclusionCulling;
+    }
+
     return IZ_TRUE;
 }

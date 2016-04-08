@@ -31,7 +31,11 @@ protected:
     virtual IZ_BOOL OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key) override;
 
 private:
-    static const IZ_UINT MeshNum = 10;
+    void RenderWithOcclusionCulling(izanagi::graph::CGraphicsDevice* device);
+    void RenderWithoutOcclusionCulling(izanagi::graph::CGraphicsDevice* device);
+
+private:
+    static const IZ_UINT MeshNum = 1000;
 
     izanagi::CDebugMesh* m_sphere{ nullptr };
     izanagi::CDebugMesh* m_cube{ nullptr };
@@ -51,6 +55,8 @@ private:
     izanagi::shader::CShaderBasic* m_Shader;
 
     IZ_BOOL m_isFirstFrame{ IZ_TRUE };
+
+    IZ_BOOL m_enableOcclusionCulling{ IZ_TRUE };
 };
 
 #endif    // #if !defined(__OCCLUSION_QUERY_APP_H__)
