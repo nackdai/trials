@@ -44,6 +44,8 @@ private:
         IZ_BOOL willDraw{ IZ_TRUE };
     } m_meshes[MeshNum];
 
+    izanagi::CDebugMesh* m_plane{ nullptr };
+
     izanagi::CImage* m_Img;
 
     izanagi::shader::CShaderBasic* m_Shader;

@@ -51,6 +51,12 @@ float4 mainPS(SPSInput In) : COLOR
     return vOut;
 }
 
+float4 mainPS_NoTex(SPSInput In) : COLOR
+{
+    float4 vOut = In.vColor;
+    return vOut;
+}
+
 /////////////////////////////////////////////////////////////
 
 struct SVSInputQuery {
@@ -93,5 +99,10 @@ technique BasicShader
     {
         VertexShader = compile vs_2_0 mainVSQuery();
         PixelShader = compile ps_2_0 mainPSQuery();
+    }
+    pass notex
+    {
+        VertexShader = compile vs_2_0 mainVS();
+        PixelShader = compile ps_2_0 mainPS_NoTex();
     }
 }
