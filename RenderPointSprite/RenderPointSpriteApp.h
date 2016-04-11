@@ -44,6 +44,8 @@ private:
     izanagi::graph::CPixelShader* m_ps{ nullptr };
 
     izanagi::graph::CShaderProgram* m_shd{ nullptr };
+
+    izanagi::graph::CRenderTarget* m_rt{ nullptr };
 };
 
 #endif    // #if !defined(__RENDER_POINT_SPRITE_APP_H__)
