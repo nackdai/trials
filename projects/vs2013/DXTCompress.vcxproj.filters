@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\DXTCompress\CaptureManager.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DXTCompress\DxtEncoder.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DXTCompress\main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DXTCompress\DXTCompressApp.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\DXTCompress\CaptureManager.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DXTCompress\DxtEncoder.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DXTCompress\DXTCompressApp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\DXTCompress\shader\Shader.xml">
+      <Filter>shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\..\izanagi\Media\earth.xml">
+      <Filter>asset</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\DXTCompress\shader\Shader.fx">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\DXTCompress\shader\dxt.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\DXTCompress\shader\2DVS.glsl">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="shader">
+      <UniqueIdentifier>{9b70e5b1-e2c0-48dc-bfe6-5c83868d3d6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{5289aa64-8403-4b8b-ab79-fb645b78832b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{9de324fb-9276-48d6-9519-4b2643fe86e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="asset">
+      <UniqueIdentifier>{e53775cf-cb7a-44ac-b9a2-9f20959e972c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
