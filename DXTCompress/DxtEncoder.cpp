@@ -47,17 +47,35 @@ IZ_BOOL DxtEncoder::init(
         VRETURN(m_vs);
     }
 
-    FREE(allocator, buf);
+    {
+        izanagi::CFileInputStream in;
+        VRETURN(in.Open(pixelShader));
 
+        auto size = in.GetSize();
+        IZ_ASSERT(allocatedSize >= size);
+
+        in.Read(buf, 0, size);
+        buf[size] = 0;
+
+        m_ps = device->CreatePixelShader(buf);
+        VRETURN(m_ps);
+    }
+
+    FREE(allocator, buf);
     {
         m_shd = device->CreateShaderProgram();
         VRETURN(m_shd);
 
         VRETURN(m_shd->AttachVertexShader(m_vs));
         VRETURN(m_shd->AttachPixelShader(m_dxt));
+    }
 
-        m_hImage = m_shd->GetHandleByName("image");
-        m_hMode = m_shd->GetHandleByName("mode");
+    {
+        m_shdDraw = device->CreateShaderProgram();
+        VRETURN(m_shdDraw);
+
+        VRETURN(m_shdDraw->AttachVertexShader(m_vs));
+        VRETURN(m_shdDraw->AttachPixelShader(m_ps));
     }
 
     {
@@ -138,8 +156,11 @@ void DxtEncoder::encode(
 
     device->SetTexture(0, texture);
 
-    CALL_GL_API(glUniform1i(m_hImage, 0));
-    CALL_GL_API(glUniform1i(m_hMode, 3));
+    auto hImage = m_shd->GetHandleByName("image");
+    auto hMode = m_shd->GetHandleByName("mode");
+
+    CALL_GL_API(glUniform1i(hImage, 0));
+    CALL_GL_API(glUniform1i(hMode, 3));
 
     device->SetViewport(
         izanagi::graph::SViewport(0, 0, m_width/4, m_height/4));
@@ -233,10 +254,13 @@ void DxtEncoder::encode(
 void DxtEncoder::terminate()
 {
     SAFE_RELEASE(m_vs);
+    SAFE_RELEASE(m_ps);
     SAFE_RELEASE(m_dxt);
     SAFE_RELEASE(m_shd);
+    SAFE_RELEASE(m_shdDraw);
 
     SAFE_RELEASE(m_tex);
+    SAFE_RELEASE(m_texDxt);
 
     FREE(m_allocator, m_pixels);
 }
@@ -249,4 +273,36 @@ void DxtEncoder::drawDebug(izanagi::graph::CGraphicsDevice* device)
     device->Draw2DSprite(
         izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
         izanagi::CIntRect(300, 500, 256, 128));
+}
+
+void DxtEncoder::draw(izanagi::graph::CGraphicsDevice* device)
+{
+    device->SaveRenderState();
+
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_ZENABLE,
+        IZ_FALSE);
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_CULLMODE,
+        izanagi::graph::E_GRAPH_CULL_NONE);
+
+    device->SetTexture(0, m_texDxt);
+
+    device->SetShaderProgram(m_shdDraw);
+
+    device->SetTexture(0, m_texDxt);
+
+    auto hImage = m_shdDraw->GetHandleByName("image");
+    auto hMode = m_shdDraw->GetHandleByName("mode");
+    auto hToSRGB = m_shdDraw->GetHandleByName("to_srgb");
+
+    CALL_GL_API(glUniform1i(hImage, 0));
+    CALL_GL_API(glUniform1i(hMode, 3));
+    CALL_GL_API(glUniform1i(hToSRGB, 0));
+
+    // NOTE
+    // 頂点バッファを使わず全画面に描画する頂点シェーダ.
+    CALL_GL_API(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+
+    device->LoadRenderState();
 }

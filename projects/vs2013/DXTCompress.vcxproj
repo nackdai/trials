@@ -431,6 +431,7 @@
     </CustomBuild>
     <None Include="..\..\DXTCompress\shader\2DVS.glsl" />
     <None Include="..\..\DXTCompress\shader\dxt.glsl" />
+    <None Include="..\..\DXTCompress\shader\fs.glsl" />
     <None Include="..\..\DXTCompress\shader\Shader.fx" />
     <CustomBuild Include="..\..\DXTCompress\shader\Shader.xml">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug_DX9|Win32'">$(TOOL_DIR)Release\ShaderConverter.exe -src "%(FullPath)" -obj "$(ProjectDir)..\..\$(ProjectName)\shader_obj" -o "$(ProjectDir)..\..\$(ProjectName)\data"

@@ -96,7 +96,7 @@ IZ_BOOL DXTCompressApp::InitInternal(
         SCREEN_WIDTH, SCREEN_HEIGHT,
         "shader/2DVS.glsl",
         "shader/dxt.glsl",
-        nullptr);
+        "shader/fs.glsl");
 
 __EXIT__:
     if (!result) {
@@ -189,6 +189,8 @@ void DXTCompressApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
     m_dxtEncoder.encode(
         device,
         m_capture.getColor());
+
+    m_dxtEncoder.draw(device);
 
     izanagi::CDebugFont* debugFont = GetDebugFont();
 

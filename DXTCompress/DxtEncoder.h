@@ -26,17 +26,19 @@ public:
 
     void drawDebug(izanagi::graph::CGraphicsDevice* device);
 
+    void draw(izanagi::graph::CGraphicsDevice* device);
+
 private:
     izanagi::graph::CVertexShader* m_vs{ nullptr };
     izanagi::graph::CPixelShader* m_dxt{ nullptr };
 
+    izanagi::graph::CPixelShader* m_ps{ nullptr };
+
     izanagi::graph::CShaderProgram* m_shd{ nullptr };
+    izanagi::graph::CShaderProgram* m_shdDraw{ nullptr };
 
     IZ_UINT m_width{ 0 };
     IZ_UINT m_height{ 0 };
-
-    izanagi::SHADER_PARAM_HANDLE m_hImage{ 0 };
-    izanagi::SHADER_PARAM_HANDLE m_hMode{ 0 };
 
     GLuint m_fbo;
     izanagi::graph::CTexture* m_tex{ nullptr };

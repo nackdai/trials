@@ -43,6 +43,9 @@
     <None Include="..\..\DXTCompress\shader\2DVS.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="..\..\DXTCompress\shader\fs.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shader">
