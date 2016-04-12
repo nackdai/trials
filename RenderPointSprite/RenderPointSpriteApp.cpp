@@ -17,6 +17,17 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
 {
     IZ_BOOL result = IZ_TRUE;
 
+    // カメラ
+    camera.Init(
+        izanagi::math::CVector4(0.0f, 0.0f, 500.0f, 1.0f),
+        izanagi::math::CVector4(0.0f, 0.0f, 0.0f, 1.0f),
+        izanagi::math::CVector4(0.0f, 1.0f, 0.0f, 1.0f),
+        1.0f,
+        10000.0f,
+        izanagi::math::CMath::Deg2Rad(60.0f),
+        (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
+    camera.Update();
+
     {
         PlyReader reader;
         reader.open("data/bunny.ply");
@@ -34,9 +45,9 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
         PlyReader::Vertex plyVtx;
         
         while (reader.readVtx(plyVtx)) {
-            vtx->pos[0] = plyVtx.pos[0] * 100.0f;
-            vtx->pos[1] = plyVtx.pos[1] * 100.0f;
-            vtx->pos[2] = plyVtx.pos[2] * 100.0f;
+            vtx->pos[0] = plyVtx.pos[0] * 1000.0f;
+            vtx->pos[1] = plyVtx.pos[1] * 1000.0f;
+            vtx->pos[2] = plyVtx.pos[2] * 1000.0f;
             vtx->pos[3] = 1.0f;
 
             vtx->color = IZ_COLOR_RGBA(
@@ -90,22 +101,10 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
         m_shd->AttachPixelShader(m_ps);
     }
 
-    // カメラ
-    camera.Init(
-        izanagi::math::CVector4(0.0f, 0.0f, 30.0f, 1.0f),
-        izanagi::math::CVector4(0.0f, 0.0f, 0.0f, 1.0f),
-        izanagi::math::CVector4(0.0f, 1.0f, 0.0f, 1.0f),
-        1.0f,
-        500.0f,
-        izanagi::math::CMath::Deg2Rad(60.0f),
-        (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
-    camera.Update();
-
     m_rt = device->CreateRenderTarget(
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        //izanagi::graph::E_GRAPH_PIXEL_FMT_R32F);
-        izanagi::graph::E_GRAPH_PIXEL_FMT_RGBA8);
+        izanagi::graph::E_GRAPH_PIXEL_FMT_R32F);
 
 __EXIT__:
     if (!result) {
@@ -171,21 +170,22 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
 
     auto& camera = GetCamera();
 
-    const izanagi::math::SMatrix44& mtxW2V = camera.GetParam().mtxW2V;
     const izanagi::math::SMatrix44& mtxV2C = camera.GetParam().mtxV2C;
-    auto farClip = camera.GetParam().cameraFar;
+    const izanagi::math::SMatrix44& mtxW2C = camera.GetParam().mtxW2C;
 
     izanagi::math::SMatrix44 mtxC2V;
     izanagi::math::SMatrix44::Inverse(mtxC2V, mtxV2C);
 
+    auto farClip = camera.GetParam().cameraFar;
+
     izanagi::math::CVector4 screen(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f);
 
-    IZ_FLOAT pointSize = 0.5f;
+    IZ_FLOAT pointSize = 500.0f;
     auto hSize = m_shd->GetHandleByName("size");
     m_shd->SetFloat(device, hSize, pointSize);
 
-    auto hMtxW2V = m_shd->GetHandleByName("mtxW2V");
-    m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2V, &mtxW2V, 4);
+    auto hMtxW2C = m_shd->GetHandleByName("mtxW2C");
+    m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2C, &mtxW2C, 4);
 
     auto hMtxV2C = m_shd->GetHandleByName("mtxV2C");
     m_shd->SetMatrixArrayAsVectorArray(device, hMtxV2C, &mtxV2C, 4);
@@ -193,8 +193,8 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
     auto hMtxC2V = m_shd->GetHandleByName("mtxC2V");
     m_shd->SetMatrixArrayAsVectorArray(device, hMtxC2V, &mtxC2V, 4);
 
-    auto hFarClip = m_shd->GetHandleByName("farClip");
-    m_shd->SetFloat(device, hFarClip, farClip);
+    //auto hFarClip = m_shd->GetHandleByName("farClip");
+    //m_shd->SetFloat(device, hFarClip, farClip);
 
     auto hScreen = m_shd->GetHandleByName("screen");
     m_shd->SetVector(device, hScreen, screen);
