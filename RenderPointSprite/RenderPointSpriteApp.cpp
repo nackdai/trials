@@ -23,7 +23,7 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
         izanagi::math::CVector4(0.0f, 0.0f, 0.0f, 1.0f),
         izanagi::math::CVector4(0.0f, 1.0f, 0.0f, 1.0f),
         1.0f,
-        10000.0f,
+        1000.0f,
         izanagi::math::CMath::Deg2Rad(60.0f),
         (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
     camera.Update();
@@ -170,34 +170,33 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
 
     auto& camera = GetCamera();
 
+    const izanagi::math::SMatrix44& mtxW2V = camera.GetParam().mtxW2V;
     const izanagi::math::SMatrix44& mtxV2C = camera.GetParam().mtxV2C;
     const izanagi::math::SMatrix44& mtxW2C = camera.GetParam().mtxW2C;
 
-    izanagi::math::SMatrix44 mtxC2V;
-    izanagi::math::SMatrix44::Inverse(mtxC2V, mtxV2C);
-
-    auto farClip = camera.GetParam().cameraFar;
+    auto fov = camera.GetParam().verticalFOV;
+    auto screenHeight = SCREEN_HEIGHT;
 
     izanagi::math::CVector4 screen(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f);
 
-    IZ_FLOAT pointSize = 500.0f;
+    IZ_FLOAT pointSize = 5.0f;
     auto hSize = m_shd->GetHandleByName("size");
     m_shd->SetFloat(device, hSize, pointSize);
 
     auto hMtxW2C = m_shd->GetHandleByName("mtxW2C");
     m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2C, &mtxW2C, 4);
 
+    auto hMtxW2V = m_shd->GetHandleByName("mtxW2V");
+    m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2V, &mtxW2V, 4);
+
     auto hMtxV2C = m_shd->GetHandleByName("mtxV2C");
     m_shd->SetMatrixArrayAsVectorArray(device, hMtxV2C, &mtxV2C, 4);
 
-    auto hMtxC2V = m_shd->GetHandleByName("mtxC2V");
-    m_shd->SetMatrixArrayAsVectorArray(device, hMtxC2V, &mtxC2V, 4);
+    auto hScreenHeight = m_shd->GetHandleByName("screenHeight");
+    m_shd->SetFloat(device, hScreenHeight, screenHeight);
 
-    //auto hFarClip = m_shd->GetHandleByName("farClip");
-    //m_shd->SetFloat(device, hFarClip, farClip);
-
-    auto hScreen = m_shd->GetHandleByName("screen");
-    m_shd->SetVector(device, hScreen, screen);
+    auto hFOV = m_shd->GetHandleByName("fov");
+    m_shd->SetFloat(device, hFOV, fov);
 
     device->SetVertexBuffer(0, 0, sizeof(Vertex), m_vb);
     device->SetVertexDeclaration(m_vd);
