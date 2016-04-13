@@ -286,11 +286,13 @@ void DxtEncoder::draw(izanagi::graph::CGraphicsDevice* device)
         izanagi::graph::E_GRAPH_RS_CULLMODE,
         izanagi::graph::E_GRAPH_CULL_NONE);
 
-    device->SetTexture(0, m_texDxt);
-
     device->SetShaderProgram(m_shdDraw);
 
-    device->SetTexture(0, m_texDxt);
+    CALL_GL_API(::glActiveTexture(GL_TEXTURE0));
+
+    GLuint handle = m_texDxt->GetTexHandle();
+
+    CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
 
     auto hImage = m_shdDraw->GetHandleByName("image");
     auto hMode = m_shdDraw->GetHandleByName("mode");
