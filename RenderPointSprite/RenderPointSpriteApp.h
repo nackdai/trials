@@ -34,6 +34,11 @@ private:
 
     void initShaders(izanagi::graph::CGraphicsDevice* device);
 
+    izanagi::graph::CShaderProgram* initShader(
+        izanagi::graph::CGraphicsDevice* device,
+        const char* vsPath,
+        const char* psPath);
+
     void renderScene(
         izanagi::graph::CGraphicsDevice* device,
         izanagi::graph::CShaderProgram* shd,
@@ -54,16 +59,9 @@ private:
     izanagi::graph::CVertexBuffer* m_vb{ nullptr };
     izanagi::graph::CVertexDeclaration* m_vd{ nullptr };
 
-    izanagi::graph::CVertexShader* m_vs{ nullptr };
-    izanagi::graph::CPixelShader* m_ps{ nullptr };
-
-    izanagi::graph::CShaderProgram* m_shd{ nullptr };
-
-    izanagi::graph::CPixelShader* m_psEx{ nullptr };
-    izanagi::graph::CShaderProgram* m_shdEx{ nullptr };
-
-    izanagi::graph::CVertexShader* m_vsNml{ nullptr };
-    izanagi::graph::CPixelShader* m_psNml{ nullptr };
+    izanagi::graph::CShaderProgram* m_shdInterp{ nullptr };
+    izanagi::graph::CShaderProgram* m_shdDepth{ nullptr };
+    izanagi::graph::CShaderProgram* m_shdSplat{ nullptr };
     izanagi::graph::CShaderProgram* m_shdNml{ nullptr };
 
     izanagi::graph::CRenderTarget* m_rt{ nullptr };

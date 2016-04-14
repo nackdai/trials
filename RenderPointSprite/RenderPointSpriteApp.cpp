@@ -95,82 +95,52 @@ void RenderPointSpriteApp::initPly(izanagi::graph::CGraphicsDevice* device)
 
 void RenderPointSpriteApp::initShaders(izanagi::graph::CGraphicsDevice* device)
 {
-    {
-        {
-            izanagi::CFileInputStream in;
-            in.Open("shader/vs.glsl");
+    m_shdInterp = initShader(device, "shader/vs.glsl", "shader/psInterp.glsl");
+    m_shdDepth = initShader(device, "shader/vs.glsl", "shader/psDepth.glsl");
+    m_shdSplat = initShader(device, "shader/vs.glsl", "shader/psWeightSplat.glsl");
+    m_shdNml = initShader(device, "shader/vsNormalize.glsl", "shader/psNormalize.glsl");
+}
 
-            std::vector<IZ_BYTE> buf(in.GetSize() + 1);
-            in.Read(&buf[0], 0, buf.size());
-
-            buf[buf.size() - 1] = 0;
-
-            m_vs = device->CreateVertexShader(&buf[0]);
-        }
-
-        {
-            izanagi::CFileInputStream in;
-            in.Open("shader/psDepth.glsl");
-            //in.Open("shader/ps.glsl");
-
-            std::vector<IZ_BYTE> buf(in.GetSize() + 1);
-            in.Read(&buf[0], 0, buf.size());
-
-            buf[buf.size() - 1] = 0;
-
-            m_ps = device->CreatePixelShader(&buf[0]);
-        }
-
-        m_shd = device->CreateShaderProgram();
-        m_shd->AttachVertexShader(m_vs);
-        m_shd->AttachPixelShader(m_ps);
-    }
+izanagi::graph::CShaderProgram* RenderPointSpriteApp::initShader(
+    izanagi::graph::CGraphicsDevice* device,
+    const char* vsPath,
+    const char* psPath)
+{
+    izanagi::graph::CVertexShader* vs = nullptr;
+    izanagi::graph::CPixelShader* ps = nullptr;
 
     {
         izanagi::CFileInputStream in;
-        in.Open("shader/psEx.glsl");
+        in.Open(vsPath);
 
         std::vector<IZ_BYTE> buf(in.GetSize() + 1);
         in.Read(&buf[0], 0, buf.size());
 
         buf[buf.size() - 1] = 0;
 
-        m_psEx = device->CreatePixelShader(&buf[0]);
-
-        m_shdEx = device->CreateShaderProgram();
-        m_shdEx->AttachVertexShader(m_vs);
-        m_shdEx->AttachPixelShader(m_psEx);
+        vs = device->CreateVertexShader(&buf[0]);
     }
 
     {
-        {
-            izanagi::CFileInputStream in;
-            in.Open("shader/vsNormalize.glsl");
+        izanagi::CFileInputStream in;
+        in.Open(psPath);
 
-            std::vector<IZ_BYTE> buf(in.GetSize() + 1);
-            in.Read(&buf[0], 0, buf.size());
+        std::vector<IZ_BYTE> buf(in.GetSize() + 1);
+        in.Read(&buf[0], 0, buf.size());
 
-            buf[buf.size() - 1] = 0;
+        buf[buf.size() - 1] = 0;
 
-            m_vsNml = device->CreateVertexShader(&buf[0]);
-        }
-
-        {
-            izanagi::CFileInputStream in;
-            in.Open("shader/psNormalize.glsl");
-
-            std::vector<IZ_BYTE> buf(in.GetSize() + 1);
-            in.Read(&buf[0], 0, buf.size());
-
-            buf[buf.size() - 1] = 0;
-
-            m_psNml = device->CreatePixelShader(&buf[0]);
-        }
-
-        m_shdNml = device->CreateShaderProgram();
-        m_shdNml->AttachVertexShader(m_vsNml);
-        m_shdNml->AttachPixelShader(m_psNml);
+        ps = device->CreatePixelShader(&buf[0]);
     }
+
+    auto shd = device->CreateShaderProgram();
+    shd->AttachVertexShader(vs);
+    shd->AttachPixelShader(ps);
+
+    SAFE_RELEASE(vs);
+    SAFE_RELEASE(ps);
+
+    return shd;
 }
 
 // 解放.
@@ -179,15 +149,9 @@ void RenderPointSpriteApp::ReleaseInternal()
     SAFE_RELEASE(m_vb);
     SAFE_RELEASE(m_vd);
 
-    SAFE_RELEASE(m_vs);
-    SAFE_RELEASE(m_ps);
-    SAFE_RELEASE(m_shd);
-
-    SAFE_RELEASE(m_psEx);
-    SAFE_RELEASE(m_shdEx);
-
-    SAFE_RELEASE(m_vsNml);
-    SAFE_RELEASE(m_psNml);
+    SAFE_RELEASE(m_shdInterp);
+    SAFE_RELEASE(m_shdDepth);
+    SAFE_RELEASE(m_shdSplat);
     SAFE_RELEASE(m_shdNml);
 
     SAFE_RELEASE(m_rt);
@@ -232,7 +196,7 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0x00));
 
     // Draw linear depth.
-    renderScene(device, m_shd);
+    renderScene(device, m_shdDepth);
 
     device->EndScene();
 
@@ -253,7 +217,7 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         izanagi::graph::E_GRAPH_CLEAR_FLAG_ALL,
         IZ_COLOR_RGBA(0x00, 0x00, 0x00, 0x00));
 
-    renderScene(device, m_shdEx, m_rt);
+    renderScene(device, m_shdSplat, m_rt);
 
     device->EndScene();
 
