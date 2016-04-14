@@ -5,9 +5,11 @@ precision highp int;
 uniform sampler2D depthMap;
 uniform sampler2D image;
 
+uniform vec4 invScreen;
+
 void main()
 {
-#if 1
+#if 0
     float depth = texelFetch(depthMap, ivec2(gl_FragCoord.xy), 0).r;
 
     if (depth >= 1.0) {
@@ -18,9 +20,19 @@ void main()
     color /= color.w;
 
     gl_FragColor = vec4(vec3(color.xyz), 1.0);
-
-    //gl_FragDepth = depth;
 #else
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    vec2 uv = gl_FragCoord.xy * invScreen.xy;
+    uv.y = 1.0 - uv.y;
+
+    float depth = texture2D(depthMap, uv).r;
+
+    if (depth >= 1.0) {
+        discard;
+    }
+
+    vec4 color = texture2D(image, uv);
+    color /= color.w;
+
+    gl_FragColor = vec4(vec3(color.xyz), 1.0);
 #endif
 }

@@ -195,6 +195,8 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         renderScene(device, m_shdInterp);
     }
     else {
+        device->SaveRenderState();
+
         // Draw linear depth to the render target.
         renderDepth(device);
 
@@ -216,7 +218,9 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
             izanagi::graph::E_GRAPH_RS_ZENABLE,
             IZ_TRUE);
 
-#if 1
+        device->LoadRenderState();
+
+#if 0
         if (device->Begin2D()) {
             device->SetTexture(0, m_rtDepth);
             device->Draw2DSprite(
@@ -323,6 +327,8 @@ void RenderPointSpriteApp::renderScene(
         izanagi::graph::E_GRAPH_PRIM_TYPE_POINTLIST,
         0,
         m_pointNum);
+
+    CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, 0));
 }
 
 void RenderPointSpriteApp::renderDepth(izanagi::graph::CGraphicsDevice* device)
@@ -369,6 +375,11 @@ void RenderPointSpriteApp::renderNormalize(izanagi::graph::CGraphicsDevice* devi
 
     device->SetShaderProgram(m_shdNml);
 
+    izanagi::math::CVector4 invScreen(1.0f / SCREEN_WIDTH, 1.0f / SCREEN_HEIGHT, 0.0f);
+    auto hInvScreen = m_shdNml->GetHandleByName("invScreen");
+    m_shdNml->SetVector(device, hInvScreen, invScreen);
+
+#if 0
     {
         CALL_GL_API(::glActiveTexture(GL_TEXTURE0));
         GLuint handle = m_rtDepth->GetTexHandle();
@@ -385,6 +396,19 @@ void RenderPointSpriteApp::renderNormalize(izanagi::graph::CGraphicsDevice* devi
         auto hImage = m_shdNml->GetHandleByName("image");
         CALL_GL_API(glUniform1i(hImage, 1));
     }
+#else
+    // TODO
+    // なぜか、SetTexture でテクスチャをセットいないと正しくテクスチャがセットされない.
+    // SetTexture内部でやっている、filterやaddressの設定の問題？.
+
+    device->SetTexture(0, m_rtDepth);
+    auto hDepthMap = m_shdNml->GetHandleByName("depthMap");
+    CALL_GL_API(glUniform1i(hDepthMap, 0));
+
+    device->SetTexture(1, m_rtWeightedColor);
+    auto hImage = m_shdNml->GetHandleByName("image");
+    CALL_GL_API(glUniform1i(hImage, 1));
+#endif
 
     // NOTE
     // 頂点バッファを使わず全画面に描画する頂点シェーダ.
