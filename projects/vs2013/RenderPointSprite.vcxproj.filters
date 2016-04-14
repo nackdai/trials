@@ -49,5 +49,8 @@
     <None Include="..\..\RenderPointSprite\shader\psNormalize.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="..\..\RenderPointSprite\shader\ps.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

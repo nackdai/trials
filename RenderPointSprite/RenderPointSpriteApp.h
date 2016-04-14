@@ -61,6 +61,7 @@ private:
     izanagi::graph::CVertexBuffer* m_vb{ nullptr };
     izanagi::graph::CVertexDeclaration* m_vd{ nullptr };
 
+    izanagi::graph::CShaderProgram* m_shdDefault{ nullptr };
     izanagi::graph::CShaderProgram* m_shdInterp{ nullptr };
     izanagi::graph::CShaderProgram* m_shdDepth{ nullptr };
     izanagi::graph::CShaderProgram* m_shdSplat{ nullptr };
@@ -68,6 +69,14 @@ private:
 
     izanagi::graph::CRenderTarget* m_rtDepth{ nullptr };
     izanagi::graph::CRenderTarget* m_rtWeightedColor{ nullptr };
+
+    enum Mode : int {
+        Default,
+        Interp,
+        WeightSplat,
+        None,
+    };
+    Mode m_mode{ Mode::Default };
 };
 
 #endif    // #if !defined(__RENDER_POINT_SPRITE_APP_H__)

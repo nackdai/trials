@@ -418,6 +418,7 @@
     <ClInclude Include="..\..\RenderPointSprite\RenderPointSpriteApp.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\RenderPointSprite\shader\ps.glsl" />
     <None Include="..\..\RenderPointSprite\shader\psDepth.glsl" />
     <None Include="..\..\RenderPointSprite\shader\psInterp.glsl" />
     <None Include="..\..\RenderPointSprite\shader\psNormalize.glsl" />

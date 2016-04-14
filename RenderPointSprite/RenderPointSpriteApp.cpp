@@ -95,6 +95,7 @@ void RenderPointSpriteApp::initPly(izanagi::graph::CGraphicsDevice* device)
 
 void RenderPointSpriteApp::initShaders(izanagi::graph::CGraphicsDevice* device)
 {
+    m_shdDefault = initShader(device, "shader/vs.glsl", "shader/ps.glsl");
     m_shdInterp = initShader(device, "shader/vs.glsl", "shader/psInterp.glsl");
     m_shdDepth = initShader(device, "shader/vs.glsl", "shader/psDepth.glsl");
     m_shdSplat = initShader(device, "shader/vs.glsl", "shader/psWeightSplat.glsl");
@@ -149,6 +150,7 @@ void RenderPointSpriteApp::ReleaseInternal()
     SAFE_RELEASE(m_vb);
     SAFE_RELEASE(m_vd);
 
+    SAFE_RELEASE(m_shdDefault);
     SAFE_RELEASE(m_shdInterp);
     SAFE_RELEASE(m_shdDepth);
     SAFE_RELEASE(m_shdSplat);
@@ -186,44 +188,72 @@ namespace {
 // 描画.
 void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
 {
-#if 0
-    renderScene(device, m_shd);
-#else
-    // Draw linear depth to the render target.
-    renderDepth(device);
+    if (m_mode == Mode::Default) {
+        renderScene(device, m_shdDefault);
+    }
+    else if (m_mode == Mode::Interp) {
+        renderScene(device, m_shdInterp);
+    }
+    else {
+        // Draw linear depth to the render target.
+        renderDepth(device);
 
-    device->SetRenderState(
-        izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
-        IZ_FALSE);
-    device->SetRenderState(
-        izanagi::graph::E_GRAPH_RS_ZENABLE,
-        IZ_FALSE);
+        device->SetRenderState(
+            izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+            IZ_FALSE);
+        device->SetRenderState(
+            izanagi::graph::E_GRAPH_RS_ZENABLE,
+            IZ_FALSE);
 
-    renderWeightedColor(device);
+        renderWeightedColor(device);
 
-    renderNormalize(device);
+        renderNormalize(device);
 
-    device->SetRenderState(
-        izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
-        IZ_TRUE);
-    device->SetRenderState(
-        izanagi::graph::E_GRAPH_RS_ZENABLE,
-        IZ_TRUE);
+        device->SetRenderState(
+            izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+            IZ_TRUE);
+        device->SetRenderState(
+            izanagi::graph::E_GRAPH_RS_ZENABLE,
+            IZ_TRUE);
+
+#if 1
+        if (device->Begin2D()) {
+            device->SetTexture(0, m_rtDepth);
+            device->Draw2DSprite(
+                izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
+                izanagi::CIntRect(0, 100, 320, 180));
+
+            device->SetTexture(0, m_rtWeightedColor);
+            device->Draw2DSprite(
+                izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
+                izanagi::CIntRect(0, 280, 320, 180));
+
+            device->End2D();
+        }
+#endif
+    }
 
     if (device->Begin2D()) {
-        device->SetTexture(0, m_rtDepth);
-        device->Draw2DSprite(
-            izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
-            izanagi::CIntRect(0, 100, 320, 180));
+        static const char* mode[Mode::None] = {
+            "Default",
+            "Interp",
+            "WeightSplat",
+        };
 
-        device->SetTexture(0, m_rtWeightedColor);
-        device->Draw2DSprite(
-            izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
-            izanagi::CIntRect(0, 280, 320, 180));
+        auto font = GetDebugFont();
+
+        font->Begin(device);
+
+        font->DBPrint(
+            device,
+            0, 40,
+            IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0xff),
+            mode[m_mode]);
+
+        font->End();
 
         device->End2D();
     }
-#endif
 }
 
 void RenderPointSpriteApp::renderScene(
@@ -363,5 +393,16 @@ void RenderPointSpriteApp::renderNormalize(izanagi::graph::CGraphicsDevice* devi
 
 IZ_BOOL RenderPointSpriteApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
 {
+    IZ_INT mode = m_mode;
+
+    if (key == izanagi::sys::E_KEYBOARD_BUTTON_UP) {
+        mode++;
+        m_mode = (Mode)(mode >= Mode::None ? 0 : mode);
+    }
+    else if (key == izanagi::sys::E_KEYBOARD_BUTTON_DOWN) {
+        mode--;
+        m_mode = (Mode)(mode < 0 ? Mode::None - 1 : mode);
+    }
+
     return IZ_TRUE;
 }
