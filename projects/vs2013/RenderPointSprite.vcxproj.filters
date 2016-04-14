@@ -31,22 +31,22 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\RenderPointSprite\shader\ps.glsl">
+    <None Include="..\..\RenderPointSprite\shader\psWeightSplat.glsl">
       <Filter>shader</Filter>
     </None>
     <None Include="..\..\RenderPointSprite\shader\vs.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="..\..\RenderPointSprite\shader\vsNormalize.glsl">
+      <Filter>shader</Filter>
+    </None>
     <None Include="..\..\RenderPointSprite\shader\psDepth.glsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="..\..\RenderPointSprite\shader\psEx.glsl">
+    <None Include="..\..\RenderPointSprite\shader\psInterp.glsl">
       <Filter>shader</Filter>
     </None>
     <None Include="..\..\RenderPointSprite\shader\psNormalize.glsl">
-      <Filter>shader</Filter>
-    </None>
-    <None Include="..\..\RenderPointSprite\shader\vsNormalize.glsl">
       <Filter>shader</Filter>
     </None>
   </ItemGroup>

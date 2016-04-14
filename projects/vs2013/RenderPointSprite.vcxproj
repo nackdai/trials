@@ -418,10 +418,10 @@
     <ClInclude Include="..\..\RenderPointSprite\RenderPointSpriteApp.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\RenderPointSprite\shader\ps.glsl" />
     <None Include="..\..\RenderPointSprite\shader\psDepth.glsl" />
-    <None Include="..\..\RenderPointSprite\shader\psEx.glsl" />
+    <None Include="..\..\RenderPointSprite\shader\psInterp.glsl" />
     <None Include="..\..\RenderPointSprite\shader\psNormalize.glsl" />
+    <None Include="..\..\RenderPointSprite\shader\psWeightSplat.glsl" />
     <None Include="..\..\RenderPointSprite\shader\vs.glsl" />
     <None Include="..\..\RenderPointSprite\shader\vsNormalize.glsl" />
   </ItemGroup>
