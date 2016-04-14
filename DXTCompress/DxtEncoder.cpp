@@ -129,6 +129,8 @@ void DxtEncoder::encode(
     device->SetRenderState(
         izanagi::graph::E_GRAPH_RS_ZENABLE,
         IZ_FALSE);
+
+    // For rendering full screen quad without vertex buffer.
     device->SetRenderState(
         izanagi::graph::E_GRAPH_RS_CULLMODE,
         izanagi::graph::E_GRAPH_CULL_NONE);
@@ -154,7 +156,13 @@ void DxtEncoder::encode(
 
     device->SetShaderProgram(m_shd);
 
-    device->SetTexture(0, texture);
+    {
+        CALL_GL_API(::glActiveTexture(GL_TEXTURE0));
+
+        GLuint handle = texture->GetTexHandle();
+
+        CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
+    }
 
     auto hImage = m_shd->GetHandleByName("image");
     auto hMode = m_shd->GetHandleByName("mode");
@@ -288,11 +296,13 @@ void DxtEncoder::draw(izanagi::graph::CGraphicsDevice* device)
 
     device->SetShaderProgram(m_shdDraw);
 
-    CALL_GL_API(::glActiveTexture(GL_TEXTURE0));
+    {
+        CALL_GL_API(::glActiveTexture(GL_TEXTURE0));
 
-    GLuint handle = m_texDxt->GetTexHandle();
+        GLuint handle = m_texDxt->GetTexHandle();
 
-    CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
+        CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
+    }
 
     auto hImage = m_shdDraw->GetHandleByName("image");
     auto hMode = m_shdDraw->GetHandleByName("mode");
