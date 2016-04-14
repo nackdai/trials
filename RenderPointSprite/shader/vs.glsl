@@ -7,6 +7,7 @@ attribute vec4 color_0;
 
 varying vec4 worldSpace;
 varying float radius;
+varying float linearDepth;
 varying vec4 varColor;
 
 uniform vec4 mtxW2V[4];
@@ -30,6 +31,9 @@ void main()
     gl_Position.z = dot(position, mtxW2C[2]);
     gl_Position.w = dot(position, mtxW2C[3]);
 
+    linearDepth = viewSpace.z;
+    //linearDepth = gl_Position.z / gl_Position.w;
+
     // NOTE
     // S = (H/2) / tan(ƒ¦/2) => Distance to screen
     // Zview => Z in view space
@@ -43,8 +47,7 @@ void main()
      
     gl_PointSize = size * projFactor;
 
-    //radius = size;
-    radius = 1.0;
+    radius = size;
 
     varColor = color_0;
 }

@@ -30,6 +30,20 @@ protected:
     virtual IZ_BOOL OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key) override;
 
 private:
+    void initPly(izanagi::graph::CGraphicsDevice* device);
+
+    void initShaders(izanagi::graph::CGraphicsDevice* device);
+
+    void renderScene(
+        izanagi::graph::CGraphicsDevice* device,
+        izanagi::graph::CShaderProgram* shd,
+        izanagi::graph::CTexture* tex = nullptr);
+
+    void renderNormalize(
+        izanagi::graph::CGraphicsDevice* device,
+        izanagi::graph::CShaderProgram* shd);
+
+private:
     struct Vertex {
         IZ_FLOAT pos[4];
         IZ_COLOR color;
@@ -45,7 +59,15 @@ private:
 
     izanagi::graph::CShaderProgram* m_shd{ nullptr };
 
+    izanagi::graph::CPixelShader* m_psEx{ nullptr };
+    izanagi::graph::CShaderProgram* m_shdEx{ nullptr };
+
+    izanagi::graph::CVertexShader* m_vsNml{ nullptr };
+    izanagi::graph::CPixelShader* m_psNml{ nullptr };
+    izanagi::graph::CShaderProgram* m_shdNml{ nullptr };
+
     izanagi::graph::CRenderTarget* m_rt{ nullptr };
+    izanagi::graph::CRenderTarget* m_rtEx{ nullptr };
 };
 
 #endif    // #if !defined(__RENDER_POINT_SPRITE_APP_H__)

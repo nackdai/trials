@@ -28,39 +28,7 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
         (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
     camera.Update();
 
-    {
-        PlyReader reader;
-        reader.open("data/bunny.ply");
-
-        m_pointNum = reader.getVtxNum();
-
-        m_vb = device->CreateVertexBuffer(
-            sizeof(Vertex),
-            m_pointNum,
-            izanagi::graph::E_GRAPH_RSC_USAGE_STATIC);
-
-        Vertex* vtx;
-        auto pitch = m_vb->Lock(device, 0, 0, (void**)&vtx, IZ_FALSE);
-
-        PlyReader::Vertex plyVtx;
-        
-        while (reader.readVtx(plyVtx)) {
-            vtx->pos[0] = plyVtx.pos[0] * 1000.0f;
-            vtx->pos[1] = plyVtx.pos[1] * 1000.0f;
-            vtx->pos[2] = plyVtx.pos[2] * 1000.0f;
-            vtx->pos[3] = 1.0f;
-
-            vtx->color = IZ_COLOR_RGBA(
-                plyVtx.color[0],
-                plyVtx.color[1],
-                plyVtx.color[2],
-                plyVtx.color[3]);
-
-            vtx++;
-        }
-
-        m_vb->Unlock(device);
-    }
+    initPly(device);
 
     {
         izanagi::graph::SVertexElement elems[] = {
@@ -71,6 +39,62 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
         m_vd = device->CreateVertexDeclaration(elems, COUNTOF(elems));
     }
 
+    initShaders(device);
+
+    m_rt = device->CreateRenderTarget(
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT,
+        izanagi::graph::E_GRAPH_PIXEL_FMT_R32F);
+    m_rtEx = device->CreateRenderTarget(
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT,
+        izanagi::graph::E_GRAPH_PIXEL_FMT_RGBA16F);
+    
+__EXIT__:
+    if (!result) {
+        ReleaseInternal();
+    }
+
+    return IZ_TRUE;
+}
+
+void RenderPointSpriteApp::initPly(izanagi::graph::CGraphicsDevice* device)
+{
+    PlyReader reader;
+    reader.open("data/bunny.ply");
+
+    m_pointNum = reader.getVtxNum();
+
+    m_vb = device->CreateVertexBuffer(
+        sizeof(Vertex),
+        m_pointNum,
+        izanagi::graph::E_GRAPH_RSC_USAGE_STATIC);
+
+    Vertex* vtx;
+    auto pitch = m_vb->Lock(device, 0, 0, (void**)&vtx, IZ_FALSE);
+
+    PlyReader::Vertex plyVtx;
+
+    while (reader.readVtx(plyVtx)) {
+        vtx->pos[0] = plyVtx.pos[0] * 1000.0f;
+        vtx->pos[1] = plyVtx.pos[1] * 1000.0f;
+        vtx->pos[2] = plyVtx.pos[2] * 1000.0f;
+        vtx->pos[3] = 1.0f;
+
+        vtx->color = IZ_COLOR_RGBA(
+            plyVtx.color[0],
+            plyVtx.color[1],
+            plyVtx.color[2],
+            plyVtx.color[3]);
+
+        vtx++;
+    }
+
+    m_vb->Unlock(device);
+}
+
+void RenderPointSpriteApp::initShaders(izanagi::graph::CGraphicsDevice* device)
+{
     {
         {
             izanagi::CFileInputStream in;
@@ -86,7 +110,8 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
 
         {
             izanagi::CFileInputStream in;
-            in.Open("shader/ps.glsl");
+            in.Open("shader/psDepth.glsl");
+            //in.Open("shader/ps.glsl");
 
             std::vector<IZ_BYTE> buf(in.GetSize() + 1);
             in.Read(&buf[0], 0, buf.size());
@@ -101,17 +126,51 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
         m_shd->AttachPixelShader(m_ps);
     }
 
-    m_rt = device->CreateRenderTarget(
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT,
-        izanagi::graph::E_GRAPH_PIXEL_FMT_R32F);
+    {
+        izanagi::CFileInputStream in;
+        in.Open("shader/psEx.glsl");
 
-__EXIT__:
-    if (!result) {
-        ReleaseInternal();
+        std::vector<IZ_BYTE> buf(in.GetSize() + 1);
+        in.Read(&buf[0], 0, buf.size());
+
+        buf[buf.size() - 1] = 0;
+
+        m_psEx = device->CreatePixelShader(&buf[0]);
+
+        m_shdEx = device->CreateShaderProgram();
+        m_shdEx->AttachVertexShader(m_vs);
+        m_shdEx->AttachPixelShader(m_psEx);
     }
 
-    return IZ_TRUE;
+    {
+        {
+            izanagi::CFileInputStream in;
+            in.Open("shader/vsNormalize.glsl");
+
+            std::vector<IZ_BYTE> buf(in.GetSize() + 1);
+            in.Read(&buf[0], 0, buf.size());
+
+            buf[buf.size() - 1] = 0;
+
+            m_vsNml = device->CreateVertexShader(&buf[0]);
+        }
+
+        {
+            izanagi::CFileInputStream in;
+            in.Open("shader/psNormalize.glsl");
+
+            std::vector<IZ_BYTE> buf(in.GetSize() + 1);
+            in.Read(&buf[0], 0, buf.size());
+
+            buf[buf.size() - 1] = 0;
+
+            m_psNml = device->CreatePixelShader(&buf[0]);
+        }
+
+        m_shdNml = device->CreateShaderProgram();
+        m_shdNml->AttachVertexShader(m_vsNml);
+        m_shdNml->AttachPixelShader(m_psNml);
+    }
 }
 
 // 解放.
@@ -124,7 +183,15 @@ void RenderPointSpriteApp::ReleaseInternal()
     SAFE_RELEASE(m_ps);
     SAFE_RELEASE(m_shd);
 
+    SAFE_RELEASE(m_psEx);
+    SAFE_RELEASE(m_shdEx);
+
+    SAFE_RELEASE(m_vsNml);
+    SAFE_RELEASE(m_psNml);
+    SAFE_RELEASE(m_shdNml);
+
     SAFE_RELEASE(m_rt);
+    SAFE_RELEASE(m_rtEx);
 }
 
 // 更新.
@@ -155,18 +222,79 @@ namespace {
 // 描画.
 void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
 {
-    CALL_GL_API(::glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
-    CALL_GL_API(::glEnable(GL_POINT_SPRITE));
-
 #if 0
+    renderScene(device, m_shd);
+#else
     device->BeginScene(
         &m_rt,
         1,
         izanagi::graph::E_GRAPH_CLEAR_FLAG_ALL,
         IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0x00));
-#endif
 
-    device->SetShaderProgram(m_shd);
+    // Draw linear depth.
+    renderScene(device, m_shd);
+
+    device->EndScene();
+
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+        IZ_FALSE);
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_ZENABLE,
+        IZ_FALSE);
+
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_BLENDMETHOD,
+        izanagi::graph::E_GRAPH_ALPHA_BLEND_CsAs_Cd);
+
+    device->BeginScene(
+        &m_rtEx,
+        1,
+        izanagi::graph::E_GRAPH_CLEAR_FLAG_ALL,
+        IZ_COLOR_RGBA(0x00, 0x00, 0x00, 0x00));
+
+    renderScene(device, m_shdEx, m_rt);
+
+    device->EndScene();
+
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_BLENDMETHOD,
+        izanagi::graph::E_GRAPH_ALPHA_BLEND_NORMAL);
+
+    renderNormalize(device, m_shdNml);
+
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+        IZ_TRUE);
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_ZENABLE,
+        IZ_TRUE);
+
+    if (device->Begin2D()) {
+        device->SetTexture(0, m_rt);
+        device->Draw2DSprite(
+            izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
+            izanagi::CIntRect(0, 100, 320, 180));
+
+        device->SetTexture(0, m_rtEx);
+        device->Draw2DSprite(
+            izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
+            izanagi::CIntRect(0, 280, 320, 180));
+
+        device->End2D();
+    }
+#endif
+}
+
+void RenderPointSpriteApp::renderScene(
+    izanagi::graph::CGraphicsDevice* device,
+    izanagi::graph::CShaderProgram* shd,
+    izanagi::graph::CTexture* tex)
+{
+    CALL_GL_API(::glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
+    CALL_GL_API(::glEnable(GL_POINT_SPRITE));
+
+    device->SetShaderProgram(shd);
 
     auto& camera = GetCamera();
 
@@ -176,49 +304,88 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
 
     auto fov = camera.GetParam().verticalFOV;
     auto screenHeight = SCREEN_HEIGHT;
+    auto farClip = camera.GetParam().cameraFar;
 
-    izanagi::math::CVector4 screen(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f);
+    izanagi::math::CVector4 screen(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 
-    IZ_FLOAT pointSize = 5.0f;
-    auto hSize = m_shd->GetHandleByName("size");
-    m_shd->SetFloat(device, hSize, pointSize);
+    IZ_FLOAT pointSize = 2.5f;
+    auto hSize = shd->GetHandleByName("size");
+    shd->SetFloat(device, hSize, pointSize);
 
-    auto hMtxW2C = m_shd->GetHandleByName("mtxW2C");
-    m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2C, &mtxW2C, 4);
+    auto hMtxW2C = shd->GetHandleByName("mtxW2C");
+    shd->SetMatrixArrayAsVectorArray(device, hMtxW2C, &mtxW2C, 4);
 
-    auto hMtxW2V = m_shd->GetHandleByName("mtxW2V");
-    m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2V, &mtxW2V, 4);
+    auto hMtxW2V = shd->GetHandleByName("mtxW2V");
+    shd->SetMatrixArrayAsVectorArray(device, hMtxW2V, &mtxW2V, 4);
 
-    auto hMtxV2C = m_shd->GetHandleByName("mtxV2C");
-    m_shd->SetMatrixArrayAsVectorArray(device, hMtxV2C, &mtxV2C, 4);
+    auto hMtxV2C = shd->GetHandleByName("mtxV2C");
+    shd->SetMatrixArrayAsVectorArray(device, hMtxV2C, &mtxV2C, 4);
 
-    auto hScreenHeight = m_shd->GetHandleByName("screenHeight");
-    m_shd->SetFloat(device, hScreenHeight, screenHeight);
+    auto hScreenHeight = shd->GetHandleByName("screenHeight");
+    shd->SetFloat(device, hScreenHeight, screenHeight);
 
-    auto hFOV = m_shd->GetHandleByName("fov");
-    m_shd->SetFloat(device, hFOV, fov);
+    auto hFOV = shd->GetHandleByName("fov");
+    shd->SetFloat(device, hFOV, fov);
+
+    auto hFar = shd->GetHandleByName("farClip");
+    shd->SetFloat(device, hFar, farClip);
+
+    auto hScreen = shd->GetHandleByName("screen");
+    shd->SetVector(device, hScreen, screen);
 
     device->SetVertexBuffer(0, 0, sizeof(Vertex), m_vb);
     device->SetVertexDeclaration(m_vd);
+
+    device->SetTexture(0, IZ_NULL);
+    if (tex) {
+        CALL_GL_API(::glActiveTexture(GL_TEXTURE0));
+
+        GLuint handle = tex->GetTexHandle();
+
+        CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
+
+        auto hDepthMap = shd->GetHandleByName("depthMap");
+
+        CALL_GL_API(glUniform1i(hDepthMap, 0));
+    }
 
     device->DrawPrimitive(
         izanagi::graph::E_GRAPH_PRIM_TYPE_POINTLIST,
         0,
         m_pointNum);
+}
 
-#if 0
-    device->EndScene();
+void RenderPointSpriteApp::renderNormalize(
+    izanagi::graph::CGraphicsDevice* device,
+    izanagi::graph::CShaderProgram* shd)
+{
+    // For rendering full screen quad without vertex buffer.
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_CULLMODE,
+        izanagi::graph::E_GRAPH_CULL_NONE);
 
-    if (device->Begin2D()) {
-        device->SetTexture(0, m_rt);
+    device->SetShaderProgram(m_shdNml);
 
-        device->Draw2DSprite(
-            izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
-            izanagi::CIntRect(0, 100, 320, 180));
+    {
+        CALL_GL_API(::glActiveTexture(GL_TEXTURE0));
+        GLuint handle = m_rt->GetTexHandle();
+        CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
 
-        device->End2D();
+        auto hDepthMap = shd->GetHandleByName("depthMap");
+        CALL_GL_API(glUniform1i(hDepthMap, 0));
     }
-#endif
+    {
+        CALL_GL_API(::glActiveTexture(GL_TEXTURE1));
+        GLuint handle = m_rtEx->GetTexHandle();
+        CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
+
+        auto hImage = shd->GetHandleByName("image");
+        CALL_GL_API(glUniform1i(hImage, 1));
+    }
+
+    // NOTE
+    // 頂点バッファを使わず全画面に描画する頂点シェーダ.
+    CALL_GL_API(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 }
 
 IZ_BOOL RenderPointSpriteApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)

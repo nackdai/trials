@@ -37,5 +37,17 @@
     <None Include="..\..\RenderPointSprite\shader\vs.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="..\..\RenderPointSprite\shader\psDepth.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\RenderPointSprite\shader\psEx.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\RenderPointSprite\shader\psNormalize.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\RenderPointSprite\shader\vsNormalize.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
