@@ -41,11 +41,11 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
 
     initShaders(device);
 
-    m_rt = device->CreateRenderTarget(
+    m_rtDepth = device->CreateRenderTarget(
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
         izanagi::graph::E_GRAPH_PIXEL_FMT_R32F);
-    m_rtEx = device->CreateRenderTarget(
+    m_rtWeightedColor = device->CreateRenderTarget(
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
         izanagi::graph::E_GRAPH_PIXEL_FMT_RGBA16F);
@@ -154,8 +154,8 @@ void RenderPointSpriteApp::ReleaseInternal()
     SAFE_RELEASE(m_shdSplat);
     SAFE_RELEASE(m_shdNml);
 
-    SAFE_RELEASE(m_rt);
-    SAFE_RELEASE(m_rtEx);
+    SAFE_RELEASE(m_rtDepth);
+    SAFE_RELEASE(m_rtWeightedColor);
 }
 
 // 更新.
@@ -189,16 +189,8 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
 #if 0
     renderScene(device, m_shd);
 #else
-    device->BeginScene(
-        &m_rt,
-        1,
-        izanagi::graph::E_GRAPH_CLEAR_FLAG_ALL,
-        IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0x00));
-
-    // Draw linear depth.
-    renderScene(device, m_shdDepth);
-
-    device->EndScene();
+    // Draw linear depth to the render target.
+    renderDepth(device);
 
     device->SetRenderState(
         izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
@@ -207,25 +199,9 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         izanagi::graph::E_GRAPH_RS_ZENABLE,
         IZ_FALSE);
 
-    device->SetRenderState(
-        izanagi::graph::E_GRAPH_RS_BLENDMETHOD,
-        izanagi::graph::E_GRAPH_ALPHA_BLEND_CsAs_Cd);
+    renderWeightedColor(device);
 
-    device->BeginScene(
-        &m_rtEx,
-        1,
-        izanagi::graph::E_GRAPH_CLEAR_FLAG_ALL,
-        IZ_COLOR_RGBA(0x00, 0x00, 0x00, 0x00));
-
-    renderScene(device, m_shdSplat, m_rt);
-
-    device->EndScene();
-
-    device->SetRenderState(
-        izanagi::graph::E_GRAPH_RS_BLENDMETHOD,
-        izanagi::graph::E_GRAPH_ALPHA_BLEND_NORMAL);
-
-    renderNormalize(device, m_shdNml);
+    renderNormalize(device);
 
     device->SetRenderState(
         izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
@@ -235,12 +211,12 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         IZ_TRUE);
 
     if (device->Begin2D()) {
-        device->SetTexture(0, m_rt);
+        device->SetTexture(0, m_rtDepth);
         device->Draw2DSprite(
             izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
             izanagi::CIntRect(0, 100, 320, 180));
 
-        device->SetTexture(0, m_rtEx);
+        device->SetTexture(0, m_rtWeightedColor);
         device->Draw2DSprite(
             izanagi::CFloatRect(0.0f, 0.0f, 1.0f, 1.0f),
             izanagi::CIntRect(0, 280, 320, 180));
@@ -319,9 +295,42 @@ void RenderPointSpriteApp::renderScene(
         m_pointNum);
 }
 
-void RenderPointSpriteApp::renderNormalize(
-    izanagi::graph::CGraphicsDevice* device,
-    izanagi::graph::CShaderProgram* shd)
+void RenderPointSpriteApp::renderDepth(izanagi::graph::CGraphicsDevice* device)
+{
+    device->BeginScene(
+        &m_rtDepth,
+        1,
+        izanagi::graph::E_GRAPH_CLEAR_FLAG_ALL,
+        IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0x00));
+
+    // Draw linear depth.
+    renderScene(device, m_shdDepth);
+
+    device->EndScene();
+}
+
+void RenderPointSpriteApp::renderWeightedColor(izanagi::graph::CGraphicsDevice* device)
+{
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_BLENDMETHOD,
+        izanagi::graph::E_GRAPH_ALPHA_BLEND_CsAs_Cd);
+
+    device->BeginScene(
+        &m_rtWeightedColor,
+        1,
+        izanagi::graph::E_GRAPH_CLEAR_FLAG_ALL,
+        IZ_COLOR_RGBA(0x00, 0x00, 0x00, 0x00));
+
+    renderScene(device, m_shdSplat, m_rtDepth);
+
+    device->EndScene();
+
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_BLENDMETHOD,
+        izanagi::graph::E_GRAPH_ALPHA_BLEND_NORMAL);
+}
+
+void RenderPointSpriteApp::renderNormalize(izanagi::graph::CGraphicsDevice* device)
 {
     // For rendering full screen quad without vertex buffer.
     device->SetRenderState(
@@ -332,18 +341,18 @@ void RenderPointSpriteApp::renderNormalize(
 
     {
         CALL_GL_API(::glActiveTexture(GL_TEXTURE0));
-        GLuint handle = m_rt->GetTexHandle();
+        GLuint handle = m_rtDepth->GetTexHandle();
         CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
 
-        auto hDepthMap = shd->GetHandleByName("depthMap");
+        auto hDepthMap = m_shdNml->GetHandleByName("depthMap");
         CALL_GL_API(glUniform1i(hDepthMap, 0));
     }
     {
         CALL_GL_API(::glActiveTexture(GL_TEXTURE1));
-        GLuint handle = m_rtEx->GetTexHandle();
+        GLuint handle = m_rtWeightedColor->GetTexHandle();
         CALL_GL_API(::glBindTexture(GL_TEXTURE_2D, handle));
 
-        auto hImage = shd->GetHandleByName("image");
+        auto hImage = m_shdNml->GetHandleByName("image");
         CALL_GL_API(glUniform1i(hImage, 1));
     }
 

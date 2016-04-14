@@ -44,9 +44,11 @@ private:
         izanagi::graph::CShaderProgram* shd,
         izanagi::graph::CTexture* tex = nullptr);
 
-    void renderNormalize(
-        izanagi::graph::CGraphicsDevice* device,
-        izanagi::graph::CShaderProgram* shd);
+    void renderDepth(izanagi::graph::CGraphicsDevice* device);
+
+    void renderWeightedColor(izanagi::graph::CGraphicsDevice* device);
+
+    void renderNormalize(izanagi::graph::CGraphicsDevice* device);
 
 private:
     struct Vertex {
@@ -64,8 +66,8 @@ private:
     izanagi::graph::CShaderProgram* m_shdSplat{ nullptr };
     izanagi::graph::CShaderProgram* m_shdNml{ nullptr };
 
-    izanagi::graph::CRenderTarget* m_rt{ nullptr };
-    izanagi::graph::CRenderTarget* m_rtEx{ nullptr };
+    izanagi::graph::CRenderTarget* m_rtDepth{ nullptr };
+    izanagi::graph::CRenderTarget* m_rtWeightedColor{ nullptr };
 };
 
 #endif    // #if !defined(__RENDER_POINT_SPRITE_APP_H__)
