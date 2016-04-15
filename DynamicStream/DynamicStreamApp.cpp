@@ -16,8 +16,6 @@ IZ_BOOL DynamicStreamApp::InitInternal(
 {
     IZ_BOOL result = IZ_TRUE;
 
-    createVertices();
-
     // Vertex Buffer.
     createVBForDynamicStream(allocator, device);
     createVBForMapUnmap(allocator, device);
@@ -71,6 +69,8 @@ IZ_BOOL DynamicStreamApp::InitInternal(
         izanagi::math::CMath::Deg2Rad(60.0f),
         (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
     camera.Update();
+
+    createVertices();
 
 __EXIT__:
     if (!result) {
@@ -129,24 +129,56 @@ void DynamicStreamApp::createVertices()
     SYSTEMTIME st;
     GetSystemTime(&st);
 
-    izanagi::math::CMathRand::Init(st.wMilliseconds);
+    //izanagi::math::CMathRand::Init(st.wMilliseconds);
+    izanagi::math::CMathRand::Init(0);
+
+    IZ_UINT offset = 0;
 
     for (IZ_UINT i = 0; i < LIST_NUM; i++) {
         for (IZ_UINT n = 0; n < POINT_NUM; n++) {
-            vtx[i][n].pos[0] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
-            vtx[i][n].pos[1] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
-            vtx[i][n].pos[2] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+            m_vtx[i][n].pos[0] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+            m_vtx[i][n].pos[1] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+            m_vtx[i][n].pos[2] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
 
-            vtx[i][n].pos[3] = 1.0f;
+            m_vtx[i][n].pos[3] = 1.0f;
 
-            vtx[i][n].color = colors[n % COUNTOF(colors)];
+            m_vtx[i][n].color = colors[n % COUNTOF(colors)];
         }
+
+#ifdef ENABLE_TRHEAD
+        m_items[i].offset = offset;
+        offset += POINT_NUM;
+#endif
     }
+
+#ifdef ENABLE_TRHEAD
+    m_thread = std::thread([&] {
+        while (m_isRunThread) {
+            for (IZ_UINT i = 0; i < LIST_NUM; i++) {
+                if (!m_items[i].isRenderable && m_mappedDataPtr) {
+                    IZ_UINT8* dst = (IZ_UINT8*)m_mappedDataPtr;
+                    dst += m_items[i].offset * sizeof(Vertex);
+
+                    memcpy(dst, m_vtx[i], sizeof(m_vtx[i]));
+
+                    m_items[i].isRenderable = true;
+                }
+            }
+        }
+    });
+#endif
 }
 
 // 解放.
 void DynamicStreamApp::ReleaseInternal()
 {
+#ifdef ENABLE_TRHEAD
+    m_isRunThread = false;
+    if (m_thread.joinable()) {
+        m_thread.join();
+    }
+#endif
+
     m_vbDynamicStream->overrideNativeResource(nullptr);
     CALL_GL_API(::glDeleteBuffers(1, &m_glVB));
 
@@ -222,10 +254,20 @@ void DynamicStreamApp::RenderDynamicStream(izanagi::graph::CGraphicsDevice* devi
     //m_mgrBufferLock.WaitForLockedRange(offset, length);
 
     for (IZ_UINT i = 0; i < LIST_NUM; i++) {
+#ifdef ENABLE_TRHEAD
+        if (m_items[i].isRenderable) {
+            device->DrawPrimitive(
+                izanagi::graph::E_GRAPH_PRIM_TYPE_POINTLIST,
+                m_items[i].offset,
+                POINT_NUM);
+
+            m_items[i].isRenderable = false;
+        }
+#else
         IZ_UINT8* dst = (IZ_UINT8*)m_mappedDataPtr;
         dst += offset * sizeof(Vertex);
 
-        memcpy(dst, vtx[i], sizeof(vtx[i]));
+        memcpy(dst, m_vtx[i], sizeof(m_vtx[i]));
 
         device->DrawPrimitive(
             izanagi::graph::E_GRAPH_PRIM_TYPE_POINTLIST,
@@ -233,6 +275,7 @@ void DynamicStreamApp::RenderDynamicStream(izanagi::graph::CGraphicsDevice* devi
             POINT_NUM);
 
         offset += POINT_NUM;
+#endif
     }
 
     //m_mgrBufferLock.LockRange(offset, length);
@@ -269,7 +312,7 @@ void DynamicStreamApp::RenderMapUnmap(izanagi::graph::CGraphicsDevice* device)
             (void**)&dst,
             IZ_FALSE);
 
-        memcpy(dst, vtx[i], sizeof(vtx[i]));
+        memcpy(dst, m_vtx[i], sizeof(m_vtx[i]));
 
         m_vbMapUnmap->Unlock(device);
 

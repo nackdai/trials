@@ -4,6 +4,8 @@
 #include "izSampleKit.h"
 #include "bufferlock.h"
 
+#define ENABLE_TRHEAD
+
 static const IZ_UINT SCREEN_WIDTH = 1280;
 static const IZ_UINT SCREEN_HEIGHT = 720;
 
@@ -46,7 +48,11 @@ private:
 
 private:
     static const IZ_UINT POINT_NUM = 10000;
-    static const IZ_UINT LIST_NUM = 1000;
+#ifdef ENABLE_TRHEAD
+    static const IZ_UINT LIST_NUM = 4;
+#else
+    static const IZ_UINT LIST_NUM = 4;
+#endif
 
     struct Vertex {
         IZ_FLOAT pos[4];
@@ -54,7 +60,7 @@ private:
     };
 
     IZ_UINT m_vtxIdx{ 0 };
-    Vertex vtx[LIST_NUM][POINT_NUM];
+    Vertex m_vtx[LIST_NUM][POINT_NUM];
 
     GLuint m_glVB{ 0 };
     void* m_mappedDataPtr{ nullptr };
@@ -71,6 +77,16 @@ private:
     izanagi::graph::CPixelShader* m_ps{ nullptr };
 
     izanagi::graph::CShaderProgram* m_shd{ nullptr };
+
+#ifdef ENABLE_TRHEAD
+    struct ListItem {
+        std::atomic<bool> isRenderable{ false };
+        IZ_UINT offset;
+    } m_items[LIST_NUM];
+
+    std::thread m_thread;
+    std::atomic<bool> m_isRunThread{ true };
+#endif
 };
 
 #endif    // #if !defined(__DYNAMIC_STREAM_APP_H__)
