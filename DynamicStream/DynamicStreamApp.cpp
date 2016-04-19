@@ -85,8 +85,8 @@ void DynamicStreamApp::createVBForDynamicStream(
     izanagi::graph::CGraphicsDevice* device)
 {
     m_vbDynamicStream = device->CreateVertexBuffer(
-        sizeof(Vertex),
-        POINT_NUM,
+        sizeof(Vertex), // 描画の際に使われるので、正しい値を設定しておく.
+        0,              // glBufferStorage で確保されるので、この値はゼロにしておく.
         izanagi::graph::E_GRAPH_RSC_USAGE_DYNAMIC);
 
     CALL_GL_API(::glGenBuffers(1, &m_glVB));
