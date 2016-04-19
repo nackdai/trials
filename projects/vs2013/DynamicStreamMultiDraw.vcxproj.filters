@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\DynamicStreamMultiDraw\bufferlock.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DynamicStreamMultiDraw\DynamicStreamMultiDrawApp.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DynamicStreamMultiDraw\main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\DynamicStreamMultiDraw\bufferlock.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DynamicStreamMultiDraw\DynamicStreamMultiDrawApp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\DynamicStreamMultiDraw\shader\ps.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\DynamicStreamMultiDraw\shader\vs.glsl">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{3d0466c3-3762-4435-881e-8d81872f9280}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{727e4602-973d-446b-ad56-7764be87e09c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{490bb4a4-2c1f-4d1b-ac29-924d670a296c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
