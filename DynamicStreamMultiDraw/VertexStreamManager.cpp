@@ -78,6 +78,7 @@ void VertexStreamManager::procThread()
     }
 }
 
+// 未処理の入力データを取得.
 IVertexStreamInput* VertexStreamManager::getUnprocessedInput()
 {
     // NOTE
@@ -92,6 +93,7 @@ IVertexStreamInput* VertexStreamManager::getUnprocessedInput()
     return nullptr;
 }
 
+// 空き情報を更新.
 void VertexStreamManager::updateEmptyInfo(EmptyInfo& info, IZ_UINT wroteSize)
 {
     // NOTE
@@ -108,6 +110,7 @@ void VertexStreamManager::updateEmptyInfo(EmptyInfo& info, IZ_UINT wroteSize)
     }
 }
 
+// 空き情報を追加.
 void VertexStreamManager::addEmptyInfo(IZ_UINT offset, IZ_UINT size)
 {
     izanagi::sys::Lock lockerEmptyInfo(m_lockerEmptyInfo);
@@ -128,6 +131,7 @@ void VertexStreamManager::addEmptyInfo(IZ_UINT offset, IZ_UINT size)
     }
 }
 
+// 描画コマンドを更新.
 void VertexStreamManager::updateCommand(
     IZ_UINT count,
     IZ_UINT offsetByte)
@@ -145,6 +149,7 @@ void VertexStreamManager::updateCommand(
     m_needChangeCmd = true;
 }
 
+// 描画コマンドを削除.
 void VertexStreamManager::removeCommand(IZ_UINT offsetByte)
 {
     izanagi::sys::Lock locker(m_lockerCmd);
@@ -183,6 +188,7 @@ void VertexStreamManager::terminate()
     SAFE_RELEASE(m_vbDynamicStream);
 }
 
+// 描画コマンドを取得.
 std::tuple<void*, IZ_UINT> VertexStreamManager::getCommands()
 {
     if (m_needChangeCmd) {
@@ -204,6 +210,7 @@ std::tuple<void*, IZ_UINT> VertexStreamManager::getCommands()
             (void*)&m_comands[m_drawingListIdx][0],
             num);
 
+        // リストを入れ替え.
         m_writingListIdx++;
         if (m_writingListIdx >= NUM) {
             m_writingListIdx = 0;
@@ -233,6 +240,8 @@ std::tuple<void*, IZ_UINT> VertexStreamManager::getCommands()
         return ret;
     }
     else {
+        // 変更がないので、現在の参照リストをそのまま返す.
+
         izanagi::sys::Lock locker(m_lockerCmd);
 
         IZ_UINT num = m_comands[m_drawingListIdx].size();
@@ -250,6 +259,7 @@ std::tuple<void*, IZ_UINT> VertexStreamManager::getCommands()
     }
 }
 
+// スレッドセーフで入力データを追加.
 IZ_INT VertexStreamManager::addInputSafely(IVertexStreamInput* input)
 {
     izanagi::sys::Lock locker(m_lockerInputs);
@@ -262,17 +272,20 @@ IZ_INT VertexStreamManager::addInputSafely(IVertexStreamInput* input)
     });
 }
 
+// 入力データを追加を開始.
 void VertexStreamManager::beginAddInput()
 {
     m_lockerInputs.lock();
 }
 
+// 入力データを追加を終了.
 void VertexStreamManager::endAddInput()
 {
     m_notifyUpdate.Set();
     m_lockerInputs.unlock();
 }
 
+// 入力データを追加.
 IZ_INT VertexStreamManager::addInput(IVertexStreamInput* input)
 {
     return add<IVertexStreamInput*>(
@@ -281,6 +294,7 @@ IZ_INT VertexStreamManager::addInput(IVertexStreamInput* input)
         [&] {});
 }
 
+// 入力データを削除.
 IZ_BOOL VertexStreamManager::removeInput(IVertexStreamInput* input)
 {
     izanagi::sys::Lock locker(m_lockerInputs);
@@ -300,6 +314,7 @@ IZ_BOOL VertexStreamManager::removeInput(IVertexStreamInput* input)
     return result;
 }
 
+// 指定インデックスの入力データを削除.
 IZ_BOOL VertexStreamManager::removeInputByIdx(IZ_UINT idx)
 {
     izanagi::sys::Lock locker(m_lockerInputs);
@@ -319,7 +334,7 @@ IZ_BOOL VertexStreamManager::removeInputByIdx(IZ_UINT idx)
     return (input != nullptr);
 }
 
-
+// リストに要素を追加.
 template <typename _T>
 IZ_INT VertexStreamManager::add(_T& value, std::vector<_T>& list, std::function<void()> func)
 {
@@ -337,6 +352,7 @@ IZ_INT VertexStreamManager::add(_T& value, std::vector<_T>& list, std::function<
     return idx;
 }
 
+// リストから要素を削除.
 template <typename _T>
 IZ_BOOL VertexStreamManager::remove(_T& value, std::vector<_T>& list, std::function<void()> func)
 {
@@ -351,6 +367,7 @@ IZ_BOOL VertexStreamManager::remove(_T& value, std::vector<_T>& list, std::funct
     return IZ_FALSE;
 }
 
+// リストから指定インデックスの要素を削除.
 template <typename _T>
 _T VertexStreamManager::removeByIdx(IZ_UINT idx, std::vector<_T>& list, std::function<void()> func)
 {
