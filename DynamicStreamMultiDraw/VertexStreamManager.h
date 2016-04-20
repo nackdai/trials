@@ -13,8 +13,12 @@ struct DrawArraysIndirectCommand
     GLuint baseInstance;
 };
 
+class VertexStreamManager;
+
 // 頂点データ入力インターフェース.
 class IVertexStreamInput {
+    friend class VertexStreamManager;
+
 protected:
     IVertexStreamInput() {}
     virtual ~IVertexStreamInput() {}
@@ -41,8 +45,21 @@ public:
         return m_offset;
     }
 
+private:
+    IZ_BOOL isCancel() const
+    {
+        return m_cancel;
+    }
+    void cancel()
+    {
+        m_cancel = true;
+    }
+
 protected:
     IZ_UINT m_offset{ 0 };
+
+private:
+    std::atomic<bool> m_cancel{ false };
 };
 
 // 頂点データストリームマネージャー.
@@ -81,6 +98,8 @@ public:
     // 指定インデックスの入力データを削除.
     IZ_BOOL removeInputByIdx(IZ_UINT idx);
 
+    void cancelInput(IVertexStreamInput* input);
+
     // For debug.
     void notifyUpdateForcibly();
 
@@ -97,6 +116,7 @@ private:
         IZ_UINT offset{ 0 };
         IZ_UINT size{ 0 };
 
+        EmptyInfo() {}
         EmptyInfo(IZ_UINT _offset, IZ_UINT _size) : offset(_offset), size(_size) {}
 
         bool operator==(const EmptyInfo& rhs)

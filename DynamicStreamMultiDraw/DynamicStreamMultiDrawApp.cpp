@@ -44,6 +44,8 @@ IZ_UINT VertexInput::writeToBuffer(void* buffer, IZ_UINT offset)
 
     memcpy(dst, src, size);
 
+    izanagi::sys::CThread::Sleep(100);
+
     m_offset = offset;
 
     return size;

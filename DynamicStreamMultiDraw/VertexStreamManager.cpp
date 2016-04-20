@@ -48,21 +48,72 @@ void VertexStreamManager::procThread()
         m_notifyUpdate.Reset();
 
         if (m_willTerminate) {
-            break;
+            return;
         }
 
-        izanagi::sys::Lock lockerInputs(m_lockerInputs);
-        izanagi::sys::Lock lockerEmptyInfo(m_lockerEmptyInfo);
+        m_lockerInputs.lock();
+        m_lockerEmptyInfo.lock();
 
-        for (auto input : m_inputs) {
+        std::vector<IVertexStreamInput*> inputs(m_inputs.size());
+        std::vector<EmptyInfo> empties(m_emptyInfo.size());
+
+        memcpy(
+            &inputs[0],
+            &m_inputs[0],
+            sizeof(IVertexStreamInput*) * m_inputs.size());
+        memcpy(
+            &empties[0],
+            &m_emptyInfo[0],
+            sizeof(EmptyInfo) * m_emptyInfo.size());
+
+        m_lockerInputs.unlock();
+        m_lockerEmptyInfo.unlock();
+
+        for (auto input : inputs) {
+            if (input->isCancel()) {
+                continue;
+            }
+
+            if (m_willTerminate) {
+                return;
+            }
+
             if (input->needUpdate()) {
-                for (auto& info : m_emptyInfo) {
+                for (auto& info : empties) {
+                    if (input->isCancel()) {
+                        break;
+                    }
+                    if (m_willTerminate) {
+                        return;
+                    }
+
                     if (input->canWrite(info.size)) {
                         auto writeSize = input->getSize();
 
+                        if (input->isCancel()) {
+                            break;
+                        }
+                        if (m_willTerminate) {
+                            return;
+                        }
+
                         updateEmptyInfo(info, writeSize);
 
+                        if (input->isCancel()) {
+                            break;
+                        }
+                        if (m_willTerminate) {
+                            return;
+                        }
+
                         writeSize = input->writeToBuffer(m_mappedDataPtr, info.offset);
+
+                        if (input->isCancel()) {
+                            break;
+                        }
+                        if (m_willTerminate) {
+                            return;
+                        }
 
                         auto count = input->getCount();
 
@@ -96,8 +147,7 @@ IVertexStreamInput* VertexStreamManager::getUnprocessedInput()
 // 空き情報を更新.
 void VertexStreamManager::updateEmptyInfo(EmptyInfo& info, IZ_UINT wroteSize)
 {
-    // NOTE
-    // 外でロックしてスレッドセーフにしておくこと.
+    izanagi::sys::Lock lockerEmptyInfo(m_lockerEmptyInfo);
 
     if (info.size >= wroteSize) {
         info.size -= wroteSize;
@@ -115,19 +165,24 @@ void VertexStreamManager::addEmptyInfo(IZ_UINT offset, IZ_UINT size)
 {
     izanagi::sys::Lock lockerEmptyInfo(m_lockerEmptyInfo);
 
-    EmptyInfo emptyInfo(offset, size);
-
-    EmptyInfo* parent = nullptr;
+    bool isMerged = false;
 
     for (auto& info : m_emptyInfo) {
         if (info.offset + info.size == offset) {
-            parent = &info;
+            info.size += size;
+            isMerged = true;
+            break;
+        }
+        else if (offset + size == info.offset) {
+            info.offset = offset;
+            info.size += size;
+            isMerged = true;
             break;
         }
     }
 
-    if (parent) {
-        parent->size += size;
+    if (!isMerged) {
+        m_emptyInfo.push_back(EmptyInfo(offset, size));
     }
 }
 
@@ -332,6 +387,12 @@ IZ_BOOL VertexStreamManager::removeInputByIdx(IZ_UINT idx)
     }
 
     return (input != nullptr);
+}
+
+void VertexStreamManager::cancelInput(IVertexStreamInput* input)
+{
+    input->cancel();
+    removeInput(input);
 }
 
 // リストに要素を追加.
