@@ -411,11 +411,13 @@
   <ItemGroup>
     <ClInclude Include="..\..\DynamicStreamMultiDraw\bufferlock.h" />
     <ClInclude Include="..\..\DynamicStreamMultiDraw\DynamicStreamMultiDrawApp.h" />
+    <ClInclude Include="..\..\DynamicStreamMultiDraw\VertexStreamManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\DynamicStreamMultiDraw\bufferlock.cpp" />
     <ClCompile Include="..\..\DynamicStreamMultiDraw\DynamicStreamMultiDrawApp.cpp" />
     <ClCompile Include="..\..\DynamicStreamMultiDraw\main.cpp" />
+    <ClCompile Include="..\..\DynamicStreamMultiDraw\VertexStreamManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\DynamicStreamMultiDraw\shader\ps.glsl" />

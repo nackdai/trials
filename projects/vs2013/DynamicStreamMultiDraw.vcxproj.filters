@@ -10,12 +10,18 @@
     <ClCompile Include="..\..\DynamicStreamMultiDraw\main.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\DynamicStreamMultiDraw\VertexStreamManager.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\DynamicStreamMultiDraw\bufferlock.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DynamicStreamMultiDraw\DynamicStreamMultiDrawApp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DynamicStreamMultiDraw\VertexStreamManager.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
