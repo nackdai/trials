@@ -45,7 +45,6 @@ public:
         return m_offset;
     }
 
-private:
     IZ_BOOL isCancel() const
     {
         return m_cancel;
@@ -55,11 +54,22 @@ private:
         m_cancel = true;
     }
 
+private:
+    void setBelonged(VertexStreamManager* belonged)
+    {
+        m_belonged = belonged;
+    }
+
+    IZ_BOOL isBelonged(VertexStreamManager* belonged)
+    {
+        return (m_belonged == belonged);
+    }
+
 protected:
     IZ_UINT m_offset{ 0 };
-
-private:
     std::atomic<bool> m_cancel{ false };
+
+    VertexStreamManager* m_belonged{ nullptr };
 };
 
 // 頂点データストリームマネージャー.
@@ -92,6 +102,15 @@ public:
     // 入力データを追加.
     IZ_INT addInput(IVertexStreamInput* input);
 
+    // スレッドセーフで入力データを削除.
+    IZ_BOOL removeInputSafely(IVertexStreamInput* input);
+
+    // 入力データを削除を開始.
+    void beginRemoveInput();
+
+    // 入力データを削除を終了.
+    void endRemoveInput();
+
     // 入力データを削除.
     IZ_BOOL removeInput(IVertexStreamInput* input);
 
@@ -101,7 +120,7 @@ public:
     void cancelInput(IVertexStreamInput* input);
 
     // For debug.
-    void notifyUpdateForcibly();
+    void notifyUpdateForcibly(IZ_BOOL needClear = IZ_TRUE);
 
     izanagi::graph::CVertexBuffer* getVB()
     {

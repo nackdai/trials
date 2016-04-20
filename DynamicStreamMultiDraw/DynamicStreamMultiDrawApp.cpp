@@ -64,6 +64,7 @@ IZ_UINT VertexInput::getCount() const
 void VertexInput::needUpdateForcibly()
 {
     m_needUpdate = IZ_TRUE;
+    m_cancel = true;
 }
 
 ////////////////////////////////////////////////////////////
@@ -158,6 +159,11 @@ void DynamicStreamMultiDrawApp::createVertices()
     //izanagi::math::CMathRand::Init(st.wMilliseconds);
     izanagi::math::CMathRand::Init(0);
 
+#ifdef MANUAL_ADD
+    for (IZ_UINT i = 0; i < LIST_NUM; i++) {
+        m_vtxInput[i].init();
+    }
+#else
 #if 1
     m_vtxStream.beginAddInput();
 
@@ -174,6 +180,7 @@ void DynamicStreamMultiDrawApp::createVertices()
 
         m_vtxStream.addInputSafely(&m_vtxInput[i]);
     }
+#endif
 #endif
 }
 
@@ -196,6 +203,16 @@ void DynamicStreamMultiDrawApp::UpdateInternal(izanagi::graph::CGraphicsDevice* 
     
     camera.Update();
 
+#ifdef MANUAL_ADD
+    if (m_needUpdate) {
+        if (m_curRegisteredNum < LIST_NUM) {
+            for (IZ_UINT i = m_curRegisteredNum; i < 10; i++) {
+                m_vtxStream.addInputSafely(&m_vtxInput[i]);
+            }
+            m_curRegisteredNum += 10;
+        }
+    }
+#else
     if (m_needUpdate) {
         IZ_PRINTF("****** Force Update\n");
         for (IZ_UINT i = 0; i < LIST_NUM; i++) {
@@ -204,6 +221,19 @@ void DynamicStreamMultiDrawApp::UpdateInternal(izanagi::graph::CGraphicsDevice* 
         m_vtxStream.notifyUpdateForcibly();
         m_needUpdate = IZ_FALSE;
     }
+    if (m_needCancel) {
+        IZ_PRINTF("****** Force Cancel\n");
+
+        m_vtxStream.beginRemoveInput();
+        for (IZ_UINT i = 0; i < LIST_NUM; i++) {
+            m_vtxInput[i].cancel();
+        }
+        m_vtxStream.endRemoveInput();
+
+        m_vtxStream.notifyUpdateForcibly(IZ_FALSE);
+        m_needCancel = IZ_FALSE;
+    }
+#endif
 }
 
 namespace {
@@ -285,6 +315,9 @@ IZ_BOOL DynamicStreamMultiDrawApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key
 {
     if (key == izanagi::sys::E_KEYBOARD_BUTTON_RETURN) {
         m_needUpdate = IZ_TRUE;
+    }
+    else if (key == izanagi::sys::E_KEYBOARD_BUTTON_SPACE) {
+        m_needCancel = IZ_TRUE;
     }
     return IZ_TRUE;
 }

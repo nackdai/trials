@@ -43,6 +43,9 @@ void VertexStreamManager::init(
 
 void VertexStreamManager::procThread()
 {
+    std::vector<IVertexStreamInput*> inputs;
+    std::vector<EmptyInfo> empties;
+
     while (!m_willTerminate) {
         m_notifyUpdate.Wait();
         m_notifyUpdate.Reset();
@@ -54,8 +57,8 @@ void VertexStreamManager::procThread()
         m_lockerInputs.lock();
         m_lockerEmptyInfo.lock();
 
-        std::vector<IVertexStreamInput*> inputs(m_inputs.size());
-        std::vector<EmptyInfo> empties(m_emptyInfo.size());
+        inputs.resize(m_inputs.size());
+        empties.resize(m_emptyInfo.size());
 
         memcpy(
             &inputs[0],
@@ -71,9 +74,9 @@ void VertexStreamManager::procThread()
 
         for (auto input : inputs) {
             if (input->isCancel()) {
+                //removeInput(input);
                 continue;
             }
-
             if (m_willTerminate) {
                 return;
             }
@@ -122,6 +125,10 @@ void VertexStreamManager::procThread()
                         break;
                     }
                 }
+            }
+
+            if (input->isCancel()) {
+                //removeInput(input);
             }
 
             izanagi::sys::CThread::Sleep(0);
@@ -319,12 +326,18 @@ IZ_INT VertexStreamManager::addInputSafely(IVertexStreamInput* input)
 {
     izanagi::sys::Lock locker(m_lockerInputs);
 
-    return add<IVertexStreamInput*>(
+    auto ret = add<IVertexStreamInput*>(
         input, 
         m_inputs, 
         [&] {
         m_notifyUpdate.Set();
     });
+
+    if (ret >= 0) {
+        input->setBelonged(this);
+    }
+
+    return ret;
 }
 
 // 入力データを追加を開始.
@@ -343,15 +356,25 @@ void VertexStreamManager::endAddInput()
 // 入力データを追加.
 IZ_INT VertexStreamManager::addInput(IVertexStreamInput* input)
 {
-    return add<IVertexStreamInput*>(
+    auto ret = add<IVertexStreamInput*>(
         input,
         m_inputs,
         [&] {});
+
+    if (ret >= 0) {
+        input->setBelonged(this);
+    }
+
+    return ret;
 }
 
 // 入力データを削除.
-IZ_BOOL VertexStreamManager::removeInput(IVertexStreamInput* input)
+IZ_BOOL VertexStreamManager::removeInputSafely(IVertexStreamInput* input)
 {
+    if (!input->isBelonged(this)) {
+        return IZ_FALSE;
+    }
+
     izanagi::sys::Lock locker(m_lockerInputs);
 
     auto result = remove<IVertexStreamInput*>(
@@ -364,6 +387,44 @@ IZ_BOOL VertexStreamManager::removeInput(IVertexStreamInput* input)
     if (result) {
         addEmptyInfo(input->getOffset(), input->getSize());
         removeCommand(input->getOffset());
+
+        input->setBelonged(nullptr);
+    }
+
+    return result;
+}
+
+// 入力データを削除を開始.
+void VertexStreamManager::beginRemoveInput()
+{
+    m_lockerInputs.lock();
+}
+
+// 入力データを削除を終了.
+void VertexStreamManager::endRemoveInput()
+{
+    m_lockerInputs.unlock();
+}
+
+// 入力データを削除.
+IZ_BOOL VertexStreamManager::removeInput(IVertexStreamInput* input)
+{
+    if (!input->isBelonged(this)) {
+        return IZ_FALSE;
+    }
+
+    auto result = remove<IVertexStreamInput*>(
+        input,
+        m_inputs,
+        [&] {
+        m_notifyUpdate.Set();
+    });
+
+    if (result) {
+        addEmptyInfo(input->getOffset(), input->getSize());
+        removeCommand(input->getOffset());
+
+        input->setBelonged(nullptr);
     }
 
     return result;
@@ -384,6 +445,8 @@ IZ_BOOL VertexStreamManager::removeInputByIdx(IZ_UINT idx)
     if (input) {
         addEmptyInfo(input->getOffset(), input->getSize());
         removeCommand(input->getOffset());
+
+        input->setBelonged(nullptr);
     }
 
     return (input != nullptr);
@@ -446,17 +509,19 @@ _T VertexStreamManager::removeByIdx(IZ_UINT idx, std::vector<_T>& list, std::fun
 }
 
 // For debug.
-void VertexStreamManager::notifyUpdateForcibly()
+void VertexStreamManager::notifyUpdateForcibly(IZ_BOOL needClear/*= IZ_TRUE*/)
 {
-    izanagi::sys::Lock lockerCmd(m_lockerCmd);
-    izanagi::sys::Lock lockerEmptyInfo(m_lockerEmptyInfo);
+    if (needClear) {
+        izanagi::sys::Lock lockerCmd(m_lockerCmd);
+        izanagi::sys::Lock lockerEmptyInfo(m_lockerEmptyInfo);
 
-    m_comands[m_writingListIdx].clear();
+        m_comands[m_writingListIdx].clear();
 
-    m_emptyInfo.clear();
-    m_emptyInfo.push_back(EmptyInfo(0, m_bufferSize));
+        m_emptyInfo.clear();
+        m_emptyInfo.push_back(EmptyInfo(0, m_bufferSize));
 
-    m_needChangeCmd = true;
+        m_needChangeCmd = true;
+    }
 
     m_notifyUpdate.Set();
 }

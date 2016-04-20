@@ -6,7 +6,7 @@
 
 #include "VertexStreamManager.h"
 
-//#define ENABLE_TRHEAD
+#define MANUAL_ADD
 
 static const IZ_UINT SCREEN_WIDTH = 1280;
 static const IZ_UINT SCREEN_HEIGHT = 720;
@@ -88,6 +88,9 @@ private:
     izanagi::graph::CShaderProgram* m_shd{ nullptr };
 
     IZ_BOOL m_needUpdate{ IZ_FALSE };
+    IZ_BOOL m_needCancel{ IZ_FALSE };
+
+    IZ_UINT m_curRegisteredNum{ 0 };
 };
 
 #endif    // #if !defined(__DYNAMIC_STREAM_MULTI_DRAW_APP_H__)
