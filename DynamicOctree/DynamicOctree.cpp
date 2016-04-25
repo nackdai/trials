@@ -56,6 +56,10 @@ uint32_t DynamicOctree::add(DynamicOctreeObject* obj)
             // 今のルートノードの大きさの範囲外なので広げる.
             auto center = m_root->getCenter();
             expand(pos - center);
+
+            if (m_depth > m_maxDepth) {
+                merge(m_maxDepth);
+            }
         }
         else if (addType == DynamicOctreeNode::AddResult::OverFlow) {
             // 登録数がオーバーフローしたが、行き先がなくなるので、強制的に登録する.
@@ -68,9 +72,9 @@ uint32_t DynamicOctree::add(DynamicOctreeObject* obj)
             IZ_ASSERT(IZ_FALSE);
         }
 
-        if (loopCount > 4) {
+        if (loopCount > 10) {
             // TODO
-            //IZ_ASSERT(IZ_FALSE);
+            IZ_ASSERT(IZ_FALSE);
             return 0;
         }
 
@@ -111,7 +115,7 @@ void DynamicOctree::expand(const izanagi::math::SVector3& dir)
         newCenter,
         minSize);
 
-    m_depth++;
+    incrementDepth();
 
     auto idx = getNewIdx(dirX, dirY, dirZ);
 
@@ -120,41 +124,16 @@ void DynamicOctree::expand(const izanagi::math::SVector3& dir)
     for (uint32_t i = 0; i < 8; i++) {
         if (idx == i) {
             children[i] = prevRoot;
+            prevRoot->incrementDepth();
         }
         else {
             izanagi::math::CVector4 pos(newCenter.x, newCenter.y, newCenter.z);
 
-            // NOTE
-            /*
-            * y
-            * | +----+----+
-            * | | 2  | 3  |
-            * | +----+----+
-            * | | 0  | 1  |
-            * | +----+----+
-            * +------------->x
-            */
-            /*
-            * y
-            * |     +----+----+
-            * |  z  | 6  | 7  |
-            * |  /  +----+----+
-            * | /   | 4  | 5  |
-            * |/    +----+----+
-            * +------------->x
-            */
+            auto nodeDir = getNodeDir(i);
 
-            // 中心からの方向を計算.
-
-            dirX = ((i & 0x01) == 0 ? -1 : 1);  // 左（偶数）or 右（奇数）.
-            dirZ = (i >= 4 ? 1 : -1);           // 奥（4-7） or 手前（0-3).
-
-            // NOTE
-            // 上は 2, 3, 6, 7.
-            // ２進数にすると、001, 011, 110, 111 で ２ビット目が立っている.
-            // 下は 0, 1, 4, 5.
-            // ２進数にすると、000, 001, 100, 101 で ２ビット目が立っていない.
-            dirY = ((i & 0x02) > 0 ? 1 : -1);   // 上（２ビット目が立っている）or 下（２ビット目が立っていない）.
+            dirX = std::get<0>(nodeDir);
+            dirY = std::get<1>(nodeDir);
+            dirZ = std::get<2>(nodeDir);
 
             pos.x += dirX * half.x;
             pos.y += dirY * half.y;
@@ -170,6 +149,17 @@ void DynamicOctree::expand(const izanagi::math::SVector3& dir)
     }
 
     m_root->addChildren(this, children);
+}
+
+void DynamicOctree::merge(uint32_t targetDepth)
+{
+    auto result = m_root->merge(
+        this,
+        targetDepth);
+
+    if (result) {
+        m_depth = targetDepth;
+    }
 }
 
 uint32_t DynamicOctree::getNewIdx(
@@ -202,4 +192,41 @@ uint32_t DynamicOctree::getNewIdx(
     ret += (dirZ < 0 ? 4 : 0);
 
     return ret;
+}
+
+DynamicOctree::NodeDir DynamicOctree::getNodeDir(uint32_t idx)
+{
+    // NOTE
+    /*
+    * y
+    * | +----+----+
+    * | | 2  | 3  |
+    * | +----+----+
+    * | | 0  | 1  |
+    * | +----+----+
+    * +------------->x
+    */
+    /*
+    * y
+    * |     +----+----+
+    * |  z  | 6  | 7  |
+    * |  /  +----+----+
+    * | /   | 4  | 5  |
+    * |/    +----+----+
+    * +------------->x
+    */
+
+    // 中心からの方向を計算.
+
+    auto dirX = ((idx & 0x01) == 0 ? -1 : 1);  // 左（偶数）or 右（奇数）.
+    auto dirZ = (idx >= 4 ? 1 : -1);           // 奥（4-7） or 手前（0-3).
+
+    // NOTE
+    // 上は 2, 3, 6, 7.
+    // ２進数にすると、001, 011, 110, 111 で ２ビット目が立っている.
+    // 下は 0, 1, 4, 5.
+    // ２進数にすると、000, 001, 100, 101 で ２ビット目が立っていない.
+    auto dirY = ((idx & 0x02) > 0 ? 1 : -1);   // 上（２ビット目が立っている）or 下（２ビット目が立っていない）.
+
+    return NodeDir(dirX, dirY, dirZ);
 }

@@ -99,7 +99,7 @@ IZ_BOOL DynamicOctreeApp::InitInternal(
         izanagi::math::CVector4(0.0f, 0.0f, 0.0f, 1.0f),
         izanagi::math::CVector4(0.0f, 1.0f, 0.0f, 1.0f),
         1.0f,
-        500.0f,
+        10000.0f,
         izanagi::math::CMath::Deg2Rad(60.0f),
         (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
     camera.Update();
@@ -176,7 +176,11 @@ void DynamicOctreeApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
     
     camera.Update();
 
-    if (m_addPoint) {
+    if (m_willMerge) {
+        m_octree.merge(2);
+        m_willMerge = IZ_FALSE;
+    }
+    else if (m_addPoint) {
         static const IZ_COLOR colors[] = {
             izanagi::CColor::RED,
             izanagi::CColor::BLUE,
@@ -195,7 +199,7 @@ void DynamicOctreeApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
         for (IZ_UINT i = 0; i < 1; i++) {
             PointObj* vtx = new PointObj();
             {
-#if 0
+#if 1
                 vtx->vtx.pos[0] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
                 vtx->vtx.pos[1] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
                 vtx->vtx.pos[2] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
@@ -212,6 +216,7 @@ void DynamicOctreeApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
             }
 
             auto depth = m_octree.add(vtx);
+            IZ_PRINTF("Depth[%d]\n", depth);
 
             vtx->vtx.color = colors[depth % COUNTOF(colors)];
 
@@ -298,6 +303,9 @@ IZ_BOOL DynamicOctreeApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
 {
     if (key == izanagi::sys::E_KEYBOARD_BUTTON_RETURN) {
         m_addPoint = IZ_TRUE;
+    }
+    else if (key == izanagi::sys::E_KEYBOARD_BUTTON_SPACE) {
+        m_willMerge = IZ_TRUE;
     }
     return IZ_TRUE;
 }

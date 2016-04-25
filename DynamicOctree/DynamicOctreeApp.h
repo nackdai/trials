@@ -63,6 +63,7 @@ private:
     izanagi::graph::CShaderProgram* m_shd{ nullptr };
 
     IZ_BOOL m_addPoint{ IZ_FALSE };
+    IZ_BOOL m_willMerge{ IZ_FALSE };
 
     DynamicOctree m_octree;
     izanagi::shader::CShaderBasic* m_basicShd{ nullptr };

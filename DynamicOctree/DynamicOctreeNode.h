@@ -143,6 +143,17 @@ private:
         DynamicOctree* octree,
         DynamicOctreeNode* children[]);
 
+    bool merge(
+        DynamicOctree* octree,
+        uint32_t targetDepth);
+
+    void incrementDepth();
+
+    bool hasChildren() const
+    {
+        return (m_children[0] != nullptr);
+    }
+
 private:
     AABB m_aabb;
 
@@ -150,6 +161,7 @@ private:
 
     float m_minSize{ 1.0f };
 
+    DynamicOctreeNode* m_parent{ nullptr };
     DynamicOctreeNode* m_children[8];
     std::vector<DynamicOctreeObject*> m_objects;
 };

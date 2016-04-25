@@ -85,10 +85,58 @@ DynamicOctreeNode::Result DynamicOctreeNode::addInternal(
 {
     Result result = Result(AddResult::None, m_depth);
 
+#if 1
+    auto maxDepth = octree->getMaxDepth();
+
+    if (m_depth < maxDepth && !m_children[0]) {
+        auto size = getSize();
+        izanagi::math::CVector3 newSize(size);
+        newSize *= 0.5f;
+
+        izanagi::math::CVector3 half(newSize);
+        half *= 0.5f;
+
+        auto minSize = getMinSize();
+
+        auto center = getCenter();
+
+        for (uint32_t i = 0; i < COUNTOF(m_children); i++) {
+            izanagi::math::CVector4 pos(center.x, center.y, center.z);
+
+            auto dir = DynamicOctree::getNodeDir(i);
+
+            auto dirX = std::get<0>(dir);
+            auto dirY = std::get<1>(dir);
+            auto dirZ = std::get<2>(dir);
+
+            pos.x += dirX * half.x;
+            pos.y += dirY * half.y;
+            pos.z += dirZ * half.z;
+
+            auto child = new DynamicOctreeNode(
+                newSize.x,
+                pos,
+                minSize);
+
+            child->m_parent = this;
+            child->m_depth = m_depth + 1;
+
+            m_children[i] = child;
+        }
+
+        octree->setDepthForExpand(m_depth + 1);
+    }
+
     if (m_children[0]) {
         auto child = findChildCanRegister(obj);
         result = child->add(octree, obj);
     }
+#else
+    if (m_children[0]) {
+        auto child = findChildCanRegister(obj);
+        result = child->add(octree, obj);
+    }
+#endif
 
     auto addtype = std::get<0>(result);
 
@@ -137,16 +185,39 @@ void DynamicOctreeNode::addChildren(
     DynamicOctree* octree,
     DynamicOctreeNode* children[])
 {
+    IZ_ASSERT(m_children[0] == nullptr);
+
     for (int i = 0; i < COUNTOF(m_children); i++) {
         m_children[i] = children[i];
         IZ_ASSERT(m_children[i]);
 
+        m_children[i]->m_parent = this;
         m_children[i]->m_depth = this->m_depth + 1;
     }
 
     auto maxCnt = getMaxRegisteredObjCount();
     auto num = m_objects.size();
 
+#if 1
+    // 子供に移す.
+    for (uint32_t i = 0; i < num; i++) {
+        auto obj = m_objects.back();
+
+        auto child = findChildCanRegister(obj);
+        auto result = child->add(octree, obj);
+
+        auto addType = std::get<0>(result);
+
+        // 必ず入るはず...
+        IZ_ASSERT(addType != AddResult::NotContain);
+
+        if (addType == AddResult::Success) {
+            m_objects.pop_back();
+        }
+
+        // 子供でも受けきれない場合は、そのまま持っておく.
+    }
+#else
     // オーバーした分は子供に移す.
     if (num > maxCnt) {
         auto cnt = maxCnt - num;
@@ -169,4 +240,76 @@ void DynamicOctreeNode::addChildren(
             // 子供でも受けきれない場合は、そのまま持っておく.
         }
     }
+#endif
+}
+
+bool DynamicOctreeNode::merge(
+    DynamicOctree* octree,
+    uint32_t targetDepth)
+{
+    bool ret = false;
+
+    if (m_depth + 1 > targetDepth) {
+        if (m_children[0]) {
+            for (int i = 0; i < COUNTOF(m_children); i++) {
+                m_children[i]->merge(octree, targetDepth);
+                IZ_ASSERT(!m_children[i]->hasChildren());
+            }
+
+            auto objNum = 0;
+
+            for (int i = 0; i < COUNTOF(m_children); i++) {
+                objNum += m_children[i]->getRegisteredObjNum();
+            }
+
+            if (objNum > 0) {
+                auto curNum = m_objects.size();
+
+                m_objects.resize(curNum + objNum);
+
+                auto offset = curNum;
+                uint8_t* dst = (uint8_t*)this->getRegisteredObjects();
+
+                for (int i = 0; i < COUNTOF(m_children); i++) {
+                    auto num = m_children[i]->getRegisteredObjNum();
+                    auto src = m_children[i]->getRegisteredObjects();
+
+                    memcpy(dst + offset, src, sizeof(DynamicOctreeObject*) * num);
+                    offset += num;
+                }
+            }
+
+            for (int i = 0; i < COUNTOF(m_children); i++) {
+                delete m_children[i];
+                m_children[i] = nullptr;
+            }
+
+            octree->setDepthForMerge(m_depth);
+
+            ret = true;
+        }
+    }
+    else {
+        if (m_children[0]) {
+            for (int i = 0; i < COUNTOF(m_children); i++) {
+                auto result = m_children[i]->merge(octree, targetDepth);
+
+                if (result) {
+                    ret = true;
+                }
+            }
+        }
+    }
+
+    return ret;
+}
+
+void DynamicOctreeNode::incrementDepth()
+{
+    if (m_children[0]) {
+        for (int i = 0; i < COUNTOF(m_children); i++) {
+            m_children[i]->incrementDepth();
+        }
+    }
+    m_depth++;
 }

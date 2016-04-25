@@ -30,23 +30,52 @@ public:
         return m_root;
     }
 
+    uint32_t getMaxDepth() const
+    {
+        return m_maxDepth;
+    }
+
+    uint32_t getDepth() const
+    {
+        return m_depth;
+    }
+
+    void merge(uint32_t targetDepth);
+
 private:
     void expand(const izanagi::math::SVector3& dir);
 
-    void incrementDepth()
+    uint32_t incrementDepth()
     {
         m_depth++;
+        return m_depth;
     }
-    void decrementDepth()
+    uint32_t decrementDepth()
     {
         IZ_ASSERT(m_depth > 0);
         m_depth--;
+        return m_depth;
+    }
+
+    uint32_t setDepthForExpand(uint32_t depth)
+    {
+        m_depth = (depth > m_depth ? depth : m_depth);
+        return m_depth;
+    }
+    uint32_t setDepthForMerge(uint32_t depth)
+    {
+        m_depth = (depth < m_depth ? depth : m_depth);
+        return m_depth;
     }
 
     static uint32_t getNewIdx(
         int32_t dirX,
         int32_t dirY,
         int32_t dirZ);
+
+    using NodeDir = std::tuple < int32_t, int32_t, int32_t > ;
+
+    static NodeDir getNodeDir(uint32_t idx);
 
 private:
     DynamicOctreeNode* m_root{ nullptr };
