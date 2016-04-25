@@ -412,16 +412,35 @@
     <ClInclude Include="..\..\DynamicOctree\DynamicOctree.h" />
     <ClInclude Include="..\..\DynamicOctree\DynamicOctreeApp.h" />
     <ClInclude Include="..\..\DynamicOctree\DynamicOctreeNode.h" />
+    <ClInclude Include="..\..\DynamicOctree\DynamicOctreeRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\DynamicOctree\DynamicOctree.cpp" />
     <ClCompile Include="..\..\DynamicOctree\DynamicOctreeApp.cpp" />
     <ClCompile Include="..\..\DynamicOctree\DynamicOctreeNode.cpp" />
+    <ClCompile Include="..\..\DynamicOctree\DynamicOctreeRenderer.cpp" />
     <ClCompile Include="..\..\DynamicOctree\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\DynamicOctree\shader\ps.glsl" />
     <None Include="..\..\DynamicOctree\shader\vs.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\DynamicOctree\shader\BasicShader.xml">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug_OGL|Win32'">$(TOOL_DIR)Release\ShaderConverter.exe -src "%(FullPath)" -obj "$(ProjectDir)..\..\$(ProjectName)\shader_obj" -o "$(ProjectDir)..\..\$(ProjectName)\data" -D GLES2 -t gles2</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug_OGL|Win32'">%(RootDir)%(Directory)..\data\%(Filename).shd;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug_OGL|Win32'">%(RootDir)%(Directory)%(Filename).fx;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\DynamicOctree\shader\BasicShader.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_DX9|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_GLES2|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_OGL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_OGL|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_GLES2|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_DX9|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

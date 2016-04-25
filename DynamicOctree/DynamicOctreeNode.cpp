@@ -1,10 +1,11 @@
 #include "DynamicOctreeNode.h"
+#include "DynamicOctree.h"
 
 void AABB::set(
     const izanagi::math::SVector3& size,
     const izanagi::math::SVector4& pos)
 {
-    m_min.Set(pos.getXYZ());
+    m_min.Set(pos.x, pos.y, pos.z);
     m_max.Set(m_min);
 
     izanagi::math::CVector3 half(size);
@@ -22,6 +23,16 @@ bool AABB::isContain(const izanagi::math::SVector4& p)
 
     return ret;
 }
+
+izanagi::math::CVector3 AABB::getCenter() const
+{
+    izanagi::math::CVector3 center = m_min + m_max;
+    center *= 0.5f;
+
+    return std::move(center);
+}
+
+uint32_t DynamicOctreeNode::s_maxRegisteredObjCount = 100;
 
 DynamicOctreeNode::DynamicOctreeNode(
     float initialSize,
@@ -53,20 +64,109 @@ DynamicOctreeNode::~DynamicOctreeNode()
     }
 }
 
-bool DynamicOctreeNode::add(DynamicOctreeObject* obj)
+DynamicOctreeNode::Result DynamicOctreeNode::add(
+    DynamicOctree* octree,
+    DynamicOctreeObject* obj)
 {
-    const auto p = obj->getCenter();
+    auto p = obj->getCenter();
 
     if (!m_aabb.isContain(p)) {
-        return false;
+        return Result(AddResult::NotContain, m_depth);
     }
 
-    addInternal(obj);
+    auto ret = addInternal(octree, obj);
 
-    return true;
+    return ret;
 }
 
-void DynamicOctreeNode::addInternal(DynamicOctreeObject* obj)
+DynamicOctreeNode::Result DynamicOctreeNode::addInternal(
+    DynamicOctree* octree,
+    DynamicOctreeObject* obj)
 {
-    // TODO
+    Result result = Result(AddResult::None, m_depth);
+
+    if (m_children[0]) {
+        auto child = findChildCanRegister(obj);
+        result = child->add(octree, obj);
+    }
+
+    auto addtype = std::get<0>(result);
+
+    if (addtype == AddResult::OverFlow
+        || addtype == AddResult::None)
+    {
+        auto maxCnt = getMaxRegisteredObjCount();
+        auto num = m_objects.size();
+
+        if (num < maxCnt) {
+            m_objects.push_back(obj);
+            result = Result(AddResult::Success, m_depth);
+        }
+        else {
+            result = Result(AddResult::OverFlow, m_depth);
+        }
+    }
+
+    return result;
+}
+
+// 指定されたオブジェクトを登録可能な子供を探す.
+DynamicOctreeNode* DynamicOctreeNode::findChildCanRegister(DynamicOctreeObject* obj)
+{
+    const auto center = getCenter();
+    const auto pos = obj->getCenter();
+
+    uint32_t idx = 0;
+    idx += (pos.x >= center.x ? 1 : 0);
+    idx += (pos.y >= center.y ? 2 : 0);
+    idx += (pos.z >= center.z ? 4 : 0);
+
+    IZ_ASSERT(m_children[idx]);
+    return m_children[idx];
+}
+
+// オブジェクトを無条件で強制登録.
+void DynamicOctreeNode::addForcibly(
+    DynamicOctree* octree,
+    DynamicOctreeObject* obj)
+{
+    m_objects.push_back(obj);
+}
+
+void DynamicOctreeNode::addChildren(
+    DynamicOctree* octree,
+    DynamicOctreeNode* children[])
+{
+    for (int i = 0; i < COUNTOF(m_children); i++) {
+        m_children[i] = children[i];
+        IZ_ASSERT(m_children[i]);
+
+        m_children[i]->m_depth = this->m_depth + 1;
+    }
+
+    auto maxCnt = getMaxRegisteredObjCount();
+    auto num = m_objects.size();
+
+    // オーバーした分は子供に移す.
+    if (num > maxCnt) {
+        auto cnt = maxCnt - num;
+
+        for (uint32_t i = 0; i < cnt; i++) {
+            auto obj = m_objects.back();
+
+            auto child = findChildCanRegister(obj);
+            auto result = child->add(octree, obj);
+
+            auto addType = std::get<0>(result);
+
+            // 必ず入るはず...
+            IZ_ASSERT(addType != AddResult::NotContain);
+
+            if (addType == AddResult::Success) {
+                m_objects.pop_back();
+            }
+
+            // 子供でも受けきれない場合は、そのまま持っておく.
+        }
+    }
 }

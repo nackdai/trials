@@ -1,4 +1,23 @@
 #include "DynamicOctreeApp.h"
+#include "DynamicOctreeRenderer.h"
+
+////////////////////////////////////////////////
+
+class PointObj : public DynamicOctreeObject {
+public:
+    PointObj() {}
+    virtual ~PointObj() {}
+
+    virtual izanagi::math::SVector4 getCenter() override
+    {
+        izanagi::math::CVector4 ret(vtx.pos[0], vtx.pos[1], vtx.pos[2]);
+        return std::move(ret);
+    }
+
+    Vertex vtx;
+};
+
+////////////////////////////////////////////////
 
 DynamicOctreeApp::DynamicOctreeApp()
 {
@@ -16,6 +35,12 @@ IZ_BOOL DynamicOctreeApp::InitInternal(
 {
     IZ_BOOL result = IZ_TRUE;
 
+    SYSTEMTIME st;
+    GetSystemTime(&st);
+
+    izanagi::math::CMathRand::Init(st.wMilliseconds);
+    //izanagi::math::CMathRand::Init(0);
+
     // Vertex Buffer.
     createVBForDynamicStream(allocator, device);
 
@@ -26,6 +51,16 @@ IZ_BOOL DynamicOctreeApp::InitInternal(
         };
 
         m_vd = device->CreateVertexDeclaration(elems, COUNTOF(elems));
+    }
+
+    {
+        izanagi::CFileInputStream in;
+        in.Open("data/BasicShader.shd");
+
+        m_basicShd = izanagi::shader::CShaderBasic::CreateShader<izanagi::shader::CShaderBasic>(
+            allocator,
+            device,
+            &in);
     }
 
     {
@@ -68,6 +103,15 @@ IZ_BOOL DynamicOctreeApp::InitInternal(
         izanagi::math::CMath::Deg2Rad(60.0f),
         (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
     camera.Update();
+
+    m_octree.init(
+        10.0f,
+        //izanagi::math::CVector4(5.0f, 5.0f, 5.0f),
+        izanagi::math::CVector4(0.0f, 0.0f, 0.0f),
+        1.0f,
+        4);
+
+    DynamicOctreeRenderer::instance().init(device, allocator);
 
 __EXIT__:
     if (!result) {
@@ -118,6 +162,11 @@ void DynamicOctreeApp::ReleaseInternal()
     SAFE_RELEASE(m_vs);
     SAFE_RELEASE(m_ps);
     SAFE_RELEASE(m_shd);
+
+    SAFE_RELEASE(m_basicShd);
+    m_octree.clear();
+
+    DynamicOctreeRenderer::instance().terminate();
 }
 
 // 更新.
@@ -129,35 +178,44 @@ void DynamicOctreeApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
 
     if (m_addPoint) {
         static const IZ_COLOR colors[] = {
-            IZ_COLOR_RGBA(0xff, 0, 0, 0xff),
-            IZ_COLOR_RGBA(0, 0xff, 0, 0xff),
-            IZ_COLOR_RGBA(0, 0, 0xff, 0xff),
+            izanagi::CColor::RED,
+            izanagi::CColor::BLUE,
+            izanagi::CColor::GREEN,
+            izanagi::CColor::ORANGE,
+            izanagi::CColor::DEEPPINK,
+            izanagi::CColor::PURPLE,
+            izanagi::CColor::VIOLET,
         };
 
         if (m_vtx.size() == POINT_NUM) {
             return;
         }
 
-        SYSTEMTIME st;
-        GetSystemTime(&st);
-
-        //izanagi::math::CMathRand::Init(st.wMilliseconds);
-        izanagi::math::CMathRand::Init(0);
-
-        for (IZ_UINT i = 0; i < 100; i++) {
-            Vertex vtx;
+        //for (IZ_UINT i = 0; i < 100; i++) {
+        for (IZ_UINT i = 0; i < 1; i++) {
+            PointObj* vtx = new PointObj();
             {
-                vtx.pos[0] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
-                vtx.pos[1] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
-                vtx.pos[2] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+#if 0
+                vtx->vtx.pos[0] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+                vtx->vtx.pos[1] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+                vtx->vtx.pos[2] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
+#else
+                vtx->vtx.pos[0] = 42.1749191f;
+                vtx->vtx.pos[1] = 13.1274967f;
+                vtx->vtx.pos[2] = 0.126667321f;
+                //vtx->vtx.pos[0] = 15.0f * (m_vtx.size() + 1);
+                //vtx->vtx.pos[1] = 0.0f;
+                //vtx->vtx.pos[2] = 0.0f;
+#endif
 
-                vtx.pos[3] = 1.0f;
-
-                auto n = m_vtx.size();
-                vtx.color = colors[n % COUNTOF(colors)];
-
-                m_vtx.push_back(vtx);
+                vtx->vtx.pos[3] = 1.0f;
             }
+
+            auto depth = m_octree.add(vtx);
+
+            vtx->vtx.color = colors[depth % COUNTOF(colors)];
+
+            m_vtx.push_back(vtx->vtx);
         }
 
         m_addPoint = IZ_FALSE;
@@ -194,7 +252,7 @@ void DynamicOctreeApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
     izanagi::math::SMatrix44 mtxW2C;
     izanagi::math::SMatrix44::Copy(mtxW2C, camera.GetParam().mtxW2C);
 
-    IZ_FLOAT pointSize = 100.0f;
+    IZ_FLOAT pointSize = 5.0f;
     auto hSize = m_shd->GetHandleByName("size");
     m_shd->SetFloat(device, hSize, pointSize);
 
@@ -212,6 +270,27 @@ void DynamicOctreeApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
             izanagi::graph::E_GRAPH_PRIM_TYPE_POINTLIST,
             0,
             num);
+    }
+
+    auto node = m_octree.getRootNode();
+
+    if (m_basicShd->Begin(device, 0, IZ_FALSE)) {
+
+        if (m_basicShd->BeginPass(0)) {
+            _SetShaderParam(m_basicShd, "g_mW2C", (const void*)&mtxW2C, sizeof(mtxW2C));
+
+            DynamicOctreeRenderer::instance().renderNodeRecursivly(
+                device, node,
+                [&](const izanagi::math::SMatrix44& mtxL2W) {
+                _SetShaderParam(m_basicShd, "g_mL2W", (const void*)&mtxL2W, sizeof(mtxL2W));
+
+                m_basicShd->CommitChanges(device);
+            });
+
+            m_basicShd->EndPass();
+        }
+
+        m_basicShd->End(device);
     }
 }
 

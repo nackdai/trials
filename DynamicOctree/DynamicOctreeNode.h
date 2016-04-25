@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "izMath.h"
 
+class DynamicOctree;
+
 class DynamicOctreeObject {
 public:
     DynamicOctreeObject() {}
@@ -25,10 +27,7 @@ public:
 
     bool isContain(const izanagi::math::SVector4& p);
 
-    const izanagi::math::CVector3& getCenter() const
-    {
-        return m_center;
-    }
+    izanagi::math::CVector3 getCenter() const;
 
     izanagi::math::CVector3 getSize() const
     {
@@ -37,15 +36,42 @@ public:
         return std::move(size);
     }
 
+    const izanagi::math::CVector3& getMin() const
+    {
+        return m_min;
+    }
+
+    const izanagi::math::CVector3& getMax() const
+    {
+        return m_max;
+    }
+
 private:
     izanagi::math::CVector3 m_min;
     izanagi::math::CVector3 m_max;
-
-    izanagi::math::CVector3 m_center;
 };
 
 class DynamicOctreeNode {
     friend class DynamicOctree;
+
+    static uint32_t s_maxRegisteredObjCount;
+
+    enum AddResult {
+        None,
+        Success,
+        NotContain,
+        OverFlow,
+    };
+
+public:
+    static void setMaxRegisteredObjCount(uint32_t cnt)
+    {
+        s_maxRegisteredObjCount = cnt;
+    }
+    static uint32_t getMaxRegisteredObjCount()
+    {
+        return s_maxRegisteredObjCount;
+    }
 
 private:
     DynamicOctreeNode(
@@ -56,9 +82,15 @@ private:
     ~DynamicOctreeNode();
 
 public:
-    const izanagi::math::CVector3& getCenter() const
+    izanagi::math::CVector3 getCenter() const
     {
-        return m_aabb.getCenter();
+        auto center = m_aabb.getCenter();
+        return std::move(center);
+    }
+
+    const izanagi::math::CVector3& getMin() const
+    {
+        return m_aabb.getMin();
     }
 
     izanagi::math::CVector3 getSize() const
@@ -68,18 +100,53 @@ public:
 
     float getMinSize() const
     {
-        m_minSize;
+        return m_minSize;
+    }
+
+    DynamicOctreeNode* getChild(uint32_t idx)
+    {
+        IZ_ASSERT(idx < COUNTOF(m_children));
+        return m_children[idx];
+    }
+
+    uint32_t getRegisteredObjNum() const
+    {
+        auto num = m_objects.size();
+        return num;
+    }
+
+    DynamicOctreeObject** getRegisteredObjects()
+    {
+        return (m_objects.empty() ? nullptr : &m_objects[0]);
     }
 
 private:
-    bool add(DynamicOctreeObject* obj);
+    using Result = std::tuple < AddResult, uint32_t > ;
 
-    void addInternal(DynamicOctreeObject* obj);
+    Result add(
+        DynamicOctree* octree,
+        DynamicOctreeObject* obj);
 
-    void addChild(uint32_t idx, DynamicOctreeNode* child);
+    Result addInternal(
+        DynamicOctree* octree,
+        DynamicOctreeObject* obj);
+
+    // 指定されたオブジェクトを登録可能な子供を探す.
+    inline DynamicOctreeNode* findChildCanRegister(DynamicOctreeObject* obj);
+
+    // オブジェクトを無条件で強制登録.
+    void addForcibly(
+        DynamicOctree* octree,
+        DynamicOctreeObject* obj);
+
+    void addChildren(
+        DynamicOctree* octree,
+        DynamicOctreeNode* children[]);
 
 private:
     AABB m_aabb;
+
+    uint32_t m_depth{ 1 };
 
     float m_minSize{ 1.0f };
 

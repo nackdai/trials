@@ -2,9 +2,17 @@
 #define __DYNAMIC_OCTREE_APP_H__
 
 #include "izSampleKit.h"
+#include "izShader.h"
+#include "DynamicOctree.h"
+#include "DynamicOctreeNode.h"
 
 static const IZ_UINT SCREEN_WIDTH = 1280;
 static const IZ_UINT SCREEN_HEIGHT = 720;
+
+struct Vertex {
+    IZ_FLOAT pos[4];
+    IZ_COLOR color;
+};
 
 class DynamicOctreeApp : public izanagi::sample::CSampleApp {
 public:
@@ -37,11 +45,6 @@ private:
 private:
     static const IZ_UINT POINT_NUM = 10000;
 
-    struct Vertex {
-        IZ_FLOAT pos[4];
-        IZ_COLOR color;
-    };
-
     IZ_UINT m_vtxIdx{ 0 };
     std::vector<Vertex> m_vtx;
 
@@ -60,6 +63,9 @@ private:
     izanagi::graph::CShaderProgram* m_shd{ nullptr };
 
     IZ_BOOL m_addPoint{ IZ_FALSE };
+
+    DynamicOctree m_octree;
+    izanagi::shader::CShaderBasic* m_basicShd{ nullptr };
 };
 
 #endif    // #if !defined(__DYNAMIC_OCTREE_APP_H__)
