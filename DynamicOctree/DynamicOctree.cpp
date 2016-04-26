@@ -1,31 +1,7 @@
 #include "DynamicOctree.h"
 #include "DynamicOctreeNode.h"
 
-DynamicOctree::DynamicOctree()
-{
-}
-
-DynamicOctree::~DynamicOctree()
-{
-    clear();
-}
-
-void DynamicOctree::init(
-    float initialSize,
-    const izanagi::math::SVector4& initialPos,
-    float minSize,
-    uint32_t maxDepth)
-{
-    if (!m_root) {
-        m_root = new DynamicOctreeNode(initialSize, initialPos, minSize);
-        m_depth = 1;
-        m_maxDepth = maxDepth;
-
-        IZ_ASSERT(m_maxDepth > 0);
-    }
-}
-
-void DynamicOctree::clear()
+void DynamicOctreeBase::clear()
 {
     if (m_root) {
         delete m_root;
@@ -35,124 +11,10 @@ void DynamicOctree::clear()
     }
 }
 
-uint32_t DynamicOctree::add(DynamicOctreeObject* obj)
+void DynamicOctreeBase::merge(uint32_t targetDepth)
 {
-    izanagi::math::CVector3 pos(obj->getCenter().getXYZ());
+    IZ_ASSERT(targetDepth <= m_maxDepth);
 
-    uint32_t loopCount = 0;
-
-    uint32_t registeredDepth = 0;
-
-    for (;;) {
-        auto result = m_root->add(this, obj);
-
-        auto addType = std::get<0>(result);
-
-        if (addType == DynamicOctreeNode::AddResult::Success) {
-            registeredDepth = std::get<1>(result);
-            break;
-        }
-        else if (addType == DynamicOctreeNode::AddResult::NotContain) {
-            // 今のルートノードの大きさの範囲外なので広げる.
-            auto center = m_root->getCenter();
-            expand(pos - center);
-
-            if (m_depth > m_maxDepth) {
-                merge(m_maxDepth);
-            }
-        }
-        else if (addType == DynamicOctreeNode::AddResult::OverFlow) {
-            // 登録数がオーバーフローしたが、行き先がなくなるので、強制的に登録する.
-            m_root->addForcibly(this, obj);
-            registeredDepth = 1;
-            break;
-        }
-        else {
-            // TODO
-            IZ_ASSERT(IZ_FALSE);
-        }
-
-        if (loopCount > 10) {
-            // TODO
-            IZ_ASSERT(IZ_FALSE);
-            return 0;
-        }
-
-        loopCount++;
-    }
-
-    return registeredDepth;
-}
-
-void DynamicOctree::expand(const izanagi::math::SVector3& dir)
-{
-    int32_t dirX = dir.x >= 0.0f ? 1 : -1;
-    int32_t dirY = dir.y >= 0.0f ? 1 : -1;
-    int32_t dirZ = dir.z >= 0.0f ? 1 : -1;
-
-    auto prevRoot = m_root;
-
-    auto minPos = m_root->getMin();
-    auto center = m_root->getCenter();
-    auto size = m_root->getSize();
-    auto minSize = m_root->getMinSize();
-
-    izanagi::math::CVector3 half(size);
-    half *= 0.5f;
-
-    // 倍に広げる.
-    izanagi::math::CVector3 newSize(size);
-    newSize *= 2.0f;
-
-    izanagi::math::CVector4 newCenter(center.x, center.y, center.z);
-    newCenter.x += dirX * half.x;
-    newCenter.y += dirY * half.y;
-    newCenter.z += dirZ * half.z;
-
-    // 現在のルートノードを子供とする、新しいルートノードを作る.
-    m_root = new DynamicOctreeNode(
-        newSize.x,
-        newCenter,
-        minSize);
-
-    incrementDepth();
-
-    auto idx = getNewIdx(dirX, dirY, dirZ);
-
-    DynamicOctreeNode* children[8];
-
-    for (uint32_t i = 0; i < 8; i++) {
-        if (idx == i) {
-            children[i] = prevRoot;
-            prevRoot->incrementDepth();
-        }
-        else {
-            izanagi::math::CVector4 pos(newCenter.x, newCenter.y, newCenter.z);
-
-            auto nodeDir = getNodeDir(i);
-
-            dirX = std::get<0>(nodeDir);
-            dirY = std::get<1>(nodeDir);
-            dirZ = std::get<2>(nodeDir);
-
-            pos.x += dirX * half.x;
-            pos.y += dirY * half.y;
-            pos.z += dirZ * half.z;
-
-            auto child = new DynamicOctreeNode(
-                size.x,
-                pos,
-                minSize);
-
-            children[i] = child;
-        }
-    }
-
-    m_root->addChildren(this, children);
-}
-
-void DynamicOctree::merge(uint32_t targetDepth)
-{
     auto result = m_root->merge(
         this,
         targetDepth);
@@ -162,7 +24,7 @@ void DynamicOctree::merge(uint32_t targetDepth)
     }
 }
 
-uint32_t DynamicOctree::getNewIdx(
+uint32_t DynamicOctreeBase::getNewIdx(
     int32_t dirX,
     int32_t dirY,
     int32_t dirZ)
@@ -173,7 +35,7 @@ uint32_t DynamicOctree::getNewIdx(
     * | +----+----+
     * | | 2  | 3  |
     * | +----+----+
-    * | | 0  | 1  | 
+    * | | 0  | 1  |
     * | +----+----+
     * +------------->x
     */
@@ -194,7 +56,7 @@ uint32_t DynamicOctree::getNewIdx(
     return ret;
 }
 
-DynamicOctree::NodeDir DynamicOctree::getNodeDir(uint32_t idx)
+DynamicOctreeBase::NodeDir DynamicOctreeBase::getNodeDir(uint32_t idx)
 {
     // NOTE
     /*

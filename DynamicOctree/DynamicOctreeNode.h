@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "izMath.h"
 
-class DynamicOctree;
+class DynamicOctreeBase;
 
 class DynamicOctreeObject {
 public:
@@ -52,7 +52,8 @@ private:
 };
 
 class DynamicOctreeNode {
-    friend class DynamicOctree;
+    friend class DynamicOctreeBase;
+    template<typename Node> friend class DynamicOctree;
 
     static uint32_t s_maxRegisteredObjCount;
 
@@ -124,11 +125,11 @@ private:
     using Result = std::tuple < AddResult, uint32_t > ;
 
     Result add(
-        DynamicOctree* octree,
+        DynamicOctreeBase* octree,
         DynamicOctreeObject* obj);
 
     Result addInternal(
-        DynamicOctree* octree,
+        DynamicOctreeBase* octree,
         DynamicOctreeObject* obj);
 
     // 指定されたオブジェクトを登録可能な子供を探す.
@@ -136,15 +137,15 @@ private:
 
     // オブジェクトを無条件で強制登録.
     void addForcibly(
-        DynamicOctree* octree,
+        DynamicOctreeBase* octree,
         DynamicOctreeObject* obj);
 
     void addChildren(
-        DynamicOctree* octree,
+        DynamicOctreeBase* octree,
         DynamicOctreeNode* children[]);
 
     bool merge(
-        DynamicOctree* octree,
+        DynamicOctreeBase* octree,
         uint32_t targetDepth);
 
     void incrementDepth();

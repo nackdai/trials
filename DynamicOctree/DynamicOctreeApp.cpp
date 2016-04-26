@@ -195,8 +195,8 @@ void DynamicOctreeApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
             return;
         }
 
-        //for (IZ_UINT i = 0; i < 100; i++) {
-        for (IZ_UINT i = 0; i < 1; i++) {
+        //for (IZ_UINT i = 0; i < 1000; i++) {
+        for (IZ_UINT i = 0; i < 10; i++) {
             PointObj* vtx = new PointObj();
             {
 #if 1

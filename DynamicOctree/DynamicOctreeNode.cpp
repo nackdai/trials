@@ -65,7 +65,7 @@ DynamicOctreeNode::~DynamicOctreeNode()
 }
 
 DynamicOctreeNode::Result DynamicOctreeNode::add(
-    DynamicOctree* octree,
+    DynamicOctreeBase* octree,
     DynamicOctreeObject* obj)
 {
     auto p = obj->getCenter();
@@ -80,7 +80,7 @@ DynamicOctreeNode::Result DynamicOctreeNode::add(
 }
 
 DynamicOctreeNode::Result DynamicOctreeNode::addInternal(
-    DynamicOctree* octree,
+    DynamicOctreeBase* octree,
     DynamicOctreeObject* obj)
 {
     Result result = Result(AddResult::None, m_depth);
@@ -103,7 +103,7 @@ DynamicOctreeNode::Result DynamicOctreeNode::addInternal(
         for (uint32_t i = 0; i < COUNTOF(m_children); i++) {
             izanagi::math::CVector4 pos(center.x, center.y, center.z);
 
-            auto dir = DynamicOctree::getNodeDir(i);
+            auto dir = octree->getNodeDir(i);
 
             auto dirX = std::get<0>(dir);
             auto dirY = std::get<1>(dir);
@@ -175,14 +175,14 @@ DynamicOctreeNode* DynamicOctreeNode::findChildCanRegister(DynamicOctreeObject* 
 
 // オブジェクトを無条件で強制登録.
 void DynamicOctreeNode::addForcibly(
-    DynamicOctree* octree,
+    DynamicOctreeBase* octree,
     DynamicOctreeObject* obj)
 {
     m_objects.push_back(obj);
 }
 
 void DynamicOctreeNode::addChildren(
-    DynamicOctree* octree,
+    DynamicOctreeBase* octree,
     DynamicOctreeNode* children[])
 {
     IZ_ASSERT(m_children[0] == nullptr);
@@ -244,7 +244,7 @@ void DynamicOctreeNode::addChildren(
 }
 
 bool DynamicOctreeNode::merge(
-    DynamicOctree* octree,
+    DynamicOctreeBase* octree,
     uint32_t targetDepth)
 {
     bool ret = false;
