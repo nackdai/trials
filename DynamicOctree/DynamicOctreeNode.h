@@ -15,6 +15,8 @@ public:
     virtual izanagi::math::SVector4 getCenter() = 0;
 };
 
+//////////////////////////////////////////////////////
+
 class AABB {
 public:
     AABB() {}
@@ -50,6 +52,8 @@ private:
     izanagi::math::CVector3 m_min;
     izanagi::math::CVector3 m_max;
 };
+
+//////////////////////////////////////////////////////
 
 class DynamicOctreeNode {
     friend class DynamicOctreeBase;
@@ -121,8 +125,13 @@ public:
         return (m_objects.empty() ? nullptr : &m_objects[0]);
     }
 
+    uint32_t getDepth() const
+    {
+        return m_depth;
+    }
+
 private:
-    using Result = std::tuple < AddResult, uint32_t > ;
+    using Result = std::tuple < AddResult, uint32_t, DynamicOctreeNode* >;
 
     Result add(
         DynamicOctreeBase* octree,

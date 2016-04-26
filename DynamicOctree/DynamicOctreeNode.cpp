@@ -32,7 +32,7 @@ izanagi::math::CVector3 AABB::getCenter() const
     return std::move(center);
 }
 
-uint32_t DynamicOctreeNode::s_maxRegisteredObjCount = 100;
+uint32_t DynamicOctreeNode::s_maxRegisteredObjCount = 10;
 
 DynamicOctreeNode::DynamicOctreeNode(
     float initialSize,
@@ -71,7 +71,7 @@ DynamicOctreeNode::Result DynamicOctreeNode::add(
     auto p = obj->getCenter();
 
     if (!m_aabb.isContain(p)) {
-        return Result(AddResult::NotContain, m_depth);
+        return Result(AddResult::NotContain, m_depth, this);
     }
 
     auto ret = addInternal(octree, obj);
@@ -83,7 +83,7 @@ DynamicOctreeNode::Result DynamicOctreeNode::addInternal(
     DynamicOctreeBase* octree,
     DynamicOctreeObject* obj)
 {
-    Result result = Result(AddResult::None, m_depth);
+    Result result = Result(AddResult::None, m_depth, this);
 
 #if 1
     auto maxDepth = octree->getMaxDepth();
@@ -148,10 +148,11 @@ DynamicOctreeNode::Result DynamicOctreeNode::addInternal(
 
         if (num < maxCnt) {
             m_objects.push_back(obj);
-            result = Result(AddResult::Success, m_depth);
+            result = Result(AddResult::Success, m_depth, this);
         }
         else {
-            result = Result(AddResult::OverFlow, m_depth);
+            auto overFlowedNode = std::get<2>(result);
+            result = Result(AddResult::OverFlow, m_depth, overFlowedNode);
         }
     }
 
@@ -178,7 +179,12 @@ void DynamicOctreeNode::addForcibly(
     DynamicOctreeBase* octree,
     DynamicOctreeObject* obj)
 {
-    m_objects.push_back(obj);
+    auto isContain = m_aabb.isContain(obj->getCenter());
+    IZ_ASSERT(isContain);
+
+    if (isContain) {
+        m_objects.push_back(obj);
+    }
 }
 
 void DynamicOctreeNode::addChildren(

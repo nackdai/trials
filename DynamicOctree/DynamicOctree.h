@@ -130,9 +130,17 @@ public:
                 }
             }
             else if (addType == DynamicOctreeNode::AddResult::OverFlow) {
+#if 0
                 // 登録数がオーバーフローしたが、行き先がなくなるので、強制的に登録する.
                 m_root->addForcibly(this, obj);
                 registeredDepth = 1;
+#else
+                // 登録数がオーバーフローしたが、誰も受け入れなかったので、リーフノードに強制的に登録する.
+                auto leafNode = std::get<2>(result);
+                IZ_ASSERT(leafNode && !leafNode->hasChildren());
+                leafNode->addForcibly(this, obj);
+                registeredDepth = leafNode->getDepth();
+#endif
                 break;
             }
             else {
