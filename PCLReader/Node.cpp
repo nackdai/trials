@@ -116,6 +116,8 @@ bool Node::flush(const std::string& base)
             child->flush(basepath);
         }
     }
+
+    return true;
 }
 
 void Node::waitForFlush()

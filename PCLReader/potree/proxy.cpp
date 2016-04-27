@@ -28,6 +28,7 @@ Potree::PointReader* Proxy::createPointReader(std::string path)
     else if (boost::iends_with(path, ".ply")){
         reader = new Potree::PlyPointReader(path);
     }
+#if 0
     else if (boost::iends_with(path, ".xyz") || boost::iends_with(path, ".txt")){
         reader = new Potree::XYZPointReader(path, format, colorRange, intensityRange);
     }
@@ -41,7 +42,6 @@ Potree::PointReader* Proxy::createPointReader(std::string path)
 
         reader = new Potree::XYZPointReader(path, format, colorRange, intensityRange);
     }
-#if 0
     else if (boost::iends_with(path, ".bin")){
         reader = new Potree::BINPointReader(path, aabb, scale, pointAttributes);
     }
