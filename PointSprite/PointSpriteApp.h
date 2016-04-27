@@ -33,7 +33,7 @@ private:
     static const IZ_UINT POINT_NUM = 10000;
 
     struct Vertex {
-        IZ_FLOAT pos[4];
+        IZ_FLOAT pos[3];
         IZ_COLOR color;
     };
 

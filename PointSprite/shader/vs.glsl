@@ -2,7 +2,7 @@
 precision highp float;
 precision highp int;
 
-attribute vec4 position;
+attribute vec3 position;
 attribute vec4 color_0;
 
 varying vec4 var_Color;
@@ -12,10 +12,12 @@ uniform float size;
 
 void main()
 {
-    gl_Position.x = dot(position, mtxW2C[0]);
-    gl_Position.y = dot(position, mtxW2C[1]);
-    gl_Position.z = dot(position, mtxW2C[2]);
-    gl_Position.w = dot(position, mtxW2C[3]);
+    vec4 pos = vec4(position, 1.0);
+
+    gl_Position.x = dot(pos, mtxW2C[0]);
+    gl_Position.y = dot(pos, mtxW2C[1]);
+    gl_Position.z = dot(pos, mtxW2C[2]);
+    gl_Position.w = dot(pos, mtxW2C[3]);
     
     var_Color = color_0;
  

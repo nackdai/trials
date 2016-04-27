@@ -38,7 +38,7 @@ IZ_BOOL PointSpriteApp::InitInternal(
             vtx[i].pos[1] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
             vtx[i].pos[2] = izanagi::math::CMathRand::GetRandFloat() * 100.0f;
 
-            vtx[i].pos[3] = 1.0f;
+            //vtx[i].pos[3] = 1.0f;
 
             vtx[i].color = colors[i % COUNTOF(colors)];
         }
@@ -48,8 +48,8 @@ IZ_BOOL PointSpriteApp::InitInternal(
 
     {
         izanagi::graph::SVertexElement elems[] = {
-            { 0, 0, izanagi::graph::E_GRAPH_VTX_DECL_TYPE_FLOAT4, izanagi::graph::E_GRAPH_VTX_DECL_USAGE_POSITION, 0 },
-            { 0, 16, izanagi::graph::E_GRAPH_VTX_DECL_TYPE_COLOR, izanagi::graph::E_GRAPH_VTX_DECL_USAGE_COLOR, 0 },
+            { 0, 0, izanagi::graph::E_GRAPH_VTX_DECL_TYPE_FLOAT3, izanagi::graph::E_GRAPH_VTX_DECL_USAGE_POSITION, 0 },
+            { 0, 12, izanagi::graph::E_GRAPH_VTX_DECL_TYPE_COLOR, izanagi::graph::E_GRAPH_VTX_DECL_USAGE_COLOR, 0 },
         };
 
         m_vd = device->CreateVertexDeclaration(elems, COUNTOF(elems));
