@@ -7,6 +7,12 @@
     <ClCompile Include="src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="dynamicoctree\DynamicOctree.cpp">
+      <Filter>dynamicoctree</Filter>
+    </ClCompile>
+    <ClCompile Include="dynamicoctree\DynamicOctreeNode.cpp">
+      <Filter>dynamicoctree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stdafx.h">
@@ -15,6 +21,12 @@
     <ClInclude Include="include\targetver.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="dynamicoctree\DynamicOctreeNode.h">
+      <Filter>dynamicoctree</Filter>
+    </ClInclude>
+    <ClInclude Include="dynamicoctree\DynamicOctree.h">
+      <Filter>dynamicoctree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -22,6 +34,9 @@
     </Filter>
     <Filter Include="include">
       <UniqueIdentifier>{400b8d9d-faff-49cd-be2f-86a7a2e308a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dynamicoctree">
+      <UniqueIdentifier>{d2e17cae-123a-4541-9a39-4a5bb38a52c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

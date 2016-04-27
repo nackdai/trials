@@ -51,8 +51,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>include;..\potree;..\potree\include;..\..\3rdpirty\boost;..\..\..\izanagi\Libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;__IZANAGI_NO_USE_D3D__;__IZ_DEBUG__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);include;..\potree;..\potree\include;..\..\3rdpirty\boost;..\..\..\izanagi\Libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
@@ -71,8 +71,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>include;..\potree;..\potree\include;..\..\3rdpirty\boost;..\..\..\izanagi\Libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;__IZANAGI_NO_USE_D3D__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir);include;..\potree;..\potree\include;..\..\3rdpirty\boost;..\..\..\izanagi\Libs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4819</DisableSpecificWarnings>
     </ClCompile>
@@ -86,10 +86,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="dynamicoctree\DynamicOctree.h" />
+    <ClInclude Include="dynamicoctree\DynamicOctreeNode.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dynamicoctree\DynamicOctree.cpp" />
+    <ClCompile Include="dynamicoctree\DynamicOctreeNode.cpp" />
     <ClCompile Include="src\PointCloudConverterBU.cpp" />
     <ClCompile Include="src\stdafx.cpp" />
   </ItemGroup>
