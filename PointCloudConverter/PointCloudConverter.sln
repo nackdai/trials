@@ -3,12 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointCloudConverterBU", "PointCloudConverterBU.vcxproj", "{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{948D0F23-F2AB-4186-AC66-7C53ED99567B} = {948D0F23-F2AB-4186-AC66-7C53ED99567B}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "potree", "potree\potree.vcxproj", "{948D0F23-F2AB-4186-AC66-7C53ED99567B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointCloudConverterBU", "PointCloudConverterBottomUp\PointCloudConverterBU.vcxproj", "{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,14 +13,14 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}.Debug|Win32.Build.0 = Debug|Win32
-		{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}.Release|Win32.ActiveCfg = Release|Win32
-		{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}.Release|Win32.Build.0 = Release|Win32
 		{948D0F23-F2AB-4186-AC66-7C53ED99567B}.Debug|Win32.ActiveCfg = Debug|Win32
 		{948D0F23-F2AB-4186-AC66-7C53ED99567B}.Debug|Win32.Build.0 = Debug|Win32
 		{948D0F23-F2AB-4186-AC66-7C53ED99567B}.Release|Win32.ActiveCfg = Release|Win32
 		{948D0F23-F2AB-4186-AC66-7C53ED99567B}.Release|Win32.Build.0 = Release|Win32
+		{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}.Debug|Win32.Build.0 = Debug|Win32
+		{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}.Release|Win32.ActiveCfg = Release|Win32
+		{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
