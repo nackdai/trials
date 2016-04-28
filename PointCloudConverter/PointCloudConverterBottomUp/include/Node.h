@@ -2,6 +2,7 @@
 #define __NODE_H__
 
 #include "dynamicoctree/DynamicOctreeNode.h"
+#include "../SPCDFormat.h"
 
 struct Point {
     float pos[3];
@@ -38,6 +39,8 @@ public:
 
 private:
     FILE* m_fp{ nullptr };
+
+    SPCDHeader m_header;
 };
 
 #endif    // #if !defined(__NODE_H__)

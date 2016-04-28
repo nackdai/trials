@@ -169,6 +169,40 @@ protected:
         }
     }
 
+public:
+    uint32_t getRegisteredObjNum() const
+    {
+        return m_objects.size();
+    }
+
+    Obj* getRegisteredObjects()
+    {
+        if (m_objects.empty()) {
+            return nullptr;
+        }
+
+        return &m_objects[0];
+    }
+
+protected:
+    void flush(std::function<void(Obj*, uint32_t)> func)
+    {
+        Obj* src = getRegisteredObjects();
+        uint32_t num = getRegisteredObjNum();
+
+        if (num > 0) {
+            func(src, sizeof(Obj) * num);
+
+            m_totalObjNum += num;
+            m_objects.clear();
+        }
+    }
+
+    uint32_t getTotalObjNum() const
+    {
+        return m_totalObjNum;
+    }
+
 private:
     Result add(
         DynamicOctreeBase* octree,
@@ -453,22 +487,10 @@ private:
         m_mortonNumber = n;
     }
 
-    uint32_t getRegisteredObjNum() const
-    {
-        return m_objects.size();
-    }
-
-    Obj* getRegisteredObjects()
-    {
-        if (m_objects.empty()) {
-            return nullptr;
-        }
-        
-        return &m_objects[0];
-    }
-
 private:
     std::vector<Obj> m_objects;
+
+    uint32_t m_totalObjNum{ 0 };
 
     DynamicOctreeNode* m_parent{ nullptr };
     DynamicOctreeNode* m_children[8];

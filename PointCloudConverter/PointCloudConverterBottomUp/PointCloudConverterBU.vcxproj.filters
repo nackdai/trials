@@ -39,6 +39,7 @@
     <ClInclude Include="include\Writer.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\SPCDFormat.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
