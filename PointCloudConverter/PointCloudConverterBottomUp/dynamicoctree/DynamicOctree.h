@@ -2,7 +2,10 @@
 #define __DYNAMIC_OCTREE_H__
 
 #include <stdint.h>
+#include <list>
 #include "izMath.h"
+
+#define USE_STL_LIST
 
 class DynamicOctreeObject;
 class DynamicOctreeNode;
@@ -75,6 +78,9 @@ protected:
 
     NodeDir getNodeDir(uint32_t idx);
 
+    virtual void addNode(DynamicOctreeNode* node) = 0;
+    virtual void removeNode(DynamicOctreeNode* node) = 0;
+
 protected:
     DynamicOctreeNode* m_root{ nullptr };
 
@@ -107,6 +113,8 @@ public:
             m_maxDepth = maxDepth;
 
             IZ_ASSERT(m_maxDepth > 0);
+
+            addNode(m_root);
         }
     }
 
@@ -177,7 +185,35 @@ public:
         return registeredDepth;
     }
 
-private:
+    void traverse(std::function<void(Node*)> func)
+    {
+#ifdef USE_STL_LIST
+        auto it = m_nodeList.begin();
+
+        while (it != m_nodeList.end()) {
+            auto node = *it;
+            func(node);
+            it++;
+        }
+#else
+        Node* node = (Node*)m_listTop.m_next;
+
+        while (node != &m_listTail)
+        {
+            func(node);
+            node = node->m_next;
+        }
+#endif
+    }
+
+#ifdef USE_STL_LIST
+    std::list<DynamicOctreeNode*>& getNodeList()
+    {
+        return m_nodeList;
+    }
+#endif
+
+private:    
     void expand(const izanagi::math::SVector3& dir)
     {
         int32_t dirX = dir.x >= 0.0f ? 1 : -1;
@@ -209,6 +245,8 @@ private:
             newCenter,
             minSize);
 
+        addNode(m_root);
+
         incrementDepth();
 
         auto idx = getNewIdx(dirX, dirY, dirZ);
@@ -238,12 +276,72 @@ private:
                     pos,
                     minSize);
 
+                addNode(child);
+
                 children[i] = child;
             }
         }
 
         m_root->addChildren(this, children);
     }
+
+    virtual void addNode(DynamicOctreeNode* node) override
+    {
+#ifdef USE_STL_LIST
+        m_nodeList.push_back(node);
+#else
+        DynamicOctreeNode* top = (DynamicOctreeNode*)&m_listTop;
+        DynamicOctreeNode* tail = (DynamicOctreeNode*)&m_listTail;
+
+        if (!m_isInitalizedList) {
+            m_isInitalizedList = IZ_TRUE;
+
+            top->m_next = tail;
+            tail->m_prev = top;
+        }
+
+        IZ_ASSERT(node->m_prev == nullptr && node->m_next == nullptr);
+
+        auto prev = tail->m_prev;
+
+        node->m_prev = prev;
+        node->m_next = tail;
+
+        prev->m_next = node;
+        tail->m_prev = node;
+#endif
+    }
+
+    virtual void removeNode(DynamicOctreeNode* node) override
+    {
+#ifdef USE_STL_LIST
+        m_nodeList.remove(node);
+#else
+        if (!m_isInitalizedList) {
+            return;
+        }
+
+        IZ_ASSERT(node->m_prev && node->m_next);
+
+        auto prev = node->m_prev;
+        auto next = node->m_next;
+
+        prev->m_next = next;
+        next->m_prev = prev;
+
+        node->m_prev = nullptr;
+        node->m_next = nullptr;
+#endif
+    }
+
+private:
+#ifdef USE_STL_LIST
+    std::list<DynamicOctreeNode*> m_nodeList;
+#else
+    IZ_BOOL m_isInitalizedList{ IZ_FALSE };
+    Node m_listTop;
+    Node m_listTail;
+#endif
 };
 
 #endif    // #if !defined(__DYNAMIC_OCTREE_H__)

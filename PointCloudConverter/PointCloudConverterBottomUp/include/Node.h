@@ -23,8 +23,27 @@ public:
 
 class Node : public DynamicOctreeNode {
 public:
-    Node();
-    virtual ~Node();
+    static std::string BasePath;
+
+public:
+    Node() {}
+
+    Node(
+        float initialSize,
+        const izanagi::math::SVector4& initialPos,
+        float minSize)
+        : DynamicOctreeNode(initialSize, initialPos, minSize)
+    {}
+
+    virtual ~Node() {}
+
+public:
+    void flush();
+
+    void close();
+
+private:
+    FILE* m_fp{ nullptr };
 };
 
 #endif    // #if !defined(__NODE_H__)

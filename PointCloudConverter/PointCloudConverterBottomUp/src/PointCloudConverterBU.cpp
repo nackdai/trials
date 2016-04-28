@@ -5,8 +5,7 @@
 
 #include <string>
 #include "proxy.h"
-#include "dynamicoctree/DynamicOctree.h"
-#include "Node.h"
+#include "Writer.h"
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -16,27 +15,57 @@ int _tmain(int argc, _TCHAR* argv[])
     std::string outDir(".\\");
     int maxDepth = 3;
 
-    DynamicOctree<Node> octree;
+    izanagi::CSimpleMemoryAllocator allocator;
+
+    izanagi::threadmodel::CThreadPool theadPool;
+    theadPool.Init(&allocator, 4);
 
     auto reader = Proxy::createPointReader(pathIn);
 
+    Writer writer;
+
     uint64_t pointNum = 0;
 
+    bool needFlush = false;
+
     while (reader->readNextPoint()) {
+        needFlush = true;
+
         auto point = reader->getPoint();
         pointNum++;
 
-        DynamicOctreeObject* obj = new Object();
+        Object* obj = new Object();
+        {
+            obj->pos[0] = point.position.x;
+            obj->pos[1] = point.position.y;
+            obj->pos[2] = point.position.z;
 
-        octree.add(obj);
+            obj->color = IZ_COLOR_RGBA(point.color.x, point.color.y, point.color.z, 0xff);
+        }
+
+        writer.add(obj);
 
         if ((pointNum % 100000) == 0) {
-
+            writer.store();
+        }
+        else if ((pointNum % 1000000) == 0) {
+            writer.flush(theadPool);
+            needFlush = false;
         }
     }
 
+    if (needFlush) {
+        writer.flush(theadPool);
+    }
+
+    writer.close(theadPool);
+    writer.terminate();
+
     reader->close();
     delete reader;
+
+    theadPool.WaitEmpty();
+    theadPool.Terminate();
 
 	return 0;
 }

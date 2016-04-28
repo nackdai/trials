@@ -88,14 +88,17 @@
   <ItemGroup>
     <ClInclude Include="dynamicoctree\DynamicOctree.h" />
     <ClInclude Include="dynamicoctree\DynamicOctreeNode.h" />
+    <ClInclude Include="include\Node.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
+    <ClInclude Include="include\Writer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dynamicoctree\DynamicOctree.cpp" />
     <ClCompile Include="dynamicoctree\DynamicOctreeNode.cpp" />
     <ClCompile Include="src\PointCloudConverterBU.cpp" />
     <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="src\Writer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

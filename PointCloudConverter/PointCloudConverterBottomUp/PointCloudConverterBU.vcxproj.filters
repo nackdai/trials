@@ -13,6 +13,9 @@
     <ClCompile Include="dynamicoctree\DynamicOctreeNode.cpp">
       <Filter>dynamicoctree</Filter>
     </ClCompile>
+    <ClCompile Include="src\Writer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\stdafx.h">
@@ -26,6 +29,12 @@
     </ClInclude>
     <ClInclude Include="dynamicoctree\DynamicOctree.h">
       <Filter>dynamicoctree</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Node.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Writer.h">
+      <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
