@@ -23,7 +23,7 @@ Writer::~Writer()
     terminate();
 }
 
-uint32_t Writer::add(Object* obj)
+uint32_t Writer::add(const Point& obj)
 {
     m_objects.push_back(obj);
     return m_objects.size();
@@ -41,7 +41,7 @@ void Writer::store()
     memcpy(
         &m_temporary[0],
         &m_objects[0],
-        sizeof(Object*) * num);
+        sizeof(Point) * num);
 
     m_objects.clear();
 

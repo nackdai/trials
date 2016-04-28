@@ -34,16 +34,16 @@ int _tmain(int argc, _TCHAR* argv[])
         auto point = reader->getPoint();
         pointNum++;
 
-        Object* obj = new Object();
+        Point pt;
         {
-            obj->pos[0] = point.position.x;
-            obj->pos[1] = point.position.y;
-            obj->pos[2] = point.position.z;
+            pt.pos[0] = point.position.x;
+            pt.pos[1] = point.position.y;
+            pt.pos[2] = point.position.z;
 
-            obj->color = IZ_COLOR_RGBA(point.color.x, point.color.y, point.color.z, 0xff);
+            pt.color = IZ_COLOR_RGBA(point.color.x, point.color.y, point.color.z, 0xff);
         }
 
-        writer.add(obj);
+        writer.add(pt);
 
         if ((pointNum % 100000) == 0) {
             writer.store();

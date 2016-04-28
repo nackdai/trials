@@ -8,25 +8,18 @@
 #define USE_STL_LIST
 
 class DynamicOctreeObject;
-class DynamicOctreeNode;
+class DynamicOctreeNodeBase;
 
 class DynamicOctreeBase {
-    friend class DynamicOctreeNode;
+    friend class DynamicOctreeNodeBase;
+    template <typename Obj> friend class DynamicOctreeNode;
 
 protected:
     DynamicOctreeBase() {}
-    virtual ~DynamicOctreeBase() 
-    {
-        clear();
-    }
+    virtual ~DynamicOctreeBase() {}
 
 public:
     void clear();
-
-    DynamicOctreeNode* getRootNode()
-    {
-        return m_root;
-    }
 
     uint32_t getMaxDepth() const
     {
@@ -78,12 +71,10 @@ protected:
 
     NodeDir getNodeDir(uint32_t idx);
 
-    virtual void addNode(DynamicOctreeNode* node) = 0;
-    virtual void removeNode(DynamicOctreeNode* node) = 0;
+    virtual void addNode(DynamicOctreeNodeBase* node) = 0;
+    virtual void removeNode(DynamicOctreeNodeBase* node) = 0;
 
 protected:
-    DynamicOctreeNode* m_root{ nullptr };
-
     uint32_t m_maxDepth{ 0 };
     uint32_t m_depth{ 0 };
 
@@ -94,13 +85,22 @@ protected:
 
 template <typename Node>
 class DynamicOctree : public DynamicOctreeBase {
+    template <typename OBJ>
     friend class DynamicOctreeNode;
 
 public:
     DynamicOctree() {}
-    virtual ~DynamicOctree() {}
+    virtual ~DynamicOctree()
+    {
+        clear();
+    }
 
 public:
+    DynamicOctreeNodeBase* getRootNode()
+    {
+        return m_root;
+    }
+
     void init(
         float initialSize,
         const izanagi::math::SVector4& initialPos,
@@ -118,26 +118,27 @@ public:
         }
     }
 
-    uint32_t add(DynamicOctreeObject* obj)
+    template <typename OBJ>
+    uint32_t add(OBJ obj)
     {
-        izanagi::math::CVector3 pos(obj->getCenter().getXYZ());
+        izanagi::math::CVector3 pos(obj.getCenter().getXYZ());
 
         uint32_t loopCount = 0;
 
         uint32_t registeredDepth = 0;
 
-        auto addType = DynamicOctreeNode::AddResult::None;
+        auto addType = DynamicOctreeNodeBase::AddResult::None;
 
         for (;;) {
             auto result = m_root->add(this, obj);
 
             addType = std::get<0>(result);
 
-            if (addType == DynamicOctreeNode::AddResult::Success) {
+            if (addType == DynamicOctreeNodeBase::AddResult::Success) {
                 registeredDepth = std::get<1>(result);
                 break;
             }
-            else if (addType == DynamicOctreeNode::AddResult::NotContain) {
+            else if (addType == DynamicOctreeNodeBase::AddResult::NotContain) {
                 // 今のルートノードの大きさの範囲外なので広げる.
                 auto center = m_root->getCenter();
                 expand(pos - center);
@@ -146,21 +147,21 @@ public:
                     merge(m_maxDepth);
                 }
             }
-            else if (addType == DynamicOctreeNode::AddResult::OverFlow) {
+            else if (addType == DynamicOctreeNodeBase::AddResult::OverFlow) {
 #if 0
                 // 登録数がオーバーフローしたが、行き先がなくなるので、強制的に登録する.
                 m_root->addForcibly(this, obj);
                 registeredDepth = 1;
 #else
                 // 登録数がオーバーフローしたが、誰も受け入れなかったので、リーフノードに強制的に登録する.
-                auto leafNode = std::get<2>(result);
+                auto leafNode = (Node*)std::get<2>(result);
                 IZ_ASSERT(leafNode && !leafNode->hasChildren());
 
                 leafNode->addForcibly(this, obj);
                 registeredDepth = leafNode->getDepth();
 #endif
 
-                addType = DynamicOctreeNode::AddResult::Success;
+                addType = DynamicOctreeNodeBase::AddResult::Success;
 
                 break;
             }
@@ -178,12 +179,36 @@ public:
             loopCount++;
         }
 
-        if (addType == DynamicOctreeNode::AddResult::Success) {
+        if (addType == DynamicOctreeNodeBase::AddResult::Success) {
             m_registeredNum++;
         }
 
         return registeredDepth;
     }
+
+    void clear()
+    {
+        if (m_root) {
+            delete m_root;
+            m_root = nullptr;
+
+            m_depth = 0;
+        }
+    }
+
+    void merge(uint32_t targetDepth)
+    {
+        IZ_ASSERT(targetDepth <= m_maxDepth);
+
+        auto result = m_root->merge(
+            this,
+            targetDepth);
+
+        if (result) {
+            m_depth = targetDepth;
+        }
+    }
+
 
     void traverse(std::function<void(Node*)> func)
     {
@@ -207,7 +232,7 @@ public:
     }
 
 #ifdef USE_STL_LIST
-    std::list<DynamicOctreeNode*>& getNodeList()
+    std::list<DynamicOctreeNodeBase*>& getNodeList()
     {
         return m_nodeList;
     }
@@ -251,7 +276,7 @@ private:
 
         auto idx = getNewIdx(dirX, dirY, dirZ);
 
-        DynamicOctreeNode* children[8];
+        DynamicOctreeNodeBase* children[8];
 
         for (uint32_t i = 0; i < 8; i++) {
             if (idx == i) {
@@ -285,7 +310,7 @@ private:
         m_root->addChildren(this, children);
     }
 
-    virtual void addNode(DynamicOctreeNode* node) override
+    virtual void addNode(DynamicOctreeNodeBase* node) override
     {
 #ifdef USE_STL_LIST
         m_nodeList.push_back(node);
@@ -312,7 +337,7 @@ private:
 #endif
     }
 
-    virtual void removeNode(DynamicOctreeNode* node) override
+    virtual void removeNode(DynamicOctreeNodeBase* node) override
     {
 #ifdef USE_STL_LIST
         m_nodeList.remove(node);
@@ -335,8 +360,10 @@ private:
     }
 
 private:
+    Node* m_root{ nullptr };
+
 #ifdef USE_STL_LIST
-    std::list<DynamicOctreeNode*> m_nodeList;
+    std::list<DynamicOctreeNodeBase*> m_nodeList;
 #else
     IZ_BOOL m_isInitalizedList{ IZ_FALSE };
     Node m_listTop;

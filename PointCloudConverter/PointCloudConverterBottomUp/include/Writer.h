@@ -13,7 +13,7 @@ public:
     ~Writer();
 
 public:
-    uint32_t add(Object* obj);
+    uint32_t add(const Point& obj);
 
     void store();
     void waitForStoring();
@@ -31,8 +31,8 @@ private:
 private:
     DynamicOctree<Node> m_octree;
 
-    std::vector<Object*> m_objects;
-    std::vector<Object*> m_temporary;
+    std::vector<Point> m_objects;
+    std::vector<Point> m_temporary;
 
     izanagi::sys::CEvent m_waitMain;
 

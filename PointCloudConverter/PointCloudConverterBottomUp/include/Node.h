@@ -3,25 +3,19 @@
 
 #include "dynamicoctree/DynamicOctreeNode.h"
 
-class Object : public DynamicOctreeObject {
-public:
-    Object();
-    virtual ~Object();
+struct Point {
+    float pos[3];
+    IZ_COLOR color;
 
-public:
-    virtual izanagi::math::SVector4 getCenter() override
+    izanagi::math::SVector4 getCenter()
     {
         izanagi::math::SVector4 ret;
         ret.Set(pos[0], pos[1], pos[2]);
         return std::move(ret);
     }
-
-public:
-    float pos[3];
-    IZ_COLOR color;
 };
 
-class Node : public DynamicOctreeNode {
+class Node : public DynamicOctreeNode<Point> {
 public:
     static std::string BasePath;
 

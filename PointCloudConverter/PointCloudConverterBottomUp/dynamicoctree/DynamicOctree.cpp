@@ -1,29 +1,6 @@
 #include "DynamicOctree.h"
 #include "DynamicOctreeNode.h"
 
-void DynamicOctreeBase::clear()
-{
-    if (m_root) {
-        delete m_root;
-        m_root = nullptr;
-
-        m_depth = 0;
-    }
-}
-
-void DynamicOctreeBase::merge(uint32_t targetDepth)
-{
-    IZ_ASSERT(targetDepth <= m_maxDepth);
-
-    auto result = m_root->merge(
-        this,
-        targetDepth);
-
-    if (result) {
-        m_depth = targetDepth;
-    }
-}
-
 uint32_t DynamicOctreeBase::getNewIdx(
     int32_t dirX,
     int32_t dirY,
