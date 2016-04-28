@@ -57,6 +57,13 @@ DynamicOctreeNode::DynamicOctreeNode(
 
 DynamicOctreeNode::~DynamicOctreeNode()
 {
+    if (m_prev) {
+        m_prev->m_next = m_next;
+    }
+    if (m_next) {
+        m_next->m_prev = m_prev;
+    }
+
     for (int i = 0; i < COUNTOF(m_children); i++) {
         if (m_children[i]) {
             delete m_children[i];
@@ -100,6 +107,8 @@ DynamicOctreeNode::Result DynamicOctreeNode::addInternal(
 
         auto center = getCenter();
 
+        auto parentMortionNumber = m_mortonNumber;
+
         for (uint32_t i = 0; i < COUNTOF(m_children); i++) {
             izanagi::math::CVector4 pos(center.x, center.y, center.z);
 
@@ -120,6 +129,10 @@ DynamicOctreeNode::Result DynamicOctreeNode::addInternal(
 
             child->m_parent = this;
             child->m_depth = m_depth + 1;
+
+            child->setMortonNumber((parentMortionNumber << 3) | i);
+
+            octree->addNode(child);
 
             m_children[i] = child;
         }
@@ -193,12 +206,16 @@ void DynamicOctreeNode::addChildren(
 {
     IZ_ASSERT(m_children[0] == nullptr);
 
+    auto parentMortonNumber = m_mortonNumber;
+
     for (int i = 0; i < COUNTOF(m_children); i++) {
         m_children[i] = children[i];
         IZ_ASSERT(m_children[i]);
 
         m_children[i]->m_parent = this;
         m_children[i]->m_depth = this->m_depth + 1;
+
+        m_children[i]->setMortonNumber((parentMortonNumber << 3) | i);
     }
 
     auto maxCnt = getMaxRegisteredObjCount();
@@ -286,6 +303,7 @@ bool DynamicOctreeNode::merge(
             }
 
             for (int i = 0; i < COUNTOF(m_children); i++) {
+                octree->removeNode(m_children[i]);
                 delete m_children[i];
                 m_children[i] = nullptr;
             }

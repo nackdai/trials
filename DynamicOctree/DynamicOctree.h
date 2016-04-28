@@ -35,6 +35,11 @@ public:
         return m_depth;
     }
 
+    uint64_t getResisteredNum() const
+    {
+        return m_registeredNum;
+    }
+
     void merge(uint32_t targetDepth);
 
 protected:
@@ -70,11 +75,16 @@ protected:
 
     NodeDir getNodeDir(uint32_t idx);
 
+    virtual void addNode(DynamicOctreeNode* node) = 0;
+    virtual void removeNode(DynamicOctreeNode* node) = 0;
+
 protected:
     DynamicOctreeNode* m_root{ nullptr };
 
     uint32_t m_maxDepth{ 0 };
     uint32_t m_depth{ 0 };
+
+    uint64_t m_registeredNum{ 0 };
 };
 
 /////////////////////////////////////////////////////////
@@ -100,6 +110,8 @@ public:
             m_maxDepth = maxDepth;
 
             IZ_ASSERT(m_maxDepth > 0);
+
+            addNode(m_root);
         }
     }
 
@@ -111,10 +123,12 @@ public:
 
         uint32_t registeredDepth = 0;
 
+        auto addType = DynamicOctreeNode::AddResult::None;
+
         for (;;) {
             auto result = m_root->add(this, obj);
 
-            auto addType = std::get<0>(result);
+            addType = std::get<0>(result);
 
             if (addType == DynamicOctreeNode::AddResult::Success) {
                 registeredDepth = std::get<1>(result);
@@ -138,9 +152,13 @@ public:
                 // 登録数がオーバーフローしたが、誰も受け入れなかったので、リーフノードに強制的に登録する.
                 auto leafNode = std::get<2>(result);
                 IZ_ASSERT(leafNode && !leafNode->hasChildren());
+
                 leafNode->addForcibly(this, obj);
                 registeredDepth = leafNode->getDepth();
 #endif
+
+                addType = DynamicOctreeNode::AddResult::Success;
+
                 break;
             }
             else {
@@ -157,10 +175,14 @@ public:
             loopCount++;
         }
 
+        if (addType == DynamicOctreeNode::AddResult::Success) {
+            m_registeredNum++;
+        }
+
         return registeredDepth;
     }
 
-private:
+private:    
     void expand(const izanagi::math::SVector3& dir)
     {
         int32_t dirX = dir.x >= 0.0f ? 1 : -1;
@@ -192,6 +214,8 @@ private:
             newCenter,
             minSize);
 
+        addNode(m_root);
+
         incrementDepth();
 
         auto idx = getNewIdx(dirX, dirY, dirZ);
@@ -221,12 +245,60 @@ private:
                     pos,
                     minSize);
 
+                addNode(child);
+
                 children[i] = child;
             }
         }
 
         m_root->addChildren(this, children);
     }
+
+    virtual void addNode(DynamicOctreeNode* node) override
+    {
+        DynamicOctreeNode* top = (DynamicOctreeNode*)&m_listTop;
+        DynamicOctreeNode* tail = (DynamicOctreeNode*)&m_listTail;
+
+        if (!m_isInitalizedList) {
+            m_isInitalizedList = IZ_TRUE;
+
+            top->m_next = tail;
+            tail->m_prev = top;
+        }
+
+        IZ_ASSERT(node->m_prev == nullptr && node->m_next == nullptr);
+
+        auto prev = tail->m_prev;
+
+        node->m_prev = prev;
+        node->m_next = tail;
+
+        prev->m_next = node;
+        tail->m_prev = node;
+    }
+
+    virtual void removeNode(DynamicOctreeNode* node) override
+    {
+        if (!m_isInitalizedList) {
+            return;
+        }
+
+        IZ_ASSERT(node->m_prev && node->m_next);
+
+        auto prev = node->m_prev;
+        auto next = node->m_next;
+
+        prev->m_next = next;
+        next->m_prev = prev;
+
+        node->m_prev = nullptr;
+        node->m_next = nullptr;
+    }
+
+private:
+    IZ_BOOL m_isInitalizedList{ IZ_FALSE };
+    Node m_listTop;
+    Node m_listTail;
 };
 
 #endif    // #if !defined(__DYNAMIC_OCTREE_H__)

@@ -79,6 +79,8 @@ public:
     }
 
 private:
+    DynamicOctreeNode() {}
+
     DynamicOctreeNode(
         float initialSize,
         const izanagi::math::SVector4& initialPos,
@@ -130,6 +132,11 @@ public:
         return m_depth;
     }
 
+    uint32_t getMortonNumber() const
+    {
+        return m_mortonNumber;
+    }
+
 private:
     using Result = std::tuple < AddResult, uint32_t, DynamicOctreeNode* >;
 
@@ -164,16 +171,25 @@ private:
         return (m_children[0] != nullptr);
     }
 
+    void setMortonNumber(uint32_t n)
+    {
+        m_mortonNumber = n;
+    }
+
 private:
     AABB m_aabb;
 
     uint32_t m_depth{ 1 };
+    uint32_t m_mortonNumber{ 0 };
 
     float m_minSize{ 1.0f };
 
     DynamicOctreeNode* m_parent{ nullptr };
     DynamicOctreeNode* m_children[8];
     std::vector<DynamicOctreeObject*> m_objects;
+
+    DynamicOctreeNode* m_next{ nullptr };
+    DynamicOctreeNode* m_prev{ nullptr };
 };
 
 #endif    // #if !defined(__DYNAMIC_OCTREE_NODE_H__)
