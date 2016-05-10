@@ -1,6 +1,8 @@
 #include "DynamicOctreeApp.h"
 #include "DynamicOctreeRenderer.h"
 
+#include "XyzReader.h"
+
 ////////////////////////////////////////////////
 
 class PointObj : public DynamicOctreeObject {
@@ -41,8 +43,61 @@ IZ_BOOL DynamicOctreeApp::InitInternal(
     izanagi::math::CMathRand::Init(st.wMilliseconds);
     //izanagi::math::CMathRand::Init(0);
 
+    m_octree.init(
+        10.0f,
+        //izanagi::math::CVector4(5.0f, 5.0f, 5.0f),
+        izanagi::math::CVector4(0.0f, 0.0f, 0.0f),
+        1.0f,
+        4);
+
+    DynamicOctreeRenderer::instance().init(device, allocator);
+
+#ifdef ENABLE_MANUAL
     // Vertex Buffer.
-    createVBForDynamicStream(allocator, device);
+    createVBForDynamicStream(allocator, device, POINT_NUM);
+#else
+    DynamicOctreeNode::setMaxRegisteredObjCount(1000);
+
+    XyzReader reader;
+    reader.open(std::string("bunny.xyz"));
+
+    XyzReader::Vertex vtx;
+
+    static const IZ_COLOR colors[] = {
+        izanagi::CColor::RED,
+        izanagi::CColor::BLUE,
+        izanagi::CColor::GREEN,
+        izanagi::CColor::ORANGE,
+        izanagi::CColor::DEEPPINK,
+        izanagi::CColor::PURPLE,
+        izanagi::CColor::VIOLET,
+    };
+
+    IZ_UINT cnt = 0;
+
+    while (reader.readVtx(vtx)) {
+        PointObj* obj = new PointObj();
+
+        obj->vtx.pos[0] = vtx.pos[0] * 100.0f;
+        obj->vtx.pos[1] = vtx.pos[1] * 100.0f;
+        obj->vtx.pos[2] = vtx.pos[2] * 100.0f;
+        obj->vtx.pos[3] = vtx.pos[3] * 100.0f;
+
+        auto depth = m_octree.add(obj);
+        //IZ_PRINTF("Depth[%d]\n", depth);
+
+        obj->vtx.color = colors[depth % COUNTOF(colors)];
+
+        m_vtx.push_back(obj->vtx);
+
+        cnt++;
+    }
+
+    reader.close();
+
+    createVBForDynamicStream(allocator, device, cnt);
+#endif
+
 
     {
         izanagi::graph::SVertexElement elems[] = {
@@ -104,15 +159,6 @@ IZ_BOOL DynamicOctreeApp::InitInternal(
         (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
     camera.Update();
 
-    m_octree.init(
-        10.0f,
-        //izanagi::math::CVector4(5.0f, 5.0f, 5.0f),
-        izanagi::math::CVector4(0.0f, 0.0f, 0.0f),
-        1.0f,
-        4);
-
-    DynamicOctreeRenderer::instance().init(device, allocator);
-
 __EXIT__:
     if (!result) {
         ReleaseInternal();
@@ -123,7 +169,8 @@ __EXIT__:
 
 void DynamicOctreeApp::createVBForDynamicStream(
     izanagi::IMemoryAllocator* allocator,
-    izanagi::graph::CGraphicsDevice* device)
+    izanagi::graph::CGraphicsDevice* device,
+    IZ_UINT vtxNum)
 {
     m_vbDynamicStream = device->CreateVertexBuffer(
         sizeof(Vertex), // 描画の際に使われるので、正しい値を設定しておく.
@@ -137,7 +184,7 @@ void DynamicOctreeApp::createVBForDynamicStream(
     CALL_GL_API(::glBindBuffer(GL_ARRAY_BUFFER, m_glVB));
 
     const GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-    m_bufferSize = sizeof(Vertex) * POINT_NUM;
+    m_bufferSize = sizeof(Vertex) * vtxNum;
 
     CALL_GL_API(::glBufferStorage(
         GL_ARRAY_BUFFER,
@@ -176,6 +223,7 @@ void DynamicOctreeApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
     
     camera.Update();
 
+#ifdef ENABLE_MANUAL
     if (m_willMerge) {
         m_octree.merge(2);
         m_willMerge = IZ_FALSE;
@@ -225,6 +273,7 @@ void DynamicOctreeApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device)
 
         m_addPoint = IZ_FALSE;
     }
+#endif  // #ifdef ENABLE_MANUAL
 }
 
 namespace {

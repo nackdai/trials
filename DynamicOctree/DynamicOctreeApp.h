@@ -1,6 +1,8 @@
 #if !defined(__DYNAMIC_OCTREE_APP_H__)
 #define __DYNAMIC_OCTREE_APP_H__
 
+//#define ENABLE_MANUAL
+
 #include "izSampleKit.h"
 #include "izShader.h"
 #include "DynamicOctree.h"
@@ -40,7 +42,8 @@ protected:
 private:
     void createVBForDynamicStream(
         izanagi::IMemoryAllocator* allocator,
-        izanagi::graph::CGraphicsDevice* device);
+        izanagi::graph::CGraphicsDevice* device,
+        IZ_UINT vtxNum);
 
 private:
     static const IZ_UINT POINT_NUM = 10000;

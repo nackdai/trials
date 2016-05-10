@@ -413,6 +413,7 @@
     <ClInclude Include="..\..\DynamicOctree\DynamicOctreeApp.h" />
     <ClInclude Include="..\..\DynamicOctree\DynamicOctreeNode.h" />
     <ClInclude Include="..\..\DynamicOctree\DynamicOctreeRenderer.h" />
+    <ClInclude Include="..\..\DynamicOctree\XyzReader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\DynamicOctree\DynamicOctree.cpp" />
@@ -420,6 +421,7 @@
     <ClCompile Include="..\..\DynamicOctree\DynamicOctreeNode.cpp" />
     <ClCompile Include="..\..\DynamicOctree\DynamicOctreeRenderer.cpp" />
     <ClCompile Include="..\..\DynamicOctree\main.cpp" />
+    <ClCompile Include="..\..\DynamicOctree\XyzReader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\DynamicOctree\shader\ps.glsl" />
