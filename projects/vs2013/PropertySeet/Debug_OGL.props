@@ -52,7 +52,7 @@ copy /B /Y ..\..\..\izanagi\External\glew\bin\Debug\$(PlatformName)\glew32*.dll 
       <AdditionalDependencies>freeglutd.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\izanagi\External\freeglut\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\izanagi\External\freeglut\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
 </Project>
