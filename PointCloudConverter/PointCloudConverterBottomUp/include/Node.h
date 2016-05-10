@@ -1,6 +1,7 @@
 #if !defined(__NODE_H__)
 #define __NODE_H__
 
+#include <atomic>
 #include "dynamicoctree/DynamicOctreeNode.h"
 #include "../SPCDFormat.h"
 
@@ -17,6 +18,8 @@ struct Point {
 };
 
 class Node : public DynamicOctreeNode<Point> {
+    friend class Writer;
+
 public:
     static std::string BasePath;
 
@@ -35,10 +38,23 @@ public:
 public:
     void flush();
 
-    void close();
+    virtual void close() override;
+
+    virtual bool isProcessing() const override
+    {
+        return m_isProcessing;
+    }
+
+private:
+    void enableProcessing()
+    {
+        m_isProcessing = true;
+    }
 
 private:
     FILE* m_fp{ nullptr };
+
+    std::atomic<bool> m_isProcessing{ false };
 
     SPCDHeader m_header;
 };

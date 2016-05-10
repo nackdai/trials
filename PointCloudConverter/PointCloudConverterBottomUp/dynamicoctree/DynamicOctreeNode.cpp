@@ -33,3 +33,4 @@ izanagi::math::CVector3 AABB::getCenter() const
 }
 
 uint32_t DynamicOctreeNodeBase::s_maxRegisteredObjCount = 10;
+uint32_t DynamicOctreeNodeBase::s_nodeIdx = 0;

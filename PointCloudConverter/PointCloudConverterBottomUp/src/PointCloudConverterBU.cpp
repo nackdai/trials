@@ -7,10 +7,13 @@
 #include "proxy.h"
 #include "Writer.h"
 
+static const uint32_t STORE_LIMIT = 5000;
+static const uint32_t FLUSH_LIMIT = 10000;
+
 int _tmain(int argc, _TCHAR* argv[])
 {
     std::string pathIn(argv[1]);
-    std::string pathOut(argv[2]);
+    //std::string pathOut(argv[2]);
 
     std::string outDir(".\\");
     int maxDepth = 3;
@@ -45,10 +48,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
         writer.add(pt);
 
-        if ((pointNum % 100000) == 0) {
+        if ((pointNum % STORE_LIMIT) == 0) {
             writer.store();
         }
-        else if ((pointNum % 1000000) == 0) {
+        if ((pointNum % FLUSH_LIMIT) == 0) {
             writer.flush(theadPool);
             needFlush = false;
         }

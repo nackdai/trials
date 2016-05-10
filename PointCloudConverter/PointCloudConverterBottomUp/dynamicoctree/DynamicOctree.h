@@ -38,6 +38,8 @@ public:
 
     void merge(uint32_t targetDepth);
 
+    virtual void cleanDeleteList() = 0;
+
 protected:
     uint32_t incrementDepth()
     {
@@ -72,7 +74,7 @@ protected:
     NodeDir getNodeDir(uint32_t idx);
 
     virtual void addNode(DynamicOctreeNodeBase* node) = 0;
-    virtual void removeNode(DynamicOctreeNodeBase* node) = 0;
+    virtual void removeNode(DynamicOctreeNodeBase* node, bool willDelete = false) = 0;
 
 protected:
     uint32_t m_maxDepth{ 0 };
@@ -130,7 +132,7 @@ public:
         auto addType = DynamicOctreeNodeBase::AddResult::None;
 
         for (;;) {
-            auto result = m_root->add(this, obj);
+            auto result = m_root->add<Node>(this, obj);
 
             addType = std::get<0>(result);
 
@@ -238,6 +240,18 @@ public:
     }
 #endif
 
+    virtual void cleanDeleteList() override
+    {
+        for (uint32_t i = 0; i < m_willDeleteNodeList.size(); i++) {
+            auto node = m_willDeleteNodeList[i];
+
+            node->close();
+
+            delete node;
+        }
+        m_willDeleteNodeList.clear();
+    }
+
 private:    
     void expand(const izanagi::math::SVector3& dir)
     {
@@ -307,7 +321,7 @@ private:
             }
         }
 
-        m_root->addChildren(this, children);
+        m_root->addChildren<Node>(this, children);
     }
 
     virtual void addNode(DynamicOctreeNodeBase* node) override
@@ -337,8 +351,12 @@ private:
 #endif
     }
 
-    virtual void removeNode(DynamicOctreeNodeBase* node) override
+    virtual void removeNode(DynamicOctreeNodeBase* node, bool willDelete = false) override
     {
+        if (willDelete) {
+            m_willDeleteNodeList.push_back(node);
+        }
+
 #ifdef USE_STL_LIST
         m_nodeList.remove(node);
 #else
@@ -369,6 +387,8 @@ private:
     Node m_listTop;
     Node m_listTail;
 #endif
+
+    std::vector<DynamicOctreeNodeBase*> m_willDeleteNodeList;
 };
 
 #endif    // #if !defined(__DYNAMIC_OCTREE_H__)

@@ -53,6 +53,8 @@ class DynamicOctreeNodeBase {
 protected:
     static uint32_t s_maxRegisteredObjCount;
 
+    static uint32_t s_nodeIdx;
+
     enum AddResult {
         None,
         Success,
@@ -71,6 +73,14 @@ public:
     {
         return s_maxRegisteredObjCount;
     }
+
+protected:
+    DynamicOctreeNodeBase()
+    {
+        m_id = s_nodeIdx;
+        s_nodeIdx++;
+    }
+    virtual ~DynamicOctreeNodeBase() {}
 
 public:
     izanagi::math::CVector3 getCenter() const
@@ -104,13 +114,24 @@ public:
         return m_mortonNumber;
     }
 
+    uint32_t getId() const
+    {
+        return m_id;
+    }
+
     virtual DynamicOctreeNodeBase* getChild(uint32_t idx) = 0;
+
+    virtual bool isProcessing() const = 0;
 
 private:
     virtual bool hasChildren() const = 0;
 
+    virtual void close() = 0;
+
 protected:
     AABB m_aabb;
+
+    uint32_t m_id{ 0 };
 
     uint32_t m_depth{ 1 };
     uint32_t m_mortonNumber{ 0 };
@@ -151,7 +172,7 @@ protected:
         m_children[7] = nullptr;
     }
 
-    ~DynamicOctreeNode()
+    virtual ~DynamicOctreeNode()
     {
 #if 0
         if (m_prev) {
@@ -204,6 +225,7 @@ protected:
     }
 
 private:
+    template <typename Node>
     Result add(
         DynamicOctreeBase* octree,
         Obj obj)
@@ -214,11 +236,12 @@ private:
             return Result(AddResult::NotContain, m_depth, this);
         }
 
-        auto ret = addInternal(octree, obj);
+        auto ret = addInternal<Node>(octree, obj);
 
         return ret;
     }
 
+    template <typename Node>
     Result addInternal(
         DynamicOctreeBase* octree,
         Obj obj)
@@ -255,7 +278,8 @@ private:
                 pos.y += dirY * half.y;
                 pos.z += dirZ * half.z;
 
-                auto child = new DynamicOctreeNode<Obj>(
+                //auto child = new DynamicOctreeNode<Obj>(
+                auto child = new Node(
                     newSize.x,
                     pos,
                     minSize);
@@ -275,7 +299,7 @@ private:
 
         if (m_children[0]) {
             auto child = findChildCanRegister(obj);
-            result = child->add(octree, obj);
+            result = child->add<Node>(octree, obj);
         }
 #else
         if (m_children[0]) {
@@ -333,6 +357,7 @@ private:
         }
     }
 
+    template <typename Node>
     void addChildren(
         DynamicOctreeBase* octree,
         DynamicOctreeNodeBase* children[])
@@ -360,7 +385,7 @@ private:
             auto obj = m_objects.back();
 
             auto child = findChildCanRegister(obj);
-            auto result = child->add(octree, obj);
+            auto result = child->add<Node>(octree, obj);
 
             auto addType = std::get<0>(result);
 
@@ -407,6 +432,7 @@ private:
 
         if (m_depth + 1 > targetDepth) {
             if (m_children[0]) {
+                // 子供たちをマージする.
                 for (int i = 0; i < COUNTOF(m_children); i++) {
                     m_children[i]->merge(octree, targetDepth);
                     IZ_ASSERT(!m_children[i]->hasChildren());
@@ -418,6 +444,7 @@ private:
                     objNum += m_children[i]->getRegisteredObjNum();
                 }
 
+                // 子供が登録オブジェクトを持っているなら、親に移す.
                 if (objNum > 0) {
                     auto curNum = m_objects.size();
 
@@ -435,9 +462,22 @@ private:
                     }
                 }
 
+                // 子供を削除.
                 for (int i = 0; i < COUNTOF(m_children); i++) {
-                    octree->removeNode(m_children[i]);
-                    delete m_children[i];
+                    if (m_children[i]->isProcessing()) {
+                        // マージされたことを覚えておく.
+                        auto id = m_children[i]->getId();
+                        m_mergedList.push_back(id);
+
+                        // 処理中なので、すぐに消さない.
+                        octree->removeNode(m_children[i], true);
+                    }
+                    else {
+                        // 処理されていないので、すぐに消す.
+                        octree->removeNode(m_children[i], false);
+                        delete m_children[i];
+                    }
+
                     m_children[i] = nullptr;
                 }
 
@@ -494,6 +534,8 @@ private:
 
     DynamicOctreeNode* m_parent{ nullptr };
     DynamicOctreeNode* m_children[8];
+
+    std::vector<uint32_t> m_mergedList;
 };
 
 #endif    // #if !defined(__DYNAMIC_OCTREE_NODE_H__)

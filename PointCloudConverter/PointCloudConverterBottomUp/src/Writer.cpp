@@ -2,9 +2,19 @@
 
 Writer::Writer()
 {
+    // TODO
+    m_octree.init(
+        10.0f,
+        //izanagi::math::CVector4(5.0f, 5.0f, 5.0f),
+        izanagi::math::CVector4(0.0f, 0.0f, 0.0f),
+        1.0f,
+        4);
+
     m_runThread = true;
 
     m_objects.reserve(10000);
+
+    m_waitMain.Set();
 
     m_thStore = std::thread([&] {
         while (m_runThread) {
@@ -32,7 +42,9 @@ uint32_t Writer::add(const Point& obj)
 void Writer::store()
 {
     waitForFlushing();
-    waitForStoring();
+    
+    m_waitMain.Wait();
+    m_waitMain.Reset();
 
     m_temporary.resize(m_objects.size());
 
@@ -48,16 +60,11 @@ void Writer::store()
     m_waitWorker.Set();
 }
 
-void Writer::waitForStoring()
-{
-    m_waitMain.Wait();
-    m_waitMain.Reset();
-}
-
 void Writer::terminate()
 {
     waitForFlushing();
-    waitForStoring();
+    
+    m_waitMain.Wait();
 
     m_runThread = false;
 
@@ -82,9 +89,18 @@ void Writer::procStore()
 void Writer::flush(izanagi::threadmodel::CThreadPool& theadPool)
 {
     waitForFlushing();
-    waitForStoring();
+    
+    m_waitMain.Wait();
+
+    // 削除リストにあるノードを処理する.
+    m_octree.cleanDeleteList();
 
     auto& list = m_octree.getNodeList();
+
+    for (auto it = list.begin(); it != list.end(); it++) {
+        Node* node = (Node*)*it;
+        node->enableProcessing();
+    }
 
     auto num = list.size();
 
@@ -103,7 +119,11 @@ void Writer::flush(izanagi::threadmodel::CThreadPool& theadPool)
 void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
 {
     waitForFlushing();
-    waitForStoring();
+    
+    m_waitMain.Wait();
+
+    // 削除リストにあるノードを処理する.
+    m_octree.cleanDeleteList();
 
     auto& list = m_octree.getNodeList();
 
@@ -119,6 +139,8 @@ void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
         Node* node = (Node*)*it;
         node->close();
     });
+
+    izanagi::threadmodel::CParallel::waitFor();
 }
 
 void Writer::waitForFlushing()

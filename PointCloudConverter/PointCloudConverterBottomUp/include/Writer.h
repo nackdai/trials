@@ -16,7 +16,6 @@ public:
     uint32_t add(const Point& obj);
 
     void store();
-    void waitForStoring();
 
     void terminate();
 
