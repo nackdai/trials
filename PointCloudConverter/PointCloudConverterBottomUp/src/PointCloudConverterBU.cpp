@@ -16,7 +16,10 @@ int _tmain(int argc, _TCHAR* argv[])
     //std::string pathOut(argv[2]);
 
     std::string outDir(".\\");
+
+    // TODO
     int maxDepth = 3;
+    float scale = 100.0f;
 
     izanagi::CSimpleMemoryAllocator allocator;
 
@@ -39,9 +42,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
         Point pt;
         {
-            pt.pos[0] = point.position.x;
-            pt.pos[1] = point.position.y;
-            pt.pos[2] = point.position.z;
+            pt.pos[0] = point.position.x * scale;
+            pt.pos[1] = point.position.y * scale;
+            pt.pos[2] = point.position.z * scale;
 
             pt.color = IZ_COLOR_RGBA(point.color.x, point.color.y, point.color.z, 0xff);
         }

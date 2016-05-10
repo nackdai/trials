@@ -88,6 +88,22 @@ void Node::close()
         m_header.depth = depth;
         m_header.mortonNumber = mortonNumber;
 
+        auto fileSize = ftell(m_fp);
+
+        m_header.fileSize = fileSize;
+        m_header.fileSizeWithoutHeader = fileSize - sizeof(m_header);
+
+        auto& aabbMin = getMin();
+        auto& aabbMax = getMax();
+
+        m_header.aabbMin[0] = aabbMin.x;
+        m_header.aabbMin[1] = aabbMin.y;
+        m_header.aabbMin[2] = aabbMin.z;
+
+        m_header.aabbMax[0] = aabbMax.x;
+        m_header.aabbMax[1] = aabbMax.y;
+        m_header.aabbMax[2] = aabbMax.z;
+
         // 先頭に戻って、ヘッダー書き込み.
         fseek(m_fp, 0, SEEK_SET);
         fwrite(&m_header, sizeof(m_header), 1, m_fp);

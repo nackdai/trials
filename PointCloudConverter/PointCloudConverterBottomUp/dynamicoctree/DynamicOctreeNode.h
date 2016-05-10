@@ -94,6 +94,11 @@ public:
         return m_aabb.getMin();
     }
 
+    const izanagi::math::CVector3& getMax() const
+    {
+        return m_aabb.getMax();
+    }
+
     izanagi::math::CVector3 getSize() const
     {
         return m_aabb.getSize();
