@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="..\SPCDFormat.h" />
+    <ClInclude Include="include\stdafx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\targetver.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Node.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Writer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{627dac75-90e3-450e-bc14-255f9a1d0352}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{b7f7501a-2329-45ce-bcad-5f89d0e956b9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PointCloudConverterTD.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Writer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Node.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

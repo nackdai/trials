@@ -75,6 +75,10 @@ public:
 		return output;            
 	}
 
+    bool isValid()
+    {
+        return (max.x > min.x && max.y > min.y && max.z > min.z);
+    }
 };
 
 }
