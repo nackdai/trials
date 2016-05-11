@@ -91,6 +91,10 @@ void Writer::procStore()
 
         auto node = m_octree.getNode(0);
 
+        if (targetLevel == 0 && !node->canRegister(level - 1)) {
+            targetLevel++;
+        }
+
         for (IZ_UINT i = 0; i < targetLevel; i++) {
             Node** nodes = m_octree.getChildren(node);
 
@@ -98,8 +102,15 @@ void Writer::procStore()
                 for (IZ_UINT n = 0; n < 8; n++) {
                     node = nodes[n];
 
-                    if (node->isContain(obj)) {
-                        break;
+                    bool canRegister = node->canRegister(level - 1);
+
+                    if (canRegister) {
+                        if (node->isContain(obj)) {
+                            break;
+                        }
+                    }
+                    else {
+                        targetLevel = (targetLevel < level ? targetLevel + 1 : level);
                     }
                 }
             }

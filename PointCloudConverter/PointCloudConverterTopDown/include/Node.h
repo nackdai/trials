@@ -56,6 +56,20 @@ public:
         return (m_vtx.size() > 0);
     }
 
+    bool canRegister(IZ_UINT maxLevel)
+    {
+        auto level = getLevel();
+        auto num = m_totalNum + m_vtx.size();
+
+        if (level == maxLevel) {
+            return true;
+        }
+
+        auto scale = sqrtf((float)level + 1);
+
+        return (num < 2000 * scale);
+    }
+
     void flush();
     void close();
 
