@@ -11,7 +11,7 @@ Writer::Writer(
         allocator,
         izanagi::math::CVector4(min.x, min.y, min.z),
         izanagi::math::CVector4(max.x, max.y, max.z),
-        4);
+        3);
 
     m_runThread = true;
 
@@ -94,12 +94,17 @@ void Writer::procStore()
         for (IZ_UINT i = 0; i < targetLevel; i++) {
             Node** nodes = m_octree.getChildren(node);
 
-            for (IZ_UINT i = 0; i < 8; i++) {
-                node = nodes[i];
+            if (nodes) {
+                for (IZ_UINT n = 0; n < 8; n++) {
+                    node = nodes[n];
 
-                if (node->isContain(obj)) {
-                    break;
+                    if (node->isContain(obj)) {
+                        break;
+                    }
                 }
+            }
+            else {
+                break;
             }
         }
 
