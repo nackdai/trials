@@ -28,6 +28,9 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\PointCloudGroup.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\SPCDReader.h">
@@ -37,6 +40,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="..\PointCloudConverter\SPCDFormat.h" />
+    <ClInclude Include="include\PointCloudGroup.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\vs.glsl">

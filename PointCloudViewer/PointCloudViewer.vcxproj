@@ -431,10 +431,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\PointCloudGroup.cpp" />
     <ClCompile Include="src\PointCloudViewerApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\PointCloudConverter\SPCDFormat.h" />
+    <ClInclude Include="include\PointCloudGroup.h" />
     <ClInclude Include="include\PointCloudViewerApp.h" />
     <ClInclude Include="include\SPCDReader.h" />
   </ItemGroup>
