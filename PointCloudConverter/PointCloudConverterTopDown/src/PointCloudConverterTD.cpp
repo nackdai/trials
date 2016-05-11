@@ -17,7 +17,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     izanagi::math::CMathRand::Init(st.wMilliseconds);
 
-#if 1
+#if 0
 #if 0
     int limit = 80;
     int cnt = 0;
@@ -47,7 +47,7 @@ int _tmain(int argc, _TCHAR* argv[])
     for (int i = cnt; i < 101; i++) {
         IZ_PRINTF("100, ");
     }
-#else
+#elif 0
     int limit = 50;
     int cnt = 0;
 
@@ -63,6 +63,35 @@ int _tmain(int argc, _TCHAR* argv[])
         int x = i;
 
         int y = -a * (x - limit) * (x - limit) + 100;
+
+        IZ_PRINTF("%d, ", y);
+    }
+
+    IZ_PRINTF("\n");
+
+    for (int i = cnt; i < 101; i++) {
+        IZ_PRINTF("100, ");
+    }
+#else
+    int limit = 50;
+    int cnt = 0;
+
+    for (cnt = 0; cnt < limit; cnt++) {
+        int i = cnt;
+
+        if (i > 0 && i % 10 == 0) {
+            IZ_PRINTF("\n");
+        }
+
+        int x = i;
+
+        float t = i / (float)limit;
+
+        float v = (i == limit
+            ? 1.0f
+            : -pow(2.0f, -10.0f * t) + 1.0f);
+
+        int y = (int)(v * 100.0f);
 
         IZ_PRINTF("%d, ", y);
     }

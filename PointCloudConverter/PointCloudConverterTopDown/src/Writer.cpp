@@ -81,8 +81,10 @@ void Writer::terminate()
 static int table[] = {
 #if 0
 #include "sintbl.dat"
-#else
+#elif 0
 #include "quadtbl.dat"
+#else
+#include "easetbl.dat"
 #endif
 };
 
