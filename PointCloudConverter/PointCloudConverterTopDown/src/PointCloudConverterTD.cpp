@@ -17,6 +17,64 @@ int _tmain(int argc, _TCHAR* argv[])
 
     izanagi::math::CMathRand::Init(st.wMilliseconds);
 
+#if 1
+#if 0
+    int limit = 80;
+    int cnt = 0;
+
+    for (cnt = 0; cnt < limit; cnt++) {
+        int i = cnt;
+
+        if (i > 0 && i % 10 == 0) {
+            IZ_PRINTF("\n");
+        }
+
+        int n = i;
+        n -= limit / 2;
+
+        float theta = IZ_MATH_PI * n / float(limit);
+        float s = sinf(theta);
+
+        s = (s + 1.0f) * 0.5f;
+        s *= 100.0f;
+        int ns = (int)s;
+
+        IZ_PRINTF("%d, ", ns);
+    }
+
+    IZ_PRINTF("\n");
+
+    for (int i = cnt; i < 101; i++) {
+        IZ_PRINTF("100, ");
+    }
+#else
+    int limit = 50;
+    int cnt = 0;
+
+    float a = 100.0f / (limit * limit);
+
+    for (cnt = 0; cnt < limit; cnt++) {
+        int i = cnt;
+
+        if (i > 0 && i % 10 == 0) {
+            IZ_PRINTF("\n");
+        }
+
+        int x = i;
+
+        int y = -a * (x - limit) * (x - limit) + 100;
+
+        IZ_PRINTF("%d, ", y);
+    }
+
+    IZ_PRINTF("\n");
+
+    for (int i = cnt; i < 101; i++) {
+        IZ_PRINTF("100, ");
+    }
+#endif
+#endif
+
     std::string pathIn(argv[1]);
     //std::string pathOut(argv[2]);
 

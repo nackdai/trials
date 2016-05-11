@@ -78,6 +78,14 @@ void Writer::terminate()
     }
 }
 
+static int table[] = {
+#if 0
+#include "sintbl.dat"
+#else
+#include "quadtbl.dat"
+#endif
+};
+
 void Writer::procStore()
 {
     auto level = m_octree.getMaxLevel();
@@ -87,6 +95,7 @@ void Writer::procStore()
     for (auto obj : m_temporary) {
         // TODO
         auto n = izanagi::math::CMathRand::GetRandBetween(0, 100);
+#if 0
         IZ_UINT targetLevel = n / step;
 
         auto node = m_octree.getNode(0);
@@ -118,6 +127,30 @@ void Writer::procStore()
                 break;
             }
         }
+#else
+        n = table[n];
+
+        IZ_UINT targetLevel = n / step;
+
+        auto node = m_octree.getNode(0);
+
+        for (IZ_UINT i = 0; i < targetLevel; i++) {
+            Node** nodes = m_octree.getChildren(node);
+
+            if (nodes) {
+                for (IZ_UINT n = 0; n < 8; n++) {
+                    node = nodes[n];
+
+                    if (node->isContain(obj)) {
+                        break;
+                    }
+                }
+            }
+            else {
+                break;
+            }
+        }
+#endif
 
         node->add(obj);
 
