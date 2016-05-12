@@ -15,6 +15,8 @@ class Node : public izanagi::col::IOctreeNode {
 public:
     static std::string BasePath;
 
+    static std::atomic<uint32_t> FlushedNum;
+
 private:
     static uint32_t s_ID;
 

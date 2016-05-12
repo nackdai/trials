@@ -12,9 +12,6 @@ static const uint32_t FLUSH_LIMIT = 10000;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-    izanagi::sys::CTimer timer;
-    timer.Begin();
-
     SYSTEMTIME st;
     GetSystemTime(&st);
 
@@ -142,6 +139,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
     bool needFlush = false;
 
+    izanagi::sys::CTimer timer;
+
     while (reader->readNextPoint()) {
         needFlush = true;
 
@@ -160,19 +159,36 @@ int _tmain(int argc, _TCHAR* argv[])
         writer.add(pt);
 
         if ((pointNum % STORE_LIMIT) == 0) {
+            timer.Begin();
             writer.store();
+            auto time = timer.End();
+            IZ_PRINTF("Store - %f(ms)\n", time);
         }
         if ((pointNum % FLUSH_LIMIT) == 0) {
+            timer.Begin();
             writer.flush(theadPool);
+            auto time = timer.End();
+            IZ_PRINTF("Flush - %f(ms)\n", time);
+
             needFlush = false;
         }
     }
 
+    timer.Begin();
+
     if (needFlush) {
+        writer.store();
         writer.flush(theadPool);
     }
 
+    auto time = timer.End();
+    IZ_PRINTF("Store&Flush - %f(ms)\n", time);
+
+    timer.Begin();
     writer.close(theadPool);
+    time = timer.End();
+    IZ_PRINTF("Close - %f(ms)\n", time);
+
     writer.terminate();
 
     reader->close();
@@ -181,8 +197,7 @@ int _tmain(int argc, _TCHAR* argv[])
     theadPool.WaitEmpty();
     theadPool.Terminate();
 
-    auto time = timer.End();
-    IZ_PRINTF("Time - %f(ms)\n", time);
+    IZ_PRINTF("FlushedNum [%d]\n", Node::FlushedNum);
 
 	return 0;
 }

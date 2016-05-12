@@ -1,6 +1,9 @@
 #include "Node.h"
+#include "izSystem.h"
 
 std::string Node::BasePath("./");
+
+std::atomic<uint32_t> Node::FlushedNum = 0;
 
 uint32_t Node::s_ID = 0;
 
@@ -59,6 +62,8 @@ void Node::close()
         auto depth = getLevel();
         auto mortonNumber = getMortonNumber();
         auto objNum = m_totalNum;
+
+        FlushedNum += objNum;
 
         header.vtxNum = objNum;
 

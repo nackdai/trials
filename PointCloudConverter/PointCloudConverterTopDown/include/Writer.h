@@ -23,12 +23,12 @@ public:
     void terminate();
 
     void flush(izanagi::threadmodel::CThreadPool& theadPool);
-    void waitForFlushing();
 
     void close(izanagi::threadmodel::CThreadPool& theadPool);
 
 private:
     void procStore();
+    void procFlush();
 
 private:
     izanagi::col::Octree<Node> m_octree;
@@ -36,13 +36,33 @@ private:
     std::vector<Point> m_objects;
     std::vector<Point> m_temporary;
 
-    izanagi::sys::CEvent m_waitMain;
+    class Worker {
+    public:
+        Worker() {}
+        ~Worker() {}
+
+    public:
+        void start(std::function<void(void)> func);
+
+        void set();
+        void wait(bool reset = false);
+
+        void join();
+
+    private:
+        std::function<void(void)> m_func;
+
+        izanagi::sys::CEvent m_waitMain;
+
+        std::thread m_thread;
+        izanagi::sys::CEvent m_waitWorker;
+        std::atomic<bool> m_runThread{ false };
+    };
 
     uint64_t m_acceptedNum{ 0 };
 
-    std::thread m_thStore;
-    izanagi::sys::CEvent m_waitWorker;
-    std::atomic<bool> m_runThread{ false };
+    Worker m_store;
+    Worker m_flush;
 };
 
 #endif    // #if !defined(__WRITER_H__)

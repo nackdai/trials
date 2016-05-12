@@ -1,5 +1,55 @@
 #include "Writer.h"
 
+///////////////////////////////////////////////////////
+
+void Writer::Worker::start(std::function<void(void)> func)
+{
+    m_runThread = true;
+
+    m_waitMain.Set();
+
+    m_func = func;
+
+    m_thread = std::thread([&] {
+        while (m_runThread) {
+            m_waitWorker.Wait();
+            m_waitWorker.Reset();
+
+            m_func();
+
+            m_waitMain.Set();
+        }
+    });
+}
+
+void Writer::Worker::set()
+{
+    m_waitWorker.Set();
+}
+
+void Writer::Worker::wait(bool reset/*= false*/)
+{
+    m_waitMain.Wait();
+    if (reset) {
+        m_waitMain.Reset();
+    }
+}
+
+void Writer::Worker::join()
+{
+    m_waitMain.Wait();
+
+    m_runThread = false;
+
+    m_waitWorker.Set();
+
+    if (m_thread.joinable()) {
+        m_thread.join();
+    }
+}
+
+///////////////////////////////////////////////////////
+
 Writer::Writer(
     izanagi::IMemoryAllocator* allocator,
     const Potree::AABB& aabb)
@@ -13,21 +63,14 @@ Writer::Writer(
         izanagi::math::CVector4(max.x, max.y, max.z),
         3);
 
-    m_runThread = true;
-
     m_objects.reserve(10000);
 
-    m_waitMain.Set();
+    m_store.start([&] {
+        procStore();
+    });
 
-    m_thStore = std::thread([&] {
-        while (m_runThread) {
-            m_waitWorker.Wait();
-            m_waitWorker.Reset();
-
-            procStore();
-
-            m_waitMain.Set();
-        }
+    m_flush.start([&] {
+        procFlush();
     });
 }
 
@@ -44,14 +87,17 @@ uint32_t Writer::add(const Point& obj)
 
 void Writer::store()
 {
-    waitForFlushing();
+    auto num = m_objects.size();
+
+    if (num == 0) {
+        return;
+    }
+
+    m_flush.wait();
     
-    m_waitMain.Wait();
-    m_waitMain.Reset();
+    m_store.wait(true);
 
     m_temporary.resize(m_objects.size());
-
-    auto num = m_objects.size();
 
     memcpy(
         &m_temporary[0],
@@ -60,22 +106,13 @@ void Writer::store()
 
     m_objects.clear();
 
-    m_waitWorker.Set();
+    m_store.set();
 }
 
 void Writer::terminate()
-{
-    waitForFlushing();
-    
-    m_waitMain.Wait();
-
-    m_runThread = false;
-
-    m_waitWorker.Set();
-
-    if (m_thStore.joinable()) {
-        m_thStore.join();
-    }
+{   
+    m_store.join();
+    m_flush.join();
 }
 
 static int table[] = {
@@ -164,33 +201,49 @@ void Writer::procStore()
 
 void Writer::flush(izanagi::threadmodel::CThreadPool& theadPool)
 {
-    waitForFlushing();
-    
-    m_waitMain.Wait();
+    m_flush.wait(true);
 
+    m_store.wait();
+
+    m_flush.set();
+}
+
+void Writer::procFlush()
+{
+    auto list = m_octree.getNodes();
     auto num = m_octree.getNodeCount();
 
-    izanagi::threadmodel::CParallel::For(
-        theadPool,
-        0, num,
-        [&](IZ_INT idx) {
-        auto list = m_octree.getNodes();
-        Node* node = list[idx];
+    for (IZ_UINT i = 0; i < num; i++) {
+        Node* node = list[i];
         if (node) {
             node->flush();
         }
-    });
+    }
 }
 
 void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
 {
-    waitForFlushing();
-    
-    m_waitMain.Wait();
+    izanagi::sys::CTimer timer;
+
+    timer.Begin();
+
+    m_flush.wait();
+    m_store.wait();
+
+    auto time = timer.End();
+    IZ_PRINTF("    Wait - %f(ms)\n", time);
 
     auto list = m_octree.getNodes();
     auto num = m_octree.getNodeCount();
 
+#if 0
+    for (IZ_UINT i = 0; i < num; i++) {
+        Node* node = list[i];
+        if (node) {
+            node->close();
+        }
+    }
+#else
     izanagi::threadmodel::CParallel::For(
         theadPool,
         0, num,
@@ -200,11 +253,6 @@ void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
             node->close();
         }
     });
-
     izanagi::threadmodel::CParallel::waitFor();
-}
-
-void Writer::waitForFlushing()
-{
-    izanagi::threadmodel::CParallel::waitFor();
+#endif
 }
