@@ -6,8 +6,14 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "potree", "potree\potree.vcxproj", "{948D0F23-F2AB-4186-AC66-7C53ED99567B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointCloudConverterBU", "PointCloudConverterBottomUp\PointCloudConverterBU.vcxproj", "{AD2C30E0-0496-4EF6-94BC-2E22F1EB700C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{948D0F23-F2AB-4186-AC66-7C53ED99567B} = {948D0F23-F2AB-4186-AC66-7C53ED99567B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointCloudConverterTD", "PointCloudConverterTopDown\PointCloudConverterTD.vcxproj", "{A622C3F9-C061-44BA-B98C-AACFFA99EF98}"
+	ProjectSection(ProjectDependencies) = postProject
+		{948D0F23-F2AB-4186-AC66-7C53ED99567B} = {948D0F23-F2AB-4186-AC66-7C53ED99567B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

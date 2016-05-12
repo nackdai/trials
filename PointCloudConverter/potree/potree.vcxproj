@@ -104,7 +104,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>boost_system-vc120-mt-gd-1_58.lib;boost_thread-vc120-mt-gd-1_58.lib;boost_regex-vc120-mt-gd-1_58.lib;boost_filesystem-vc120-mt-gd-1_58.lib;boost_program_options-vc120-mt-gd-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>boost_system-vc120-mt-1_58.lib;boost_thread-vc120-mt-1_58.lib;boost_regex-vc120-mt-1_58.lib;boost_filesystem-vc120-mt-1_58.lib;boost_program_options-vc120-mt-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
