@@ -42,7 +42,7 @@ public:
     {
         if (isContain(vtx))
         {
-            m_vtx.push_back(vtx);
+            m_vtx[m_curIdx].push_back(vtx);
             return true;
         }
         return false;
@@ -53,13 +53,9 @@ public:
         return m_aabb.isContain(izanagi::math::CVector3(vtx.pos[0], vtx.pos[1], vtx.pos[2]));
     }
 
-    bool hasVtx() const
-    {
-        return (m_vtx.size() > 0);
-    }
-
     bool canRegister(IZ_UINT maxLevel)
     {
+#if 0
         auto level = getLevel();
         auto num = m_totalNum + m_vtx.size();
 
@@ -70,6 +66,10 @@ public:
         auto scale = sqrtf((float)level + 1);
 
         return (num < 2000 * scale);
+#else
+        IZ_ASSERT(IZ_FALSE);
+        return false;
+#endif
     }
 
     void flush();
@@ -81,7 +81,9 @@ private:
     FILE* m_fp{ nullptr };
 
     izanagi::col::AABB m_aabb;
-    std::vector<Point> m_vtx;
+
+    std::vector<Point> m_vtx[2];
+    std::atomic<uint32_t> m_curIdx{ 0 };
 
     uint32_t m_totalNum{ 0 };
 };

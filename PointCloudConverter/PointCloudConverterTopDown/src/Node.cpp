@@ -7,9 +7,14 @@ std::atomic<uint32_t> Node::FlushedNum = 0;
 
 uint32_t Node::s_ID = 0;
 
+std::vector<bool> IsOpened(1000);
+
 void Node::flush()
 {
-    if (!hasVtx()) {
+    uint32_t idx = m_curIdx;
+    m_curIdx = 1 - m_curIdx;
+
+    if (m_vtx[idx].size() == 0) {
         return;
     }
 
@@ -29,22 +34,30 @@ void Node::flush()
 
         path += ".spcd";
 
-        fopen_s(&m_fp, path.c_str(), "wb");
+        auto err = fopen_s(&m_fp, path.c_str(), "wb");
+
+        if (!m_fp) {
+            IZ_PRINTF("err[%d](%s)(%s)\n", err, path.c_str(), IsOpened[id] ? "open" : "not open");
+        }
+
         IZ_ASSERT(m_fp);
+        IsOpened[id] = true;
 
         // ÉwÉbÉ_Å[ï™ãÛÇØÇÈ.
         fseek(m_fp, sizeof(SPCDHeader), SEEK_SET);
     }
 
-    auto src = &m_vtx[0];
-    auto num = m_vtx.size();
+    auto& vtx = m_vtx[idx];
+
+    auto src = &vtx[0];
+    auto num = vtx.size();
     auto size = num * sizeof(Point);
 
     m_totalNum += num;
 
     fwrite(src, size, 1, m_fp);
 
-    m_vtx.clear();
+    vtx.clear();
 }
 
 void Node::close()

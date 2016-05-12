@@ -26,7 +26,7 @@ int _tmain(int argc, _TCHAR* argv[])
         int i = cnt;
 
         if (i > 0 && i % 10 == 0) {
-            IZ_PRINTF("\n");
+            izanagi::_OutputDebugString("\n");
         }
 
         int n = i;
@@ -39,13 +39,13 @@ int _tmain(int argc, _TCHAR* argv[])
         s *= 100.0f;
         int ns = (int)s;
 
-        IZ_PRINTF("%d, ", ns);
+        izanagi::_OutputDebugString("%d, ", ns);
     }
 
-    IZ_PRINTF("\n");
+    izanagi::_OutputDebugString("\n");
 
     for (int i = cnt; i < 101; i++) {
-        IZ_PRINTF("100, ");
+        izanagi::_OutputDebugString("100, ");
     }
 #elif 0
     int limit = 50;
@@ -57,20 +57,20 @@ int _tmain(int argc, _TCHAR* argv[])
         int i = cnt;
 
         if (i > 0 && i % 10 == 0) {
-            IZ_PRINTF("\n");
+            izanagi::_OutputDebugString("\n");
         }
 
         int x = i;
 
         int y = -a * (x - limit) * (x - limit) + 100;
 
-        IZ_PRINTF("%d, ", y);
+        izanagi::_OutputDebugString("%d, ", y);
     }
 
-    IZ_PRINTF("\n");
+    izanagi::_OutputDebugString("\n");
 
     for (int i = cnt; i < 101; i++) {
-        IZ_PRINTF("100, ");
+        izanagi::_OutputDebugString("100, ");
     }
 #else
     int limit = 50;
@@ -80,7 +80,7 @@ int _tmain(int argc, _TCHAR* argv[])
         int i = cnt;
 
         if (i > 0 && i % 10 == 0) {
-            IZ_PRINTF("\n");
+            izanagi::_OutputDebugString("\n");
         }
 
         int x = i;
@@ -93,13 +93,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
         int y = (int)(v * 100.0f);
 
-        IZ_PRINTF("%d, ", y);
+        izanagi::_OutputDebugString("%d, ", y);
     }
 
-    IZ_PRINTF("\n");
+    izanagi::_OutputDebugString("\n");
 
     for (int i = cnt; i < 101; i++) {
-        IZ_PRINTF("100, ");
+        izanagi::_OutputDebugString("100, ");
     }
 #endif
 #endif
@@ -162,13 +162,13 @@ int _tmain(int argc, _TCHAR* argv[])
             timer.Begin();
             writer.store();
             auto time = timer.End();
-            IZ_PRINTF("Store - %f(ms)\n", time);
+            izanagi::_OutputDebugString("Store - %f(ms)\n", time);
         }
         if ((pointNum % FLUSH_LIMIT) == 0) {
             timer.Begin();
             writer.flush(theadPool);
             auto time = timer.End();
-            IZ_PRINTF("Flush - %f(ms)\n", time);
+            izanagi::_OutputDebugString("Flush - %f(ms)\n", time);
 
             needFlush = false;
         }
@@ -178,18 +178,18 @@ int _tmain(int argc, _TCHAR* argv[])
         timer.Begin();
         writer.storeDirectly();
         auto time = timer.End();
-        IZ_PRINTF("StoreDirectly - %f(ms)\n", time);
+        izanagi::_OutputDebugString("StoreDirectly - %f(ms)\n", time);
 
         timer.Begin();
         writer.flushDirectly();
         time = timer.End();
-        IZ_PRINTF("FlushDirectly - %f(ms)\n", time);
+        izanagi::_OutputDebugString("FlushDirectly - %f(ms)\n", time);
     }
 
     timer.Begin();
     writer.close(theadPool);
     auto time = timer.End();
-    IZ_PRINTF("Close - %f(ms)\n", time);
+    izanagi::_OutputDebugString("Close - %f(ms)\n", time);
 
     writer.terminate();
 
@@ -199,7 +199,7 @@ int _tmain(int argc, _TCHAR* argv[])
     theadPool.WaitEmpty();
     theadPool.Terminate();
 
-    IZ_PRINTF("FlushedNum [%d]\n", Node::FlushedNum);
+    izanagi::_OutputDebugString("FlushedNum [%d]\n", Node::FlushedNum);
 
 	return 0;
 }

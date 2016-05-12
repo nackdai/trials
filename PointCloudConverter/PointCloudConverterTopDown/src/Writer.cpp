@@ -15,7 +15,13 @@ void Writer::Worker::start(std::function<void(void)> func)
             m_waitWorker.Wait();
             m_waitWorker.Reset();
 
-            m_func();
+            if (m_runThread) {
+                //izanagi::_OutputDebugString("Running(%s)============\n", m_tag.c_str());
+
+                m_func();
+
+                //izanagi::_OutputDebugString("Done(%s)===============\n", m_tag.c_str());
+            }
 
             m_waitMain.Set();
         }
@@ -37,8 +43,6 @@ void Writer::Worker::wait(bool reset/*= false*/)
 
 void Writer::Worker::join()
 {
-    m_waitMain.Wait();
-
     m_runThread = false;
 
     m_waitWorker.Set();
@@ -53,6 +57,7 @@ void Writer::Worker::join()
 Writer::Writer(
     izanagi::IMemoryAllocator* allocator,
     const Potree::AABB& aabb)
+    : m_store("store"), m_flush("flush")
 {
     const auto& min = aabb.min;
     const auto& max = aabb.max;
@@ -65,12 +70,12 @@ Writer::Writer(
 
     m_objects.reserve(10000);
 
-    m_store.start([&] {
-        procStore();
-    });
-
     m_flush.start([&] {
         procFlush();
+    });
+
+    m_store.start([&] {
+        procStore();
     });
 }
 
@@ -93,7 +98,7 @@ void Writer::store()
         return;
     }
 
-    m_flush.wait();
+    //m_flush.wait();
     
     m_store.wait(true);
 
@@ -203,7 +208,7 @@ void Writer::flush(izanagi::threadmodel::CThreadPool& theadPool)
 {
     m_flush.wait(true);
 
-    m_store.wait();
+    //m_store.wait();
 
     m_flush.set();
 }
@@ -213,12 +218,17 @@ void Writer::procFlush()
     auto list = m_octree.getNodes();
     auto num = m_octree.getNodeCount();
 
+    izanagi::sys::CTimer timer;
+
+    timer.Begin();
     for (IZ_UINT i = 0; i < num; i++) {
         Node* node = list[i];
         if (node) {
             node->flush();
         }
     }
+    auto time = timer.End();
+    izanagi::_OutputDebugString("****** Flush - %f(ms)\n", time);
 }
 
 void Writer::storeDirectly()
@@ -245,27 +255,15 @@ void Writer::storeDirectly()
 
 void Writer::flushDirectly()
 {
-    izanagi::sys::CTimer timer;
-
-    timer.Begin();
     m_flush.wait();
-    auto time = timer.End();
-    IZ_PRINTF("   Wait - %f(ms)\n", time);
 
     procFlush();
 }
 
 void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
 {
-    izanagi::sys::CTimer timer;
-
-    timer.Begin();
-
-    m_flush.wait();
     m_store.wait();
-
-    auto time = timer.End();
-    IZ_PRINTF("    Wait - %f(ms)\n", time);
+    m_flush.wait();
 
     auto list = m_octree.getNodes();
     auto num = m_octree.getNodeCount();

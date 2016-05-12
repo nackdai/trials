@@ -41,7 +41,7 @@ private:
 
     class Worker {
     public:
-        Worker() {}
+        Worker(const std::string& tag) : m_tag(tag) {}
         ~Worker() {}
 
     public:
@@ -53,6 +53,8 @@ private:
         void join();
 
     private:
+        std::string m_tag;
+
         std::function<void(void)> m_func;
 
         izanagi::sys::CEvent m_waitMain;
