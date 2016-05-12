@@ -221,6 +221,40 @@ void Writer::procFlush()
     }
 }
 
+void Writer::storeDirectly()
+{
+    auto num = m_objects.size();
+
+    if (num == 0) {
+        return;
+    }
+
+    m_store.wait();
+
+    m_temporary.resize(m_objects.size());
+
+    memcpy(
+        &m_temporary[0],
+        &m_objects[0],
+        sizeof(Point) * num);
+
+    m_objects.clear();
+
+    procStore();
+}
+
+void Writer::flushDirectly()
+{
+    izanagi::sys::CTimer timer;
+
+    timer.Begin();
+    m_flush.wait();
+    auto time = timer.End();
+    IZ_PRINTF("   Wait - %f(ms)\n", time);
+
+    procFlush();
+}
+
 void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
 {
     izanagi::sys::CTimer timer;

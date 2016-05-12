@@ -26,6 +26,9 @@ public:
 
     void close(izanagi::threadmodel::CThreadPool& theadPool);
 
+    void storeDirectly();
+    void flushDirectly();
+
 private:
     void procStore();
     void procFlush();

@@ -7,7 +7,7 @@
 #include "proxy.h"
 #include "Writer.h"
 
-static const uint32_t STORE_LIMIT = 5000;
+static const uint32_t STORE_LIMIT = 3000;
 static const uint32_t FLUSH_LIMIT = 10000;
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -174,19 +174,21 @@ int _tmain(int argc, _TCHAR* argv[])
         }
     }
 
-    timer.Begin();
-
     if (needFlush) {
-        writer.store();
-        writer.flush(theadPool);
-    }
+        timer.Begin();
+        writer.storeDirectly();
+        auto time = timer.End();
+        IZ_PRINTF("StoreDirectly - %f(ms)\n", time);
 
-    auto time = timer.End();
-    IZ_PRINTF("Store&Flush - %f(ms)\n", time);
+        timer.Begin();
+        writer.flushDirectly();
+        time = timer.End();
+        IZ_PRINTF("FlushDirectly - %f(ms)\n", time);
+    }
 
     timer.Begin();
     writer.close(theadPool);
-    time = timer.End();
+    auto time = timer.End();
     IZ_PRINTF("Close - %f(ms)\n", time);
 
     writer.terminate();
