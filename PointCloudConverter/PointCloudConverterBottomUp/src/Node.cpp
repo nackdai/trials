@@ -104,6 +104,9 @@ void Node::close()
         m_header.aabbMax[1] = aabbMax.y;
         m_header.aabbMax[2] = aabbMax.z;
 
+        // TODO
+        m_header.spacing = izanagi::math::SVector3::Length2(aabbMin, aabbMax) / 250.0f;
+
         // 先頭に戻って、ヘッダー書き込み.
         fseek(m_fp, 0, SEEK_SET);
         fwrite(&m_header, sizeof(m_header), 1, m_fp);

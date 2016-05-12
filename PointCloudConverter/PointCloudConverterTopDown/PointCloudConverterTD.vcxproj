@@ -81,7 +81,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>potree.lib;Std.lib;Math.lib;System.lib;ThreadModel.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>potree.lib;Std.lib;Math.lib;System.lib;ThreadModel.lib;Collision.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration);..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\..\izanagi\Libs\project\lib\$(Configuration)_OGL;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

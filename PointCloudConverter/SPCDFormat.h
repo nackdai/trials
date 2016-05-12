@@ -24,6 +24,8 @@ struct SPCDHeader {
     uint32_t depth;
     uint32_t mortonNumber;
 
+    float spacing;
+
     float aabbMin[3];
     float aabbMax[3];
 };

@@ -13,7 +13,11 @@ void Node::flush()
     if (!m_fp) {
         std::string path(BasePath);
 
+#if 0
         auto id = m_id;
+#else
+        auto id = getNodeArrayIdx();
+#endif
 
         char tmp[10];
         sprintf(tmp, "%d\0", id);
@@ -76,6 +80,9 @@ void Node::close()
         header.aabbMax[0] = aabbMax.x;
         header.aabbMax[1] = aabbMax.y;
         header.aabbMax[2] = aabbMax.z;
+
+        // TODO
+        header.spacing = izanagi::math::SVector4::Length2(aabbMin, aabbMax) / 250.0f;
 
         // 先頭に戻って、ヘッダー書き込み.
         fseek(m_fp, 0, SEEK_SET);

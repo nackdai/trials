@@ -12,6 +12,9 @@ static const uint32_t FLUSH_LIMIT = 10000;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+    izanagi::sys::CTimer timer;
+    timer.Begin();
+
     SYSTEMTIME st;
     GetSystemTime(&st);
 
@@ -177,6 +180,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
     theadPool.WaitEmpty();
     theadPool.Terminate();
+
+    auto time = timer.End();
+    IZ_PRINTF("Time - %f(ms)\n", time);
 
 	return 0;
 }
