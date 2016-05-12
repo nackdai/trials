@@ -192,6 +192,7 @@ void PointCloudViewerApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device
         auto& file = *it;
 
         {
+            IZ_PRINTF("%s\n", file.c_str());
             auto res = m_curGroup->read(m_allocator, device, file.c_str());
 
             if (PointDataGroup::needOtherGroup(res)) {
@@ -206,6 +207,11 @@ void PointCloudViewerApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device
         }
 
         m_files.erase(it);
+
+        m_total = 0;
+        for each (auto g in m_groups) {
+            m_total += g->getVtxNum();
+        }
     }
     m_readData = false;
 #endif
@@ -285,6 +291,17 @@ void PointCloudViewerApp::RenderInternal(izanagi::graph::CGraphicsDevice* device
         }
 
         m_basicShd->End(device);
+    }
+
+    auto font = GetDebugFont();
+    if (device->Begin2D()) {
+        font->Begin(device);
+        font->DBPrint(
+            device,
+            0, 40,
+            "num : [%d]", m_total);
+        font->End();
+        device->End2D();
     }
 }
 

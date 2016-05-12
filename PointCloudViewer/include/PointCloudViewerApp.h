@@ -54,6 +54,8 @@ private:
     PointDataGroup* m_curGroup{ nullptr };
 
     bool m_readData{ false };
+
+    IZ_UINT m_total{ 0 };
 };
 
 #endif    // #if !defined(__POINT_CLOUD_VIEWER_APP_H__)
