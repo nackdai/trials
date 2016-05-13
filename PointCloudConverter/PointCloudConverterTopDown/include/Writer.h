@@ -9,6 +9,7 @@
 #include "Node.h"
 
 //#define USE_THREAD_FLUSH
+#define USE_THREAD_STORE
 
 class Writer {
 public:
@@ -21,16 +22,16 @@ public:
 public:
     uint32_t add(const Point& obj);
 
-    void store();
+    void store(izanagi::threadmodel::CThreadPool& threadPool);
 
     void terminate();
 
-    void flush(izanagi::threadmodel::CThreadPool& theadPool);
+    void flush(izanagi::threadmodel::CThreadPool& threadPool);
 
-    void close(izanagi::threadmodel::CThreadPool& theadPool);
+    void close(izanagi::threadmodel::CThreadPool& threadPool);
 
-    void storeDirectly();
-    void flushDirectly(izanagi::threadmodel::CThreadPool& theadPool);
+    void storeDirectly(izanagi::threadmodel::CThreadPool& threadPool);
+    void flushDirectly(izanagi::threadmodel::CThreadPool& threadPool);
 
 private:
     void procStore();
@@ -69,10 +70,15 @@ private:
         std::atomic<bool> m_runThread{ false };
     };
 
-    uint64_t m_acceptedNum{ 0 };
+    std::atomic<uint64_t> m_acceptedNum{ 0 };
 
     Worker m_store;
     Worker m_flush;
+
+    izanagi::threadmodel::CParallelFor m_storeTasks[10];
+    izanagi::threadmodel::CParallelFor m_flushTasks[10];
+
+    izanagi::sys::CSpinLock m_locker;
 };
 
 #endif    // #if !defined(__WRITER_H__)

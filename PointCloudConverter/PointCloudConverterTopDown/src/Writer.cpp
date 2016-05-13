@@ -1,5 +1,15 @@
 #include "Writer.h"
 
+static int table[] = {
+#if 0
+#include "sintbl.dat"
+#elif 0
+#include "quadtbl.dat"
+#else
+#include "easetbl.dat"
+#endif
+};
+
 ///////////////////////////////////////////////////////
 
 void Writer::Worker::start(std::function<void(void)> func)
@@ -92,7 +102,7 @@ uint32_t Writer::add(const Point& obj)
     return m_objects[m_curIdx].size();
 }
 
-void Writer::store()
+void Writer::store(izanagi::threadmodel::CThreadPool& threadPool)
 {
     auto num = m_objects[m_curIdx].size();
 
@@ -100,15 +110,66 @@ void Writer::store()
         return;
     }
 
+#ifdef USE_THREAD_STORE
     //m_flush.wait();
     
     m_store.wait(true);
+
+    auto lastIdx = 1 - m_curIdx;
+    m_objects[lastIdx].clear();
 
     m_temporary = &m_objects[m_curIdx];
 
     m_curIdx = 1 - m_curIdx;
 
     m_store.set();
+#else
+    izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));
+
+    auto lastIdx = 1 - m_curIdx;
+    m_objects[lastIdx].clear();
+
+    m_temporary = &m_objects[m_curIdx];
+
+    m_curIdx = 1 - m_curIdx;
+
+    auto& points = *m_temporary;
+
+    izanagi::threadmodel::CParallel::For(
+        threadPool,
+        m_storeTasks,
+        0, num,
+        [&](IZ_UINT idx) {
+        auto& obj = points[idx];
+
+        auto n = izanagi::math::CMathRand::GetRandBetween(0, 100);
+        n = table[n];
+
+        auto level = m_octree.getMaxLevel();
+        auto step = 100 / level;
+
+        IZ_UINT targetLevel = n / step;
+
+        targetLevel = IZ_MIN(targetLevel, level - 1);
+
+        auto mortonNumber = m_octree.getMortonNumberByLevel(
+            izanagi::math::CVector4(obj.pos[0], obj.pos[1], obj.pos[2]),
+            targetLevel);
+
+        auto nodeIdx = m_octree.getIndex(mortonNumber);
+
+        m_locker.lock();
+
+        auto node = m_octree.getNode(nodeIdx, IZ_TRUE);
+        IZ_ASSERT(node->isContain(obj));
+
+        node->add(obj);
+
+        m_locker.unlock();
+
+        m_acceptedNum++;
+    });
+#endif
 }
 
 void Writer::terminate()
@@ -116,16 +177,6 @@ void Writer::terminate()
     m_store.join();
     m_flush.join();
 }
-
-static int table[] = {
-#if 0
-#include "sintbl.dat"
-#elif 0
-#include "quadtbl.dat"
-#else
-#include "easetbl.dat"
-#endif
-};
 
 void Writer::procStore()
 {
@@ -178,25 +229,36 @@ void Writer::procStore()
 
         m_acceptedNum++;
     }
-
-    points.clear();
 }
 
-void Writer::flush(izanagi::threadmodel::CThreadPool& theadPool)
+void Writer::flush(izanagi::threadmodel::CThreadPool& threadPool)
 {
 #ifdef USE_THREAD_FLUSH
     m_flush.wait(true);
 
-    //m_store.wait();
+#ifdef USE_THREAD_STORE
+    m_store.wait();
+#else
+    izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));
+#endif
 
     m_flush.set();
 #else
-    izanagi::threadmodel::CParallel::waitFor();
 
+#ifdef USE_THREAD_STORE
+    m_store.wait();
+#else
+    izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));
+#endif
+
+    izanagi::threadmodel::CParallel::waitFor(m_flushTasks, COUNTOF(m_flushTasks));
+
+    auto nodes = m_octree.getNodes();
     auto num = m_octree.getNodeCount();
     
     izanagi::threadmodel::CParallel::For(
-        theadPool,
+        threadPool,
+        m_flushTasks,
         0, num,
         [&](IZ_UINT idx) {
         auto list = m_octree.getNodes();
@@ -213,21 +275,17 @@ void Writer::procFlush()
     auto list = m_octree.getNodes();
     auto num = m_octree.getNodeCount();
 
-    izanagi::sys::CTimer timer;
-
-    timer.Begin();
     for (IZ_UINT i = 0; i < num; i++) {
         Node* node = list[i];
         if (node) {
             node->flush();
         }
     }
-    auto time = timer.End();
-    izanagi::_OutputDebugString("****** Flush - %f(ms)\n", time);
 }
 
-void Writer::storeDirectly()
+void Writer::storeDirectly(izanagi::threadmodel::CThreadPool& threadPool)
 {
+#ifdef USE_THREAD_STORE
     auto num = m_objects[m_curIdx].size();
 
     if (num == 0) {
@@ -241,28 +299,36 @@ void Writer::storeDirectly()
     m_curIdx = 1 - m_curIdx;
 
     procStore();
+#else
+    store(threadPool);
+    izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));
+#endif
 }
 
-void Writer::flushDirectly(izanagi::threadmodel::CThreadPool& theadPool)
+void Writer::flushDirectly(izanagi::threadmodel::CThreadPool& threadPool)
 {
 #ifdef USE_THREAD_FLUSH
     m_flush.wait();
 
     procFlush();
 #else
-    flush(theadPool);
-    izanagi::threadmodel::CParallel::waitFor();
+    flush(threadPool);
+    izanagi::threadmodel::CParallel::waitFor(m_flushTasks, COUNTOF(m_flushTasks));
 #endif
 }
 
-void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
+void Writer::close(izanagi::threadmodel::CThreadPool& threadPool)
 {
+#ifdef USE_THREAD_STORE
     m_store.wait();
+#else
+    izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));
+#endif
 
 #ifdef USE_THREAD_FLUSH
     m_flush.wait();
 #else
-    izanagi::threadmodel::CParallel::waitFor();
+    izanagi::threadmodel::CParallel::waitFor(m_flushTasks, COUNTOF(m_flushTasks));
 #endif
 
     auto list = m_octree.getNodes();
@@ -277,7 +343,8 @@ void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
     }
 #else
     izanagi::threadmodel::CParallel::For(
-        theadPool,
+        threadPool,
+        m_flushTasks,
         0, num,
         [&](IZ_INT idx) {
         Node* node = list[idx];
@@ -285,6 +352,6 @@ void Writer::close(izanagi::threadmodel::CThreadPool& theadPool)
             node->close();
         }
     });
-    izanagi::threadmodel::CParallel::waitFor();
+    izanagi::threadmodel::CParallel::waitFor(m_flushTasks, COUNTOF(m_flushTasks));
 #endif
 }

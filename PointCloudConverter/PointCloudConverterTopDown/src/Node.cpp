@@ -55,6 +55,8 @@ void Node::flush()
 
     m_totalNum += num;
 
+    FlushedNum += num;
+
     fwrite(src, size, 1, m_fp);
 
     vtx.clear();
@@ -63,6 +65,9 @@ void Node::flush()
 void Node::close()
 {
     if (m_fp) {
+        IZ_ASSERT(m_vtx[0].size() == 0);
+        IZ_ASSERT(m_vtx[1].size() == 0);
+
         SPCDHeader header;
 
         header.magic_number = FOUR_CC('S', 'P', 'C', 'D');
@@ -76,7 +81,7 @@ void Node::close()
         auto mortonNumber = getMortonNumber();
         auto objNum = m_totalNum;
 
-        FlushedNum += objNum;
+        //FlushedNum += objNum;
 
         header.vtxNum = objNum;
 

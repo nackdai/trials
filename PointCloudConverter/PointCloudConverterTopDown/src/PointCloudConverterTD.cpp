@@ -11,6 +11,12 @@
 #define MINOR_VERSION   (0)
 #define REVISION        (1)
 
+#if 0
+#define LOG(fmt, ...) izanagi::_OutputDebugString(fmt, __VA_ARGS__)
+#else
+#define LOG(fmt, ...)
+#endif
+
 static const uint32_t STORE_LIMIT = 3000;
 static const uint32_t FLUSH_LIMIT = 10000;
 
@@ -57,6 +63,10 @@ bool Option::parse(int argc, _TCHAR* argv[])
         if (opt == "-o") {
             GET_ARG(i, argc, argv);
             outDir = arg;
+
+            if (outDir.back() != '\\' || outDir.back() != '/') {
+                outDir += "\\";
+            }
         }
         else if (opt == "-s") {
             GET_ARG(i, argc, argv);
@@ -190,8 +200,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
     izanagi::CSimpleMemoryAllocator allocator;
 
-    izanagi::threadmodel::CThreadPool theadPool;
-    theadPool.Init(&allocator, 4);
+    izanagi::threadmodel::CThreadPool threadPool;
+    threadPool.Init(&allocator, 4);
 
     auto aabb = reader->getAABB();
     IZ_ASSERT(aabb.isValid());
@@ -235,6 +245,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
     bool needFlush = false;
 
+    izanagi::sys::CTimer timerEntire;
+    timerEntire.Begin();
+
     izanagi::sys::CTimer timer;
 
     while (reader->readNextPoint()) {
@@ -256,15 +269,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
         if ((pointNum % STORE_LIMIT) == 0) {
             timer.Begin();
-            writer.store();
+            writer.store(threadPool);
             auto time = timer.End();
-            izanagi::_OutputDebugString("Store - %f(ms)\n", time);
+            LOG("Store - %f(ms)\n", time);
         }
         if ((pointNum % FLUSH_LIMIT) == 0) {
             timer.Begin();
-            writer.flush(theadPool);
+            writer.flush(threadPool);
             auto time = timer.End();
-            izanagi::_OutputDebugString("Flush - %f(ms)\n", time);
+            LOG("Flush - %f(ms)\n", time);
 
             needFlush = false;
         }
@@ -272,28 +285,31 @@ int _tmain(int argc, _TCHAR* argv[])
 
     if (needFlush) {
         timer.Begin();
-        writer.storeDirectly();
+        writer.storeDirectly(threadPool);
         auto time = timer.End();
-        izanagi::_OutputDebugString("StoreDirectly - %f(ms)\n", time);
+        LOG("StoreDirectly - %f(ms)\n", time);
 
         timer.Begin();
-        writer.flushDirectly(theadPool);
+        writer.flushDirectly(threadPool);
         time = timer.End();
-        izanagi::_OutputDebugString("FlushDirectly - %f(ms)\n", time);
+        LOG("FlushDirectly - %f(ms)\n", time);
     }
 
     timer.Begin();
-    writer.close(theadPool);
+    writer.close(threadPool);
     auto time = timer.End();
-    izanagi::_OutputDebugString("Close - %f(ms)\n", time);
+    LOG("Close - %f(ms)\n", time);
 
     writer.terminate();
+
+    auto timeEntire = timerEntire.End();
+    izanagi::_OutputDebugString("Time * %f(ms)\n", timeEntire);
 
     reader->close();
     delete reader;
 
-    theadPool.WaitEmpty();
-    theadPool.Terminate();
+    threadPool.WaitEmpty();
+    threadPool.Terminate();
 
     izanagi::_OutputDebugString("FlushedNum [%d]\n", Node::FlushedNum);
 

@@ -12,6 +12,8 @@ struct Point {
 };
 
 class Node : public izanagi::col::IOctreeNode {
+    friend class Writer;
+
 public:
     static std::string BasePath;
 
