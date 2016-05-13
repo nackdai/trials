@@ -7,11 +7,83 @@
 #include "proxy.h"
 #include "Writer.h"
 
+#define MAJOR_VERSION   (0)
+#define MINOR_VERSION   (0)
+#define REVISION        (1)
+
 static const uint32_t STORE_LIMIT = 3000;
 static const uint32_t FLUSH_LIMIT = 10000;
 
+void dispUsage()
+{
+    printf("PointCloudConverter %d.%d.%d\n", MAJOR_VERSION, MINOR_VERSION, REVISION);
+    printf("Usage *****\n");
+    printf(" PointCloudConverterTD.exe [options] [input]\n");
+    printf("  -o [dir]   : output directory.\n");
+    printf("  -s [scale] : scale.\n");
+    printf("  -d [depth] : octree depth.\n");
+}
+
+struct SOption {
+    std::string outDir;
+    float scale{ 1.0f };
+    uint32_t depth{ 1 };
+    std::string inFile;
+};
+
+class Option : public SOption {
+public:
+    Option() {}
+    ~Option() {}
+
+public:
+    bool parse(int argc, _TCHAR* argv[]);
+};
+
+#define GET_ARG(idx, argc, argv)\
+    idx++; if (idx >= argc) { return false; }\
+    std::string arg(argv[idx]);\
+    if (arg.empty()) { return false; }
+
+bool Option::parse(int argc, _TCHAR* argv[])
+{
+    if (argc <= 1) {
+        return false;
+    }
+
+    for (int i = 1; i < argc - 1; i++) {
+        std::string opt(argv[i]);
+
+        if (opt == "-o") {
+            GET_ARG(i, argc, argv);
+            outDir = arg;
+        }
+        else if (opt == "-s") {
+            GET_ARG(i, argc, argv);
+            scale = atof(arg.c_str());
+        }
+        else if (opt == "-d") {
+            GET_ARG(i, argc, argv);
+            depth = atoi(arg.c_str());
+        }
+        else {
+            return false;
+        }
+    }
+
+    inFile = argv[argc - 1];
+
+    return true;
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+    Option option;
+    if (!option.parse(argc, argv)) {
+        dispUsage();
+        return 1;
+    }
+
     SYSTEMTIME st;
     GetSystemTime(&st);
 
@@ -104,24 +176,45 @@ int _tmain(int argc, _TCHAR* argv[])
 #endif
 #endif
 
-    std::string pathIn(argv[1]);
-    //std::string pathOut(argv[2]);
+    Node::BasePath = option.outDir;
 
-    std::string outDir(".\\");
+    // Limit max depth.
+    int maxDepth = IZ_MIN(option.depth, 5);
 
-    // TODO
-    int maxDepth = 3;
-    float scale = 100.0f;
+    auto reader = Proxy::createPointReader(option.inFile);
+
+    if (!reader) {
+        // TODO
+        return 1;
+    }
 
     izanagi::CSimpleMemoryAllocator allocator;
 
     izanagi::threadmodel::CThreadPool theadPool;
     theadPool.Init(&allocator, 4);
 
-    auto reader = Proxy::createPointReader(pathIn);
-
     auto aabb = reader->getAABB();
     IZ_ASSERT(aabb.isValid());
+
+    // If specified scale is zero, compute scale.
+    float scale = option.scale;
+
+    if (scale <= 0.0f) {
+        auto len = aabb.size.length();
+
+        if (len > 100000.0f) {
+            scale = 0.01f;
+        }
+        else if (len > 10000.0f) {
+            scale = 0.1f;
+        }
+        else if (len < 10.0f) {
+            scale = 100.0f;
+        }
+        else {
+            scale = 1.0f;
+        }
+    }
 
     aabb.min.x *= scale;
     aabb.min.y *= scale;
@@ -133,7 +226,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
     aabb.size = aabb.max - aabb.min;
 
-    Writer writer(&allocator, aabb);
+    Writer writer(
+        &allocator, 
+        aabb, 
+        maxDepth);
 
     uint64_t pointNum = 0;
 

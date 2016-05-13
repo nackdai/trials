@@ -14,7 +14,8 @@ class Writer {
 public:
     Writer(
         izanagi::IMemoryAllocator* allocator,
-        const Potree::AABB& aabb);
+        const Potree::AABB& aabb,
+        uint32_t depth);
     ~Writer();
 
 public:

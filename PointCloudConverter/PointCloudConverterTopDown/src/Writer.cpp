@@ -56,7 +56,8 @@ void Writer::Worker::join()
 
 Writer::Writer(
     izanagi::IMemoryAllocator* allocator,
-    const Potree::AABB& aabb)
+    const Potree::AABB& aabb,
+    uint32_t depth)
     : m_store("store"), m_flush("flush")
 {
     const auto& min = aabb.min;
@@ -66,7 +67,7 @@ Writer::Writer(
         allocator,
         izanagi::math::CVector4(min.x, min.y, min.z),
         izanagi::math::CVector4(max.x, max.y, max.z),
-        3);
+        depth);
 
     m_objects[0].reserve(10000);
     m_objects[1].reserve(10000);
