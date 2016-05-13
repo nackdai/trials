@@ -8,6 +8,8 @@
 #include "izThreadModel.h"
 #include "Node.h"
 
+//#define USE_THREAD_FLUSH
+
 class Writer {
 public:
     Writer(
@@ -27,7 +29,7 @@ public:
     void close(izanagi::threadmodel::CThreadPool& theadPool);
 
     void storeDirectly();
-    void flushDirectly();
+    void flushDirectly(izanagi::threadmodel::CThreadPool& theadPool);
 
 private:
     void procStore();
@@ -36,8 +38,10 @@ private:
 private:
     izanagi::col::Octree<Node> m_octree;
 
-    std::vector<Point> m_objects;
-    std::vector<Point> m_temporary;
+    std::vector<Point> m_objects[2];
+    uint32_t m_curIdx{ 0 };
+
+    std::vector<Point>* m_temporary{ nullptr };
 
     class Worker {
     public:

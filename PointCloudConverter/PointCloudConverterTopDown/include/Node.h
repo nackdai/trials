@@ -38,7 +38,7 @@ public:
         aabb = m_aabb;
     }
 
-    bool add(const Point& vtx)
+    bool addWithCheck(const Point& vtx)
     {
         if (isContain(vtx))
         {
@@ -46,6 +46,12 @@ public:
             return true;
         }
         return false;
+    }
+
+    bool add(const Point& vtx)
+    {
+        m_vtx[m_curIdx].push_back(vtx);
+        return true;
     }
 
     bool isContain(const Point& vtx)

@@ -181,7 +181,7 @@ int _tmain(int argc, _TCHAR* argv[])
         izanagi::_OutputDebugString("StoreDirectly - %f(ms)\n", time);
 
         timer.Begin();
-        writer.flushDirectly();
+        writer.flushDirectly(theadPool);
         time = timer.End();
         izanagi::_OutputDebugString("FlushDirectly - %f(ms)\n", time);
     }
