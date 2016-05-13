@@ -5,109 +5,719 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\AABB.h" />
-    <ClInclude Include="include\definitions.hpp" />
-    <ClInclude Include="include\GridCell.h" />
-    <ClInclude Include="include\GridIndex.h" />
-    <ClInclude Include="include\LASPointReader.h" />
-    <ClInclude Include="include\PlyPointReader.h" />
-    <ClInclude Include="include\Point.h" />
-    <ClInclude Include="include\PointAttributes.hpp" />
-    <ClInclude Include="include\PointReader.h" />
-    <ClInclude Include="include\PotreeException.h" />
-    <ClInclude Include="include\PTXPointReader.h" />
-    <ClInclude Include="include\SparseGrid.h" />
-    <ClInclude Include="include\stuff.h" />
-    <ClInclude Include="include\Vector3.h" />
-    <ClInclude Include="proxy.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="proxy.cpp" />
-    <ClCompile Include="src\GridCell.cpp" />
-    <ClCompile Include="src\LASPointReader.cpp" />
-    <ClCompile Include="src\PointAttributes.cpp" />
-    <ClCompile Include="src\PTXPointReader.cpp" />
-    <ClCompile Include="src\SparseGrid.cpp" />
-    <ClCompile Include="src\stuff.cpp" />
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{948D0F23-F2AB-4186-AC66-7C53ED99567B}</ProjectGuid>
+    <ProjectGUID>{948D0F23-F2AB-4186-AC66-7C53ED99567B}</ProjectGUID>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>potree</RootNamespace>
+    <Platform>Win32</Platform>
+    <ProjectName>potree</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">potree</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">potree</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">potree</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">potree</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">potree</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">potree</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">$(Platform)\$(Configuration)\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">potree</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">potree</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>include;..\..\3rdpirty\boost;..\..\3rdpirty\LASzip\include\laszip;lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
     </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <AdditionalOptions> /machine:X86 /debug %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_system-vc120-mt-gd-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_thread-vc120-mt-gd-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_regex-vc120-mt-gd-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_filesystem-vc120-mt-gd-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_program_options-vc120-mt-gd-1_58.lib;laszip.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\local\boost_1_58_0\lib32-msvc-12.0;C:\work\tmp\LASzip-master\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/work/tmp/PotreeConverter-master/PotreeConverter/Debug/PotreeConverter.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/work/tmp/PotreeConverter-master/PotreeConverter/Debug/PotreeConverter.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
     <Lib>
       <AdditionalDependencies>boost_system-vc120-mt-gd-1_58.lib;boost_thread-vc120-mt-gd-1_58.lib;boost_regex-vc120-mt-gd-1_58.lib;boost_filesystem-vc120-mt-gd-1_58.lib;boost_program_options-vc120-mt-gd-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>include;..\..\3rdpirty\boost;..\..\3rdpirty\LASzip\include\laszip;lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalOptions> /machine:X86 /debug %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_system-vc120-mt-gd-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_thread-vc120-mt-gd-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_regex-vc120-mt-gd-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_filesystem-vc120-mt-gd-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_program_options-vc120-mt-gd-1_58.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\local\boost_1_58_0\lib64-msvc-12.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/work/tmp/PotreeConverter-master/PotreeConverter/Debug/PotreeConverter.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/work/tmp/PotreeConverter-master/PotreeConverter/Debug/PotreeConverter.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalDependencies>boost_system-vc120-mt-gd-1_58.lib;boost_thread-vc120-mt-gd-1_58.lib;boost_regex-vc120-mt-gd-1_58.lib;boost_filesystem-vc120-mt-gd-1_58.lib;boost_program_options-vc120-mt-gd-1_58.lib;libboost_system-vc120-mt-sgd-1_58.lib;libboost_thread-vc120-mt-sgd-1_58.lib;libboost_regex-vc120-mt-sgd-1_58.lib;libboost_filesystem-vc120-mt-sgd-1_58.lib;libboost_program_options-vc120-mt-sgd-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\3rdpirty\LASzip\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>include;..\..\3rdpirty\boost;..\..\3rdpirty\LASzip\include\laszip;lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
     </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
     <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_system-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_thread-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_regex-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_filesystem-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_program_options-vc120-mt-1_58.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/work/tmp/PotreeConverter-master/PotreeConverter/Release/PotreeConverter.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/work/tmp/PotreeConverter-master/PotreeConverter/Release/PotreeConverter.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
     <Lib>
-      <AdditionalDependencies>boost_system-vc120-mt-1_58.lib;boost_thread-vc120-mt-1_58.lib;boost_regex-vc120-mt-1_58.lib;boost_filesystem-vc120-mt-1_58.lib;boost_program_options-vc120-mt-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>include;..\..\3rdpirty\boost;..\..\3rdpirty\LASzip\include\laszip;lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_system-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_thread-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_regex-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_filesystem-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_program_options-vc120-mt-1_58.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/work/tmp/PotreeConverter-master/PotreeConverter/Release/PotreeConverter.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/work/tmp/PotreeConverter-master/PotreeConverter/Release/PotreeConverter.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\3rdpirty\LASzip\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>boost_system-vc120-mt-gd-1_58.lib;boost_thread-vc120-mt-gd-1_58.lib;boost_regex-vc120-mt-1_58.lib;boost_filesystem-vc120-mt-1_58.lib;boost_program_options-vc120-mt-1_58.lib;libboost_system-vc120-mt-s-1_58.lib;libboost_thread-vc120-mt-s-1_58.lib;libboost_regex-vc120-mt-s-1_58.lib;libboost_filesystem-vc120-mt-s-1_58.lib;libboost_program_options-vc120-mt-s-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_system-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_thread-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_regex-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_filesystem-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_program_options-vc120-mt-1_58.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/work/tmp/PotreeConverter-master/PotreeConverter/MinSizeRel/PotreeConverter.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/work/tmp/PotreeConverter-master/PotreeConverter/MinSizeRel/PotreeConverter.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalOptions> /machine:X86 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_system-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_thread-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_regex-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_filesystem-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_program_options-vc120-mt-1_58.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/work/tmp/PotreeConverter-master/PotreeConverter/MinSizeRel/PotreeConverter.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/work/tmp/PotreeConverter-master/PotreeConverter/MinSizeRel/PotreeConverter.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\3rdpirty\LASzip\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalOptions> /machine:X86 /debug %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_system-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_thread-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_regex-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_filesystem-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_program_options-vc120-mt-1_58.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/work/tmp/PotreeConverter-master/PotreeConverter/RelWithDebInfo/PotreeConverter.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/work/tmp/PotreeConverter-master/PotreeConverter/RelWithDebInfo/PotreeConverter.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\work\tmp\PotreeConverter-master\PotreeConverter\include;C:\local\boost_1_58_0;C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalOptions> /machine:X86 /debug %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_system-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_thread-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_regex-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_filesystem-vc120-mt-1_58.lib;C:\local\boost_1_58_0\lib64-msvc-12.0\boost_program_options-vc120-mt-1_58.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/work/tmp/PotreeConverter-master/PotreeConverter/RelWithDebInfo/PotreeConverter.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/work/tmp/PotreeConverter-master/PotreeConverter/RelWithDebInfo/PotreeConverter.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+      <Version>
+      </Version>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\3rdpirty\LASzip\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/work/tmp/PotreeConverter-master -BC:/work/tmp/PotreeConverter-master --check-stamp-file C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/work/tmp/PotreeConverter-master -BC:/work/tmp/PotreeConverter-master --check-stamp-file C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/work/tmp/PotreeConverter-master -BC:/work/tmp/PotreeConverter-master --check-stamp-file C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/work/tmp/PotreeConverter-master -BC:/work/tmp/PotreeConverter-master --check-stamp-file C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/work/tmp/PotreeConverter-master -BC:/work/tmp/PotreeConverter-master --check-stamp-file C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/work/tmp/PotreeConverter-master -BC:/work/tmp/PotreeConverter-master --check-stamp-file C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/work/tmp/PotreeConverter-master -BC:/work/tmp/PotreeConverter-master --check-stamp-file C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files (x86)\CMake\bin\cmake.exe" -HC:/work/tmp/PotreeConverter-master -BC:/work/tmp/PotreeConverter-master --check-stamp-file C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:/work/tmp/PotreeConverter-master/PotreeConverter/CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\work\tmp\PotreeConverter-master\PotreeConverter\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="proxy.cpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\AABB.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\GridCell.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\GridIndex.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\LASPointReader.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PlyPointReader.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\Point.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PointReader.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PotreeConverter.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PotreeException.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PotreeWriter.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PTXPointReader.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\SparseGrid.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\stuff.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\Vector3.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\BINPointReader.hpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\BINPointWriter.hpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\CloudJS.hpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\definitions.hpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\LASPointWriter.hpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PointAttributes.hpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\PointWriter.hpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\include\XYZPointReader.hpp" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\allocators.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\document.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\encodedstream.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\encodings.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\error\en.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\error\error.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\filereadstream.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\filewritestream.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\biginteger.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\diyfp.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\dtoa.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\ieee754.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\itoa.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\meta.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\pow10.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\stack.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\strtod.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\internal\swap.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\memorybuffer.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\memorystream.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\msinttypes\inttypes.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\msinttypes\stdint.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\pointer.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\prettywriter.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\rapidjson.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\reader.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\stringbuffer.h" />
+    <ClInclude Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\lib\rapidjson\include\rapidjson\writer.h" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\BINPointReader.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\GridCell.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\LASPointReader.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\LASPointWriter.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\PointAttributes.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\PotreeConverter.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\PotreeWriter.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\PTXPointReader.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\SparseGrid.cpp" />
+    <ClCompile Include="C:\work\tmp\PotreeConverter-master\PotreeConverter\src\stuff.cpp" />
+    <ClInclude Include="proxy.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:/work/tmp/PotreeConverter-master/ZERO_CHECK.vcxproj">
+      <Project>65CA8591-2BF9-4EA3-9570-5F9E1149FC9A</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
