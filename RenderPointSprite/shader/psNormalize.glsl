@@ -34,10 +34,15 @@ void main()
 
     vec4 color = texture2D(image, uv);
 
+#if 0
     if (color.w < 0.000001) {
         color.w = 0.0;
     }
+#else
+    color.w = step(0.000001, color.w) * color.w;
+#endif
 
+#if 0
     if (color.w == 0.0) {
         gl_FragColor = vec4(vec3(0.0), 1.0);
     }
@@ -45,5 +50,10 @@ void main()
         color.xyz /= color.w;
         gl_FragColor = vec4(vec3(color.xyz), 1.0);
     }
+#else
+    color.w = max(color.w, 0.0000011);
+    color.xyz /= color.w;
+    gl_FragColor = vec4(vec3(color.xyz), 1.0);
+#endif
 #endif
 }
