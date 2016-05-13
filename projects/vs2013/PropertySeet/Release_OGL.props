@@ -37,7 +37,7 @@
     <Link>
       <AdditionalDependencies>winmm.lib;freeglut.lib;SampleKit\$(Configuration)\SampleKit.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\izanagi\Libs\project\lib\$(Configuration);..\..\..\izanagi\External\freeglut\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\izanagi\Libs\project\lib\$(Platform)\$(Configuration);..\..\..\izanagi\External\freeglut\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
