@@ -37,12 +37,16 @@
     <Link>
       <AdditionalDependencies>winmm.lib;freeglut.lib;SampleKit\$(Configuration)\SampleKit.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\..\izanagi\Libs\project\lib\$(Platform)\$(Configuration);..\..\..\izanagi\External\freeglut\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\izanagi\Libs\project\lib\$(Platform)\$(Configuration);..\..\..\izanagi\External\freeglut\$(Platform)\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y ..\..\..\izanagi\External\freeglut\bin\Release\*.dll ..\..\$(ProjectName)
+      <Command>copy /B /Y ..\..\..\izanagi\External\freeglut\$(Platform)\bin\Release\*.dll ..\..\$(ProjectName)
 copy /B /Y ..\..\..\izanagi\External\glew\bin\Release\$(PlatformName)\glew32*.dll ..\..\$(ProjectName)</Command>
     </PreBuildEvent>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\izanagi\External\freeglut\$(Platform)\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
 </Project>
