@@ -23,11 +23,7 @@ private:
     static uint32_t s_ID;
 
 public:
-    Node()
-    {
-        m_id = s_ID;
-        s_ID++;
-    }
+    Node();
     virtual ~Node() {}
 
 public:

@@ -9,6 +9,12 @@ uint32_t Node::s_ID = 0;
 
 std::vector<bool> IsOpened(1000);
 
+Node::Node()
+{
+    m_id = s_ID;
+    s_ID++;
+}
+
 void Node::flush()
 {
     uint32_t idx = m_curIdx;
