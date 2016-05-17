@@ -8,6 +8,8 @@
 #include "izThreadModel.h"
 #include "Node.h"
 
+#include "Config.h"
+
 //#define USE_THREAD_FLUSH
 #define USE_THREAD_STORE
 

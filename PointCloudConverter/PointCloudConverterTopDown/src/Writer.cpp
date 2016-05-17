@@ -186,9 +186,15 @@ void Writer::procStore()
 
     auto& points = *m_temporary;
 
-    for (auto obj : points) {
+    auto num = points.size();
+
+    for (uint32_t i = 0; i < num; i++)
+    {
+        const auto& obj = points[i];
+
         // TODO
-        auto n = izanagi::math::CMathRand::GetRandBetween(0, 100);
+        //auto n = izanagi::math::CMathRand::GetRandBetween(0, 100);
+        uint32_t n = izanagi::math::CMathRand::GetRandFloat() * 100;
         n = table[n];
 
         IZ_UINT targetLevel = n / step;
@@ -215,8 +221,11 @@ void Writer::procStore()
 #else
         targetLevel = IZ_MIN(targetLevel, level - 1);
 
-        auto mortonNumber = m_octree.getMortonNumberByLevel(
-            izanagi::math::CVector4(obj.pos[0], obj.pos[1], obj.pos[2]),
+        izanagi::col::MortonNumber mortonNumber;
+        m_octree.getMortonNumberByLevel(
+            mortonNumber,
+            //izanagi::math::CVector4(obj.pos[0], obj.pos[1], obj.pos[2]),
+            obj.pos[0], obj.pos[1], obj.pos[2],
             targetLevel);
 
         auto idx = m_octree.getIndex(mortonNumber);

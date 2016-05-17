@@ -192,6 +192,7 @@ copy /Y $(ProjectDir)..\..\3rdpirty\boost\lib64-msvc-12.0\*.dll $(ProjectDir)</C
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\SPCDFormat.h" />
+    <ClInclude Include="include\Config.h" />
     <ClInclude Include="include\Node.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\targetver.h" />
