@@ -109,8 +109,11 @@
     </Link>
     <Lib>
       <AdditionalDependencies>boost_system-vc120-mt-gd-1_58.lib;boost_thread-vc120-mt-gd-1_58.lib;boost_regex-vc120-mt-gd-1_58.lib;boost_filesystem-vc120-mt-gd-1_58.lib;boost_program_options-vc120-mt-gd-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\$(Platform)\lib</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>"$(ProjectDir)..\..\3rdpirty\BuildLASzip.bat" $(Configuration) $(Platform)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -128,8 +131,11 @@
     </Link>
     <Lib>
       <AdditionalDependencies>boost_system-vc120-mt-gd-1_58.lib;boost_thread-vc120-mt-gd-1_58.lib;boost_regex-vc120-mt-gd-1_58.lib;boost_filesystem-vc120-mt-gd-1_58.lib;boost_program_options-vc120-mt-gd-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\3rdpirty\LASzip\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\3rdpirty\LASzip\$(Platform)\lib</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>"$(ProjectDir)..\..\3rdpirty\BuildLASzip.bat" $(Configuration) $(Platform)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -151,8 +157,11 @@
     </Link>
     <Lib>
       <AdditionalDependencies>boost_system-vc120-mt-1_58.lib;boost_thread-vc120-mt-1_58.lib;boost_regex-vc120-mt-1_58.lib;boost_filesystem-vc120-mt-1_58.lib;boost_program_options-vc120-mt-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\3rdpirty\LASzip\$(Platform)\lib</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>"$(ProjectDir)..\..\3rdpirty\BuildLASzip.bat" $(Configuration) $(Platform)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -174,8 +183,11 @@
     </Link>
     <Lib>
       <AdditionalDependencies>boost_system-vc120-mt-1_58.lib;boost_thread-vc120-mt-1_58.lib;boost_regex-vc120-mt-1_58.lib;boost_filesystem-vc120-mt-1_58.lib;boost_program_options-vc120-mt-1_58.lib;laszip.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\3rdpirty\LASzip\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\3rdpirty\LASzip\$(Platform)\lib</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>"$(ProjectDir)..\..\3rdpirty\BuildLASzip.bat" $(Configuration) $(Platform)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
