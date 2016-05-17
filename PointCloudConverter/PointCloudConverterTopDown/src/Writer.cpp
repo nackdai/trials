@@ -79,9 +79,6 @@ Writer::Writer(
         izanagi::math::CVector4(max.x, max.y, max.z),
         depth);
 
-    m_objects[0].reserve(10000);
-    m_objects[1].reserve(10000);
-
     m_flush.start([&] {
         procFlush();
     });
@@ -98,13 +95,15 @@ Writer::~Writer()
 
 uint32_t Writer::add(const Point& obj)
 {
-    m_objects[m_curIdx].push_back(obj);
-    return m_objects[m_curIdx].size();
+    IZ_ASSERT(m_registeredNum < STORE_LIMIT);
+
+    m_objects[m_curIdx][m_registeredNum++] = obj;
+    return m_registeredNum;
 }
 
 void Writer::store(izanagi::threadmodel::CThreadPool& threadPool)
 {
-    auto num = m_objects[m_curIdx].size();
+    auto num = m_registeredNum;
 
     if (num == 0) {
         return;
@@ -116,9 +115,10 @@ void Writer::store(izanagi::threadmodel::CThreadPool& threadPool)
     m_store.wait(true);
 
     auto lastIdx = 1 - m_curIdx;
-    m_objects[lastIdx].clear();
+    m_willStoreNum = m_registeredNum;
+    m_registeredNum = 0;
 
-    m_temporary = &m_objects[m_curIdx];
+    m_temporary = m_objects[m_curIdx];
 
     m_curIdx = 1 - m_curIdx;
 
@@ -183,12 +183,12 @@ void Writer::procStore()
     auto level = m_octree.getMaxLevel();
 
     auto step = 100 / level;
+    step++;
 
-    auto& points = *m_temporary;
+    auto points = m_temporary;
 
-    auto num = points.size();
-
-    for (uint32_t i = 0; i < num; i++)
+    //for (uint32_t i = 0; i < m_willStoreNum; i++)
+    for (int32_t i = m_willStoreNum; i--;)
     {
         const auto& obj = points[i];
 
@@ -219,13 +219,13 @@ void Writer::procStore()
             }
         }
 #else
-        targetLevel = IZ_MIN(targetLevel, level - 1);
+        //targetLevel = IZ_MIN(targetLevel, level - 1);
 
         izanagi::col::MortonNumber mortonNumber;
         m_octree.getMortonNumberByLevel(
             mortonNumber,
             //izanagi::math::CVector4(obj.pos[0], obj.pos[1], obj.pos[2]),
-            obj.pos[0], obj.pos[1], obj.pos[2],
+            obj.pos,
             targetLevel);
 
         auto idx = m_octree.getIndex(mortonNumber);
@@ -295,7 +295,7 @@ void Writer::procFlush()
 void Writer::storeDirectly(izanagi::threadmodel::CThreadPool& threadPool)
 {
 #ifdef USE_THREAD_STORE
-    auto num = m_objects[m_curIdx].size();
+    auto num = m_registeredNum;
 
     if (num == 0) {
         return;
@@ -303,7 +303,10 @@ void Writer::storeDirectly(izanagi::threadmodel::CThreadPool& threadPool)
 
     m_store.wait();
 
-    m_temporary = &m_objects[m_curIdx];
+    m_temporary = m_objects[m_curIdx];
+
+    m_willStoreNum = m_registeredNum;
+    m_registeredNum = 0;
 
     m_curIdx = 1 - m_curIdx;
 

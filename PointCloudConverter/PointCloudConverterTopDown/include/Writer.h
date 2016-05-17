@@ -42,10 +42,14 @@ private:
 private:
     izanagi::col::Octree<Node> m_octree;
 
-    std::vector<Point> m_objects[2];
+    Point m_objects[2][STORE_LIMIT];
+
+    uint32_t m_registeredNum{ 0 };
+    uint32_t m_willStoreNum{ 0 };
+
     uint32_t m_curIdx{ 0 };
 
-    std::vector<Point>* m_temporary{ nullptr };
+    Point* m_temporary{ nullptr };
 
     class Worker {
     public:
