@@ -40,11 +40,11 @@
     <Link>
       <AdditionalDependencies>winmm.lib;freeglutd.lib;..\SampleKit\$(Configuration)\SampleKit.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
-      <AdditionalLibraryDirectories>..\..\izanagi\Libs\project\lib\$(Configuration);..\..\izanagi\External\freeglut\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\izanagi\Libs\project\lib\$(Configuration);..\..\izanagi\External\freeglut\$(Platform)\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>copy /B /Y ..\..\izanagi\External\freeglut\bin\Debug\*.dll $(ProjectDir)
+      <Command>copy /B /Y ..\..\izanagi\External\freeglut\$(Platform)\bin\Debug\*.dll $(ProjectDir)
 copy /B /Y ..\..\izanagi\External\glew\bin\Debug\$(PlatformName)\glew32*.dll $(ProjectDir)
 </Command>
     </PreBuildEvent>
