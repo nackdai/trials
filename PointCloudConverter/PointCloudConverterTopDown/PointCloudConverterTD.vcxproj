@@ -93,12 +93,16 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration);..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\..\izanagi\Libs\project\lib\$(Platform)\$(Configuration)_OGL;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>potree.lib;Std.lib;Math.lib;System.lib;ThreadModel.lib;Collision.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>potree.lib;..\..\..\izanagi\Libs\project\lib\$(Platform)\$(Configuration)_OGL\Std.lib;Math.lib;System.lib;ThreadModel.lib;Collision.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
       <Command>copy /Y $(ProjectDir)..\..\3rdpirty\LASzip\$(Platform)\bin\*.dll $(ProjectDir)
 copy /Y $(ProjectDir)..\..\3rdpirty\boost\lib32-msvc-12.0\*.dll $(ProjectDir)</Command>
-    </PostBuildEvent>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -118,9 +122,13 @@ copy /Y $(ProjectDir)..\..\3rdpirty\boost\lib32-msvc-12.0\*.dll $(ProjectDir)</C
       <AdditionalDependencies>potree.lib;Std.lib;Math.lib;System.lib;ThreadModel.lib;Collision.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
       <Command>copy /Y $(ProjectDir)..\..\3rdpirty\LASzip\$(Platform)\bin\*.dll $(ProjectDir)
 copy /Y $(ProjectDir)..\..\3rdpirty\boost\lib64-msvc-12.0\*.dll $(ProjectDir)</Command>
-    </PostBuildEvent>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -144,9 +152,13 @@ copy /Y $(ProjectDir)..\..\3rdpirty\boost\lib64-msvc-12.0\*.dll $(ProjectDir)</C
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration);..\..\3rdpirty\boost\lib32-msvc-12.0;..\..\..\izanagi\Libs\project\lib\$(Platform)\$(Configuration)_OGL;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
       <Command>copy /Y $(ProjectDir)..\..\3rdpirty\LASzip\$(Platform)\bin\*.dll $(ProjectDir)
 copy /Y $(ProjectDir)..\..\3rdpirty\boost\lib32-msvc-12.0\*.dll $(ProjectDir)</Command>
-    </PostBuildEvent>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -170,9 +182,13 @@ copy /Y $(ProjectDir)..\..\3rdpirty\boost\lib32-msvc-12.0\*.dll $(ProjectDir)</C
       <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration);..\..\3rdpirty\boost\lib64-msvc-12.0;..\..\..\izanagi\Libs\project\lib\$(Platform)\$(Configuration)_OGL;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
       <Command>copy /Y $(ProjectDir)..\..\3rdpirty\LASzip\$(Platform)\bin\*.dll $(ProjectDir)
 copy /Y $(ProjectDir)..\..\3rdpirty\boost\lib64-msvc-12.0\*.dll $(ProjectDir)</Command>
-    </PostBuildEvent>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\SPCDFormat.h" />
