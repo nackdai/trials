@@ -17,8 +17,8 @@
 #define LOG(fmt, ...)
 #endif
 
-static const uint32_t STORE_LIMIT = 3000;
-static const uint32_t FLUSH_LIMIT = 10000;
+static const uint32_t STORE_LIMIT = 10000;
+static const uint32_t FLUSH_LIMIT = 1000000;
 
 void dispUsage()
 {
@@ -235,6 +235,8 @@ int _tmain(int argc, _TCHAR* argv[])
     aabb.max.z *= scale;
 
     aabb.size = aabb.max - aabb.min;
+
+    aabb.makeCubic();
 
     Writer writer(
         &allocator, 
