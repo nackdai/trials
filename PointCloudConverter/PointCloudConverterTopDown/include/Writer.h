@@ -12,6 +12,7 @@
 
 //#define USE_THREAD_FLUSH
 #define USE_THREAD_STORE
+//#define USE_THREAD_RAND
 
 class Writer {
 public:
@@ -23,6 +24,14 @@ public:
 
 public:
     uint32_t add(const Point& obj);
+
+    Point& getNextPoint()
+    {
+        IZ_ASSERT(m_registeredNum < STORE_LIMIT);
+
+        auto& ret = m_objects[m_curIdx][m_registeredNum++];
+        return ret;
+    }
 
     void store(izanagi::threadmodel::CThreadPool& threadPool);
 
@@ -36,10 +45,12 @@ public:
     void flushDirectly(izanagi::threadmodel::CThreadPool& threadPool);
 
 private:
-    void procStore();
+    void procStore(bool runRand = true);
     void procFlush();
 
-private:
+    void procRand();
+
+public:
     izanagi::col::Octree<Node> m_octree;
 
     Point m_objects[2][STORE_LIMIT];
@@ -79,7 +90,15 @@ private:
     std::atomic<uint64_t> m_acceptedNum{ 0 };
 
     Worker m_store;
+
+#ifdef USE_THREAD_FLUSH
     Worker m_flush;
+#endif
+
+#ifdef USE_THREAD_RAND
+    Worker m_rand;
+    uint32_t m_levels[STORE_LIMIT];
+#endif
 
     izanagi::threadmodel::CParallelFor m_storeTasks[10];
     izanagi::threadmodel::CParallelFor m_flushTasks[10];

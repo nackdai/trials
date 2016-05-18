@@ -68,7 +68,13 @@ Writer::Writer(
     izanagi::IMemoryAllocator* allocator,
     const Potree::AABB& aabb,
     uint32_t depth)
-    : m_store("store"), m_flush("flush")
+    : m_store("store")
+#ifdef USE_THREAD_FLUSH
+    , m_flush("flush")
+#endif
+#ifdef USE_THREAD_RAND
+    , m_rand("rand")
+#endif
 {
     const auto& min = aabb.min;
     const auto& max = aabb.max;
@@ -79,13 +85,23 @@ Writer::Writer(
         izanagi::math::CVector4(max.x, max.y, max.z),
         depth);
 
+#ifdef USE_THREAD_FLUSH
     m_flush.start([&] {
         procFlush();
     });
+#endif
 
     m_store.start([&] {
         procStore();
     });
+
+#ifdef USE_THREAD_RAND
+    m_rand.start([&] {
+        procRand();
+    });
+
+    m_rand.set();
+#endif
 }
 
 Writer::~Writer()
@@ -113,6 +129,10 @@ void Writer::store(izanagi::threadmodel::CThreadPool& threadPool)
     //m_flush.wait();
     
     m_store.wait(true);
+
+#ifdef USE_THREAD_RAND
+    m_rand.wait(true);
+#endif
 
     auto lastIdx = 1 - m_curIdx;
     m_willStoreNum = m_registeredNum;
@@ -175,10 +195,17 @@ void Writer::store(izanagi::threadmodel::CThreadPool& threadPool)
 void Writer::terminate()
 {   
     m_store.join();
+
+#ifdef USE_THREAD_FLUSH
     m_flush.join();
+#endif
+
+#ifdef USE_THREAD_RAND
+    m_rand.join();
+#endif
 }
 
-void Writer::procStore()
+void Writer::procStore(bool runRand/*= true*/)
 {
     auto level = m_octree.getMaxLevel();
 
@@ -192,33 +219,16 @@ void Writer::procStore()
     {
         const auto& obj = points[i];
 
-        // TODO
-        //auto n = izanagi::math::CMathRand::GetRandBetween(0, 100);
-        uint32_t n = izanagi::math::CMathRand::GetRandFloat() * 100;
+#ifdef USE_THREAD_RAND
+        IZ_UINT targetLevel = m_levels[i];
+#else
+        double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
+        int n = _mm_cvttsd_si32(_mm_load_sd(&f));
         n = table[n];
 
         IZ_UINT targetLevel = n / step;
+#endif
 
-#if 0
-        auto node = m_octree.getNode(0);
-
-        for (IZ_UINT i = 0; i < targetLevel; i++) {
-            Node** nodes = m_octree.getChildren(node);
-
-            if (nodes) {
-                for (IZ_UINT n = 0; n < 8; n++) {
-                    node = nodes[n];
-
-                    if (node->isContain(obj)) {
-                        break;
-                    }
-                }
-            }
-            else {
-                break;
-            }
-        }
-#else
         //targetLevel = IZ_MIN(targetLevel, level - 1);
 
         izanagi::col::MortonNumber mortonNumber;
@@ -232,12 +242,34 @@ void Writer::procStore()
 
         auto node = m_octree.getNode(idx, IZ_TRUE);
         IZ_ASSERT(node->isContain(obj));
-#endif
 
         node->add(obj);
 
         m_acceptedNum++;
     }
+
+#ifdef USE_THREAD_RAND
+    if (runRand) {
+        m_rand.set();
+    }
+#endif
+}
+
+void Writer::procRand()
+{
+#ifdef USE_THREAD_RAND
+    auto level = m_octree.getMaxLevel();
+
+    auto step = 100 / level;
+    step++;
+
+    for (uint32_t i = 0; i < COUNTOF(m_levels); i++) {
+        double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
+        int n = _mm_cvttsd_si32(_mm_load_sd(&f));
+
+        m_levels[i] = table[n] / step;
+    }
+#endif
 }
 
 void Writer::flush(izanagi::threadmodel::CThreadPool& threadPool)
@@ -303,6 +335,10 @@ void Writer::storeDirectly(izanagi::threadmodel::CThreadPool& threadPool)
 
     m_store.wait();
 
+#ifdef USE_THREAD_RAND
+    m_rand.wait();
+#endif
+
     m_temporary = m_objects[m_curIdx];
 
     m_willStoreNum = m_registeredNum;
@@ -310,7 +346,7 @@ void Writer::storeDirectly(izanagi::threadmodel::CThreadPool& threadPool)
 
     m_curIdx = 1 - m_curIdx;
 
-    procStore();
+    procStore(false);
 #else
     store(threadPool);
     izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));

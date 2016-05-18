@@ -8,7 +8,7 @@
 #define MINOR_VERSION   (0)
 #define REVISION        (1)
 
-#if 0
+#if 1
 #define LOG(fmt, ...) izanagi::_OutputDebugString(fmt, __VA_ARGS__)
 #else
 #define LOG(fmt, ...)

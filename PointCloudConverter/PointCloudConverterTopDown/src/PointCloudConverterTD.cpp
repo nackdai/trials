@@ -227,8 +227,8 @@ int _tmain(int argc, _TCHAR* argv[])
     aabb.makeCubic();
 
     Writer writer(
-        &allocator, 
-        aabb, 
+        &allocator,
+        aabb,
         maxDepth);
 
     uint64_t pointNum = 0;
@@ -246,6 +246,7 @@ int _tmain(int argc, _TCHAR* argv[])
         auto point = reader->getPoint();
         pointNum++;
 
+#if 0
         Point pt;
         {
             pt.pos[0] = point.position.x * scale;
@@ -256,6 +257,16 @@ int _tmain(int argc, _TCHAR* argv[])
         }
 
         writer.add(pt);
+#else
+        Point& pt = writer.getNextPoint();
+        {
+            pt.pos[0] = point.position.x * scale;
+            pt.pos[1] = point.position.y * scale;
+            pt.pos[2] = point.position.z * scale;
+
+            pt.color = IZ_COLOR_RGBA(point.color.x, point.color.y, point.color.z, 0xff);
+        }
+#endif
 
         if ((pointNum % STORE_LIMIT) == 0) {
             timer.Begin();
