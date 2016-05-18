@@ -13,14 +13,26 @@ Node::Node()
 {
     m_id = s_ID;
     s_ID++;
+
+#ifdef USE_STL_VECTOR
+    m_pos[0] = m_pos[1] = 0;
+#endif
 }
 
 void Node::flush()
 {
     uint32_t idx = m_curIdx;
+#ifndef USE_STL_VECTOR
+    uint32_t num = m_pos[idx];
+    m_pos[idx] = 0;
+#endif
     m_curIdx = 1 - m_curIdx;
 
+#ifdef USE_STL_VECTOR
     if (m_vtx[idx].size() == 0) {
+#else
+    if (num == 0) {
+#endif
         return;
     }
 
@@ -56,7 +68,9 @@ void Node::flush()
     auto& vtx = m_vtx[idx];
 
     auto src = &vtx[0];
+#ifdef USE_STL_VECTOR
     auto num = vtx.size();
+#endif
     auto size = num * sizeof(Point);
 
     m_totalNum += num;
@@ -65,14 +79,21 @@ void Node::flush()
 
     fwrite(src, size, 1, m_fp);
 
+#ifdef USE_STL_VECTOR
     vtx.clear();
+#endif
 }
 
 void Node::close()
 {
     if (m_fp) {
+#ifdef USE_STL_VECTOR
         IZ_ASSERT(m_vtx[0].size() == 0);
         IZ_ASSERT(m_vtx[1].size() == 0);
+#else
+        IZ_ASSERT(m_pos[0] == 0);
+        IZ_ASSERT(m_pos[1] == 0);
+#endif
 
         SPCDHeader header;
 

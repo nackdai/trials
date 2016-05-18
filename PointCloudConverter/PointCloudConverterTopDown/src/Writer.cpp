@@ -214,8 +214,12 @@ void Writer::procStore(bool runRand/*= true*/)
 
     auto points = m_temporary;
 
-    //for (uint32_t i = 0; i < m_willStoreNum; i++)
-    for (int32_t i = m_willStoreNum; i--;)
+    auto loopCnt = m_willStoreNum;
+
+    izanagi::col::MortonNumber mortonNumber;
+
+    for (uint32_t i = 0; i < loopCnt; i++)
+    //for (int32_t i = loopCnt; i--;)
     {
         const auto& obj = points[i];
 
@@ -231,7 +235,6 @@ void Writer::procStore(bool runRand/*= true*/)
 
         //targetLevel = IZ_MIN(targetLevel, level - 1);
 
-        izanagi::col::MortonNumber mortonNumber;
         m_octree.getMortonNumberByLevel(
             mortonNumber,
             //izanagi::math::CVector4(obj.pos[0], obj.pos[1], obj.pos[2]),

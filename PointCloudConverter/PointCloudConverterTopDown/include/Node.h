@@ -5,6 +5,9 @@
 #include "../SPCDFormat.h"
 
 #include "izCollision.h"
+#include "Config.h"
+
+//#define USE_STL_VECTOR
 
 struct Point {
     float pos[3];
@@ -40,7 +43,12 @@ public:
     {
         if (isContain(vtx))
         {
+#ifdef USE_STL_VECTOR
             m_vtx[m_curIdx].push_back(vtx);
+#else
+            m_vtx[m_curIdx][m_pos[m_curIdx]] = vtx;
+            m_pos[m_curIdx]++;
+#endif
             return true;
         }
         return false;
@@ -48,7 +56,13 @@ public:
 
     bool add(const Point& vtx)
     {
+#ifdef USE_STL_VECTOR
         m_vtx[m_curIdx].push_back(vtx);
+#else
+        IZ_ASSERT(m_pos[m_curIdx] < FLUSH_LIMIT);
+        m_vtx[m_curIdx][m_pos[m_curIdx]] = vtx;
+        m_pos[m_curIdx]++;
+#endif
         return true;
     }
 
@@ -86,7 +100,13 @@ private:
 
     izanagi::col::AABB m_aabb;
 
+#ifdef USE_STL_VECTOR
     std::vector<Point> m_vtx[2];
+#else
+    Point m_vtx[2][FLUSH_LIMIT];
+    uint32_t m_pos[2];
+#endif
+
     std::atomic<uint32_t> m_curIdx{ 0 };
 
     uint32_t m_totalNum{ 0 };
