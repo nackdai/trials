@@ -100,6 +100,20 @@ public:
 		}
 	}
 
+    template <typename _POINT>
+    void GetPoint(_POINT& p)
+    {
+        laszip_get_coordinates(laszip_reader, coordinates);
+
+        p.pos[0] = coordinates[0];
+        p.pos[1] = coordinates[1];
+        p.pos[2] = coordinates[2];
+
+        p.rgba[0] = point->rgb[0];
+        p.rgba[1] = point->rgb[1];
+        p.rgba[2] = point->rgb[2];
+    }
+
     Point GetPoint() {
         
 		laszip_get_coordinates(laszip_reader, coordinates);
@@ -142,6 +156,12 @@ public:
 	bool readNextPoint();
 
 	Point getPoint();
+
+    template <typename _POINT>
+    void GetPoint(_POINT& p)
+    {
+        reader->GetPoint(p);
+    }
 
 	AABB getAABB();
 

@@ -12,7 +12,7 @@
 
 //#define USE_THREAD_FLUSH
 #define USE_THREAD_STORE
-//#define USE_THREAD_RAND
+#define USE_THREAD_RAND
 
 class Writer {
 public:

@@ -177,9 +177,10 @@ int _tmain(int argc, _TCHAR* argv[])
     Node::BasePath = option.outDir;
 
     // Limit max depth.
-    int maxDepth = IZ_MIN(option.depth, 5);
+    int maxDepth = IZ_MIN(option.depth, 4);
 
-    auto reader = Proxy::createPointReader(option.inFile);
+    // TODO
+    auto reader = (Potree::LASPointReader*)Proxy::createPointReader(option.inFile);
 
     if (!reader) {
         // TODO
@@ -235,6 +236,18 @@ int _tmain(int argc, _TCHAR* argv[])
 
     bool needFlush = false;
 
+    enum Type {
+        Read,
+        Store,
+        Flush,
+        Get,
+        Close,
+        Add,
+        Num,
+    };
+
+    IZ_FLOAT times[Type::Num] = { 0.0f };
+
     izanagi::sys::CTimer timerEntire;
     timerEntire.Begin();
 
@@ -243,7 +256,10 @@ int _tmain(int argc, _TCHAR* argv[])
     while (reader->readNextPoint()) {
         needFlush = true;
 
+#if 0
+        timer.Begin();
         auto point = reader->getPoint();
+        times[Type::Get] += timer.End();
         pointNum++;
 
 #if 0
@@ -258,26 +274,61 @@ int _tmain(int argc, _TCHAR* argv[])
 
         writer.add(pt);
 #else
+        timer.Begin();
         Point& pt = writer.getNextPoint();
         {
+#if 1
             pt.pos[0] = point.position.x * scale;
             pt.pos[1] = point.position.y * scale;
             pt.pos[2] = point.position.z * scale;
+#else
+            __m128d tmp0 = {
+                point.position.x * scale,
+                point.position.y * scale
+            };
+
+            auto ret = _mm_cvtpd_ps(tmp0);
+
+            pt.pos[0] = ret.m128_f32[0];
+            pt.pos[1] = ret.m128_f32[1];
+
+            __m128d tmp1 = {
+                point.position.z * scale,
+                0
+            };
+
+            ret = _mm_cvtpd_ps(tmp1);
+
+            pt.pos[2] = ret.m128_f32[0];
+#endif
 
             pt.color = IZ_COLOR_RGBA(point.color.x, point.color.y, point.color.z, 0xff);
         }
+        times[Type::Add] += timer.End();
+#endif
+#else
+        Point& pt = writer.getNextPoint();
+        reader->GetPoint<Point>(pt);
+        pt.pos[0] *= scale;
+        pt.pos[1] *= scale;
+        pt.pos[2] *= scale;
+        pt.rgba[3] = 0xff;
+
+        pointNum++;
 #endif
 
         if ((pointNum % STORE_LIMIT) == 0) {
             timer.Begin();
             writer.store(threadPool);
             auto time = timer.End();
+            times[Type::Store] += time;
             LOG("Store - %f(ms)\n", time);
         }
         if ((pointNum % FLUSH_LIMIT) == 0) {
             timer.Begin();
             writer.flush(threadPool);
             auto time = timer.End();
+            times[Type::Flush] += time;
             LOG("Flush - %f(ms)\n", time);
 
             needFlush = false;
@@ -288,17 +339,20 @@ int _tmain(int argc, _TCHAR* argv[])
         timer.Begin();
         writer.storeDirectly(threadPool);
         auto time = timer.End();
+        times[Type::Store] += time;
         LOG("StoreDirectly - %f(ms)\n", time);
 
         timer.Begin();
         writer.flushDirectly(threadPool);
         time = timer.End();
+        times[Type::Flush] += time;
         LOG("FlushDirectly - %f(ms)\n", time);
     }
 
     timer.Begin();
     writer.close(threadPool);
     auto time = timer.End();
+    times[Type::Close] += time;
     LOG("Close - %f(ms)\n", time);
 
     writer.terminate();
@@ -313,6 +367,13 @@ int _tmain(int argc, _TCHAR* argv[])
     threadPool.Terminate();
 
     izanagi::_OutputDebugString("FlushedNum [%d]\n", Node::FlushedNum);
+
+    izanagi::_OutputDebugString("Read - %f(ms)\n", times[Type::Read]);
+    izanagi::_OutputDebugString("Get - %f(ms)\n", times[Type::Get]);
+    izanagi::_OutputDebugString("Add - %f(ms)\n", times[Type::Add]);
+    izanagi::_OutputDebugString("Store - %f(ms)\n", times[Type::Store]);
+    izanagi::_OutputDebugString("Flush - %f(ms)\n", times[Type::Flush]);
+    izanagi::_OutputDebugString("Close - %f(ms)\n", times[Type::Close]);
 
 	return 0;
 }

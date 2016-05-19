@@ -7,6 +7,8 @@
 #include "SparseGrid.h"
 #include "stuff.h"
 
+#include "LASPointReader.h"
+
 class Proxy {
 public:
     static Potree::PointReader* createPointReader(std::string path);

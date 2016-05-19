@@ -11,7 +11,11 @@
 
 struct Point {
     float pos[3];
-    IZ_COLOR color;
+    //IZ_COLOR color;
+    union {
+        IZ_COLOR color;
+        IZ_UINT8 rgba[4];
+    };
 };
 
 class Node : public izanagi::col::IOctreeNode {

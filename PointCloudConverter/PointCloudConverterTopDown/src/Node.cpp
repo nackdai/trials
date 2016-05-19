@@ -14,7 +14,7 @@ Node::Node()
     m_id = s_ID;
     s_ID++;
 
-#ifdef USE_STL_VECTOR
+#ifndef USE_STL_VECTOR
     m_pos[0] = m_pos[1] = 0;
 #endif
 }
