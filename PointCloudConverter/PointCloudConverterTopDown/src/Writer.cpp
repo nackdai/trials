@@ -218,8 +218,8 @@ void Writer::procStore(bool runRand/*= true*/)
 
     izanagi::col::MortonNumber mortonNumber;
 
-    for (uint32_t i = 0; i < loopCnt; i++)
-    //for (int32_t i = loopCnt; i--;)
+    //for (uint32_t i = 0; i < loopCnt; i++)
+    for (int32_t i = loopCnt; i--;)
     {
         const auto& obj = points[i];
 
@@ -241,14 +241,19 @@ void Writer::procStore(bool runRand/*= true*/)
             obj.pos,
             targetLevel);
 
+#if 0
         auto idx = m_octree.getIndex(mortonNumber);
 
         auto node = m_octree.getNode(idx, IZ_TRUE);
+#else
+        auto node = m_octree.getNodeByMortonNumber(mortonNumber, IZ_TRUE);
+#endif
+
         IZ_ASSERT(node->isContain(obj));
 
         node->add(obj);
 
-        m_acceptedNum++;
+        ++m_acceptedNum;
     }
 
 #ifdef USE_THREAD_RAND

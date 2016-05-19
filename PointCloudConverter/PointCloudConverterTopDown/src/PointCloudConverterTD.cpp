@@ -233,8 +233,8 @@ int _tmain(int argc, _TCHAR* argv[])
         maxDepth);
 
     uint64_t pointNum = 0;
-
-    bool needFlush = false;
+    uint64_t storeNum = 0;
+    uint64_t flushNum = 0;
 
     enum Type {
         Read,
@@ -254,59 +254,6 @@ int _tmain(int argc, _TCHAR* argv[])
     izanagi::sys::CTimer timer;
 
     while (reader->readNextPoint()) {
-        needFlush = true;
-
-#if 0
-        timer.Begin();
-        auto point = reader->getPoint();
-        times[Type::Get] += timer.End();
-        pointNum++;
-
-#if 0
-        Point pt;
-        {
-            pt.pos[0] = point.position.x * scale;
-            pt.pos[1] = point.position.y * scale;
-            pt.pos[2] = point.position.z * scale;
-
-            pt.color = IZ_COLOR_RGBA(point.color.x, point.color.y, point.color.z, 0xff);
-        }
-
-        writer.add(pt);
-#else
-        timer.Begin();
-        Point& pt = writer.getNextPoint();
-        {
-#if 1
-            pt.pos[0] = point.position.x * scale;
-            pt.pos[1] = point.position.y * scale;
-            pt.pos[2] = point.position.z * scale;
-#else
-            __m128d tmp0 = {
-                point.position.x * scale,
-                point.position.y * scale
-            };
-
-            auto ret = _mm_cvtpd_ps(tmp0);
-
-            pt.pos[0] = ret.m128_f32[0];
-            pt.pos[1] = ret.m128_f32[1];
-
-            __m128d tmp1 = {
-                point.position.z * scale,
-                0
-            };
-
-            ret = _mm_cvtpd_ps(tmp1);
-
-            pt.pos[2] = ret.m128_f32[0];
-#endif
-
-            pt.color = IZ_COLOR_RGBA(point.color.x, point.color.y, point.color.z, 0xff);
-        }
-        times[Type::Add] += timer.End();
-#endif
-#else
         Point& pt = writer.getNextPoint();
         reader->GetPoint<Point>(pt);
         pt.pos[0] *= scale;
@@ -315,36 +262,41 @@ int _tmain(int argc, _TCHAR* argv[])
         pt.rgba[3] = 0xff;
 
         pointNum++;
-#endif
+        storeNum++;
+        flushNum++;
 
-        if ((pointNum % STORE_LIMIT) == 0) {
+        if (storeNum == STORE_LIMIT) {
             timer.Begin();
             writer.store(threadPool);
             auto time = timer.End();
             times[Type::Store] += time;
             LOG("Store - %f(ms)\n", time);
+
+            storeNum = 0;
         }
-        if ((pointNum % FLUSH_LIMIT) == 0) {
+        if (flushNum == FLUSH_LIMIT) {
             timer.Begin();
             writer.flush(threadPool);
             auto time = timer.End();
             times[Type::Flush] += time;
             LOG("Flush - %f(ms)\n", time);
 
-            needFlush = false;
+            flushNum = 0;
         }
     }
 
-    if (needFlush) {
+    if (storeNum) {
         timer.Begin();
         writer.storeDirectly(threadPool);
         auto time = timer.End();
         times[Type::Store] += time;
         LOG("StoreDirectly - %f(ms)\n", time);
+    }
 
+    if (flushNum) {
         timer.Begin();
         writer.flushDirectly(threadPool);
-        time = timer.End();
+        auto time = timer.End();
         times[Type::Flush] += time;
         LOG("FlushDirectly - %f(ms)\n", time);
     }

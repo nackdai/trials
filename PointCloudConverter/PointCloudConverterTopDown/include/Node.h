@@ -64,8 +64,9 @@ public:
         m_vtx[m_curIdx].push_back(vtx);
 #else
         IZ_ASSERT(m_pos[m_curIdx] < FLUSH_LIMIT);
-        m_vtx[m_curIdx][m_pos[m_curIdx]] = vtx;
-        m_pos[m_curIdx]++;
+        auto& pos = m_pos[m_curIdx];
+        m_vtx[m_curIdx][pos] = vtx;
+        ++pos;
 #endif
         return true;
     }
