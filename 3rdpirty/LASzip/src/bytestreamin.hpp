@@ -34,6 +34,7 @@
 #ifndef BYTE_STREAM_IN_HPP
 #define BYTE_STREAM_IN_HPP
 
+#include <assert.h>
 #include "mydefs.hpp"
 
 class ByteStreamIn
@@ -82,6 +83,13 @@ public:
   inline ByteStreamIn() { bit_buffer = 0; num_buffer = 0; };
 /* destructor                                                */
   virtual ~ByteStreamIn() {};
+
+  virtual U32 getBytesWithoutException(U8* bytes, const U32 num_bytes)
+  {
+      assert(false);
+      return 0;
+  }
+
 private:
   U64 bit_buffer;
   U32 num_buffer;

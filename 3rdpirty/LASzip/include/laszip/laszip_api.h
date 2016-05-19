@@ -449,6 +449,10 @@ laszip_inside_rectangle(
 
 /*---------------------------------------------------------------------------*/
 LASZIP_API laszip_I32
+laszip_reset(laszip_POINTER pointer);
+
+/*---------------------------------------------------------------------------*/
+LASZIP_API laszip_I32
 laszip_seek_point(
     laszip_POINTER                     pointer
     , laszip_I64                       index

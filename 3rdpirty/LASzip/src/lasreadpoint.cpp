@@ -151,7 +151,13 @@ BOOL LASreadPoint::setup(U32 num_items, const LASitem* items, const LASzip* lasz
       return FALSE;
     }
     point_size += items[i].size;
+
+    m_vtxSizeArray[i] = items[i].size;
   }
+
+  m_vtxSize = point_size;
+  m_bufferSize = m_vtxSize * 1000;
+  m_buffer = new U8[m_bufferSize];
 
   if (dec)
   {
@@ -390,10 +396,43 @@ BOOL LASreadPoint::read(U8* const * point)
     }
     else
     {
+#if 0
       for (i = 0; i < num_readers; i++)
       {
         readers[i]->read(point[i]);
       }
+#else
+        bool isEOF = false;
+        bool canCopy = true;
+
+        if (m_bufferPos == 0 || m_bufferPos >= m_bufferSize) {
+            auto readBytes = instream->getBytesWithoutException(m_buffer, m_bufferSize);
+            
+            if (readBytes != m_bufferSize) {
+                isEOF = true;
+                canCopy = (readBytes > 0);
+            }
+
+            m_bufferPos = 0;
+        }
+
+        if (canCopy) {
+            for (i = 0; i < num_readers; i++)
+            {
+                auto size = m_vtxSizeArray[i];
+
+                //point[i] = m_buffer;
+                auto src = m_buffer + m_bufferPos;
+                memcpy(point[i], src, size);
+
+                m_bufferPos += size;
+            }
+        }
+
+        if (isEOF) {
+            throw EOF;
+        }
+#endif
     }
   }
   catch (I32 exception) 
@@ -689,4 +728,8 @@ LASreadPoint::~LASreadPoint()
 
   if (last_error) delete [] last_error;
   if (last_warning) delete [] last_warning;
+
+  if (m_buffer) {
+      delete [] m_buffer;
+  }
 }

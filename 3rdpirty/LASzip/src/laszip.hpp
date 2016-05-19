@@ -78,7 +78,7 @@ typedef long long SIGNED_INT64;
 class LASitem
 {
 public:
-  enum Type { BYTE = 0, SHORT, INT, LONG, FLOAT, DOUBLE, POINT10, GPSTIME11, RGB12, WAVEPACKET13, POINT14, RGBNIR14 } type;
+  enum Type { BYTE = 0, SHORT, INT, LONG, FLOAT, DOUBLE, POINT10, GPSTIME11, RGB12, WAVEPACKET13, POINT14, RGBNIR14, NUM } type;
   unsigned short size;
   unsigned short version;
   bool is_type(LASitem::Type t) const;

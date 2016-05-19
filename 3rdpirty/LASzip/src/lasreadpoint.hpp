@@ -65,6 +65,11 @@ public:
   inline const CHAR* error() const { return last_error; };
   inline const CHAR* warning() const { return last_warning; };
 
+  inline void reset()
+  {
+      m_bufferPos = 0;
+  }
+
 private:
   ByteStreamIn* instream;
   U32 num_readers;
@@ -90,6 +95,12 @@ private:
   // used for error and warning reporting
   CHAR* last_error;
   CHAR* last_warning;
+
+  U8* m_buffer{ nullptr };
+  U32 m_bufferSize{ 0 };
+  U32 m_bufferPos{ 0 };
+  U32 m_vtxSize{ 0 };
+  U16 m_vtxSizeArray[LASitem::Type::NUM];
 };
 
 #endif

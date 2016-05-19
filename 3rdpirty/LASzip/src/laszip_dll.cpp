@@ -3962,6 +3962,16 @@ laszip_inside_rectangle(
 
 /*---------------------------------------------------------------------------*/
 LASZIP_API laszip_I32
+laszip_reset(laszip_POINTER pointer)
+{
+    if (pointer == 0) return 1;
+    laszip_dll_struct* laszip_dll = (laszip_dll_struct*)pointer;
+
+    laszip_dll->reader->reset();
+}
+
+/*---------------------------------------------------------------------------*/
+LASZIP_API laszip_I32
 laszip_seek_point(
     laszip_POINTER                     pointer
     , laszip_I64                       index

@@ -60,6 +60,11 @@ public:
   BOOL seekEnd(const I64 distance=0);
 /* destructor                                                */
   ~ByteStreamInFile(){};
+
+  virtual U32 getBytesWithoutException(U8* bytes, const U32 num_bytes) override
+  {
+      return fread(bytes, 1, num_bytes, file);
+  }
 protected:
   FILE* file;
 };
