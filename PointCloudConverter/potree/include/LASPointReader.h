@@ -81,6 +81,7 @@ public:
 			}
 		}
 
+        laszip_reset(laszip_reader);
 		laszip_seek_point(laszip_reader, 0);
     }
 
