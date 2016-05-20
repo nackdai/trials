@@ -182,7 +182,7 @@ void PointCloudViewerApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device
 #ifdef ENABLE_MANUAL
     if (m_readData && !m_files.empty()) {
         if (!m_curGroup) {
-            auto group = new PointDataGroup(15000);
+            auto group = new PointDataGroup(100000);
             m_groups.push_back(group);
 
             m_curGroup = group;
@@ -196,7 +196,7 @@ void PointCloudViewerApp::UpdateInternal(izanagi::graph::CGraphicsDevice* device
             auto res = m_curGroup->read(m_allocator, device, file.c_str());
 
             if (PointDataGroup::needOtherGroup(res)) {
-                auto group = new PointDataGroup(15000);
+                auto group = new PointDataGroup(100000);
                 m_groups.push_back(group);
 
                 res = group->read(m_allocator, device, file.c_str());
