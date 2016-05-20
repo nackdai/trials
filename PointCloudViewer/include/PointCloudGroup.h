@@ -105,6 +105,11 @@ public:
         return m_vtxCnt;
     }
 
+    float getScale() const
+    {
+        return m_scale;
+    }
+
 private:
     std::vector<AABB> m_aabbs;
 
@@ -116,6 +121,8 @@ private:
     uint32_t m_vtxCnt{ 0 };
 
     uint32_t m_vtxSize{ 0 };
+
+    float m_scale{ 1.0f };
 
     GLuint m_glVB{ 0 };
     void* m_mappedDataPtr{ nullptr };

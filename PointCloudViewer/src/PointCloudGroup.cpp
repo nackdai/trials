@@ -153,6 +153,8 @@ PointDataGroup::Result PointDataGroup::read(
 
     m_vtxCnt += header.vtxNum;
 
+    m_scale = header.scale;
+
     return Result::Succeeded;
 }
 

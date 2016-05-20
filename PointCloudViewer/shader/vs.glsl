@@ -9,13 +9,17 @@ varying vec4 var_Color;
 
 uniform vec4 mtxW2C[4];
 uniform float size;
+uniform float scale;
 
 void main()
 {
-    gl_Position.x = dot(position, mtxW2C[0]);
-    gl_Position.y = dot(position, mtxW2C[1]);
-    gl_Position.z = dot(position, mtxW2C[2]);
-    gl_Position.w = dot(position, mtxW2C[3]);
+    vec4 pt = position;
+    pt.xyz *= scale;
+
+    gl_Position.x = dot(pt, mtxW2C[0]);
+    gl_Position.y = dot(pt, mtxW2C[1]);
+    gl_Position.z = dot(pt, mtxW2C[2]);
+    gl_Position.w = dot(pt, mtxW2C[3]);
     
     var_Color = color_0;
  

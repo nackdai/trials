@@ -151,7 +151,11 @@ void PointCloudViewerApp::searchDir(const char* filename)
             std::string path(BASE_DIR);
             path += file.c_str();
 
-            m_files.push_back(path);
+            auto found = std::find(m_files.begin(), m_files.end(), path);
+
+            if (found == m_files.end()) {
+                m_files.push_back(path);
+            }
         }
     } while (FindNextFile(hFind, &fd));
 }
@@ -250,6 +254,12 @@ void PointCloudViewerApp::RenderInternal(izanagi::graph::CGraphicsDevice* device
     IZ_FLOAT pointSize = 5.0f;
     auto hSize = m_shd->GetHandleByName("size");
     m_shd->SetFloat(device, hSize, pointSize);
+
+    if (m_groups.size() > 0) {
+        IZ_FLOAT scale = m_groups[0]->getScale();
+        auto hScale = m_shd->GetHandleByName("scale");
+        m_shd->SetFloat(device, hScale, scale);
+    }
 
     auto hMtxW2C = m_shd->GetHandleByName("mtxW2C");
     m_shd->SetMatrixArrayAsVectorArray(device, hMtxW2C, &mtxW2C, 4);
