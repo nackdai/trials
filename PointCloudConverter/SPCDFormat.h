@@ -26,6 +26,8 @@ struct SPCDHeader {
 
     float spacing;
 
+    float scale;
+
     float aabbMin[3];
     float aabbMax[3];
 };

@@ -38,6 +38,8 @@ public:
 
     static std::atomic<uint32_t> FlushedNum;
 
+    static float Scale;
+
 private:
     static uint32_t s_ID;
 

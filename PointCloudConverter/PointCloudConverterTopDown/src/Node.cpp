@@ -7,6 +7,8 @@ std::atomic<uint32_t> Node::FlushedNum = 0;
 
 uint32_t Node::s_ID = 0;
 
+float Node::Scale = 1.0f;
+
 std::vector<bool> IsOpened(1000);
 
 Node::Node()
@@ -166,16 +168,18 @@ void Node::close()
         auto& aabbMin = m_aabb.getMin();
         auto& aabbMax = m_aabb.getMax();
 
-        header.aabbMin[0] = aabbMin.x;
-        header.aabbMin[1] = aabbMin.y;
-        header.aabbMin[2] = aabbMin.z;
+        header.aabbMin[0] = aabbMin.x * Node::Scale;
+        header.aabbMin[1] = aabbMin.y * Node::Scale;
+        header.aabbMin[2] = aabbMin.z * Node::Scale;
 
-        header.aabbMax[0] = aabbMax.x;
-        header.aabbMax[1] = aabbMax.y;
-        header.aabbMax[2] = aabbMax.z;
+        header.aabbMax[0] = aabbMax.x * Node::Scale;
+        header.aabbMax[1] = aabbMax.y * Node::Scale;
+        header.aabbMax[2] = aabbMax.z * Node::Scale;
 
         // TODO
         header.spacing = izanagi::math::SVector4::Length2(aabbMin, aabbMax) / 250.0f;
+
+        header.scale = Node::Scale;
 
         // 先頭に戻って、ヘッダー書き込み.
         fseek(m_fp, 0, SEEK_SET);

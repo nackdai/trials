@@ -215,6 +215,7 @@ int _tmain(int argc, _TCHAR* argv[])
         }
     }
 
+#if 0
     aabb.min.x *= scale;
     aabb.min.y *= scale;
     aabb.min.z *= scale;
@@ -222,6 +223,9 @@ int _tmain(int argc, _TCHAR* argv[])
     aabb.max.x *= scale;
     aabb.max.y *= scale;
     aabb.max.z *= scale;
+#else
+    Node::Scale = scale;
+#endif
 
     aabb.size = aabb.max - aabb.min;
 
@@ -256,9 +260,11 @@ int _tmain(int argc, _TCHAR* argv[])
     while (reader->readNextPoint()) {
         Point& pt = writer.getNextPoint();
         reader->GetPoint<Point>(pt);
+#if 0
         pt.pos[0] *= scale;
         pt.pos[1] *= scale;
         pt.pos[2] *= scale;
+#endif
         pt.rgba[3] = 0xff;
 
         pointNum++;
