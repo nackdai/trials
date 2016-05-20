@@ -283,13 +283,13 @@ void Writer::procRand()
 void Writer::flush(izanagi::threadmodel::CThreadPool& threadPool)
 {
 #ifdef USE_THREAD_FLUSH
-    m_flush.wait(true);
-
 #ifdef USE_THREAD_STORE
     m_store.wait();
 #else
     izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));
 #endif
+
+    m_flush.wait(true);
 
     m_flush.set();
 #else
