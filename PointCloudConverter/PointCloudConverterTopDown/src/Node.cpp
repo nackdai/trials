@@ -19,6 +19,49 @@ Node::Node()
 #endif
 }
 
+bool Node::add(const Point& vtx)
+{
+#ifdef USE_STL_VECTOR
+    m_vtx[m_curIdx].push_back(vtx);
+#else
+    IZ_ASSERT(m_pos[m_curIdx] < FLUSH_LIMIT);
+    
+    auto& pos = m_pos[m_curIdx];
+
+#ifdef ENABLE_HALF_FLOAT
+    auto& pt = m_vtx[m_curIdx][pos];
+
+    uint32_t* pf = (uint32_t*)vtx.pos;
+
+    // NOTE
+    // float -> half
+    // ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf
+
+    uint32_t f = pf[0];
+    pt.pos[0] = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
+
+    f = pf[1];
+    pt.pos[1] = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
+
+    f = pf[2];
+    pt.pos[2] = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
+
+    static const uint16_t HalfFloatOne = 15360;
+    pt.pos[3] = HalfFloatOne;
+
+    pt.rgba[0] = vtx.rgba[0];
+    pt.rgba[1] = vtx.rgba[1];
+    pt.rgba[2] = vtx.rgba[2];
+    pt.rgba[3] = 0xff;
+#else
+    m_vtx[m_curIdx][pos] = vtx;
+#endif
+
+    ++pos;
+#endif
+    return true;
+}
+
 void Node::flush()
 {
     uint32_t idx = m_curIdx;
@@ -71,7 +114,7 @@ void Node::flush()
 #ifdef USE_STL_VECTOR
     auto num = vtx.size();
 #endif
-    auto size = num * sizeof(Point);
+    auto size = num * sizeof(ExportPoint);
 
     m_totalNum += num;
 

@@ -9,14 +9,26 @@
 
 //#define USE_STL_VECTOR
 
+#define ENABLE_HALF_FLOAT
+
 struct Point {
     float pos[3];
-    //IZ_COLOR color;
     union {
         IZ_COLOR color;
         IZ_UINT8 rgba[4];
     };
 };
+
+struct HalfPoint {
+    IZ_UINT16 pos[4];
+    IZ_UINT8 rgba[4];
+};
+
+#ifdef ENABLE_HALF_FLOAT
+using ExportPoint = HalfPoint;
+#else
+using ExportPoint = Point;
+#endif
 
 class Node : public izanagi::col::IOctreeNode {
     friend class Writer;
@@ -47,29 +59,13 @@ public:
     {
         if (isContain(vtx))
         {
-#ifdef USE_STL_VECTOR
-            m_vtx[m_curIdx].push_back(vtx);
-#else
-            m_vtx[m_curIdx][m_pos[m_curIdx]] = vtx;
-            m_pos[m_curIdx]++;
-#endif
+            add(vtx);
             return true;
         }
         return false;
     }
 
-    bool add(const Point& vtx)
-    {
-#ifdef USE_STL_VECTOR
-        m_vtx[m_curIdx].push_back(vtx);
-#else
-        IZ_ASSERT(m_pos[m_curIdx] < FLUSH_LIMIT);
-        auto& pos = m_pos[m_curIdx];
-        m_vtx[m_curIdx][pos] = vtx;
-        ++pos;
-#endif
-        return true;
-    }
+    bool add(const Point& vtx);
 
     bool isContain(const Point& vtx)
     {
@@ -108,7 +104,7 @@ private:
 #ifdef USE_STL_VECTOR
     std::vector<Point> m_vtx[2];
 #else
-    Point m_vtx[2][FLUSH_LIMIT];
+    ExportPoint m_vtx[2][FLUSH_LIMIT];
     uint32_t m_pos[2];
 #endif
 
