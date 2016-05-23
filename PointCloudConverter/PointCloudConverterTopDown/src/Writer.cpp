@@ -213,18 +213,32 @@ void Writer::procStore(bool runRand/*= true*/)
     step++;
 
     auto points = m_temporary;
+    auto levels = m_levels;
 
-    auto loopCnt = m_willStoreNum;
+    int loopCnt = m_willStoreNum;
 
-    izanagi::col::MortonNumber mortonNumber;
+    izanagi::col::MortonNumber mortonNumber0;
+    izanagi::col::MortonNumber mortonNumber1;
+    izanagi::col::MortonNumber mortonNumber2;
+    izanagi::col::MortonNumber mortonNumber3;
 
-    //for (uint32_t i = 0; i < loopCnt; i++)
-    for (int32_t i = loopCnt; i--;)
+    while (loopCnt >= 4)
     {
-        const auto& obj = points[i];
+        const auto& obj0 = points[0];
+        const auto& obj1 = points[1];
+        const auto& obj2 = points[2];
+        const auto& obj3 = points[3];
 
 #ifdef USE_THREAD_RAND
-        IZ_UINT targetLevel = m_levels[i];
+        //IZ_UINT targetLevel0 = levels[0];
+        //IZ_UINT targetLevel1 = levels[1];
+        //IZ_UINT targetLevel2 = levels[2];
+        //IZ_UINT targetLevel3 = levels[3];
+
+        IZ_UINT targetLevel0 = level-1;
+        IZ_UINT targetLevel1 = level-1;
+        IZ_UINT targetLevel2 = level-1;
+        IZ_UINT targetLevel3 = level-1;
 #else
         double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
         int n = _mm_cvttsd_si32(_mm_load_sd(&f));
@@ -236,24 +250,86 @@ void Writer::procStore(bool runRand/*= true*/)
         //targetLevel = IZ_MIN(targetLevel, level - 1);
 
         m_octree.getMortonNumberByLevel(
-            mortonNumber,
-            //izanagi::math::CVector4(obj.pos[0], obj.pos[1], obj.pos[2]),
-            obj.pos,
-            targetLevel);
+            mortonNumber0,
+            obj0.pos,
+            targetLevel0);
+        m_octree.getMortonNumberByLevel(
+            mortonNumber1,
+            obj1.pos,
+            targetLevel1);
+        m_octree.getMortonNumberByLevel(
+            mortonNumber2,
+            obj2.pos,
+            targetLevel2);
+        m_octree.getMortonNumberByLevel(
+            mortonNumber3,
+            obj3.pos,
+            targetLevel3);
 
 #if 0
         auto idx = m_octree.getIndex(mortonNumber);
 
         auto node = m_octree.getNode(idx, IZ_TRUE);
 #else
-        auto node = m_octree.getNodeByMortonNumber(mortonNumber, IZ_TRUE);
+        auto node0 = m_octree.getNodeByMortonNumber(mortonNumber0, IZ_TRUE);
+        auto node1 = m_octree.getNodeByMortonNumber(mortonNumber1, IZ_TRUE);
+        auto node2 = m_octree.getNodeByMortonNumber(mortonNumber2, IZ_TRUE);
+        auto node3 = m_octree.getNodeByMortonNumber(mortonNumber3, IZ_TRUE);
 #endif
 
-        IZ_ASSERT(node->isContain(obj));
+        IZ_ASSERT(node0->isContain(obj0));
+        IZ_ASSERT(node1->isContain(obj1));
+        IZ_ASSERT(node2->isContain(obj2));
+        IZ_ASSERT(node3->isContain(obj3));
 
-        node->add(obj);
+        node0->add(obj0);
+        node1->add(obj1);
+        node2->add(obj2);
+        node3->add(obj3);
 
-        ++m_acceptedNum;
+        m_acceptedNum += 4;
+        points += 4;
+        levels += 4;
+        loopCnt -= 4;
+    }
+
+    while (loopCnt > 0)
+    {
+        const auto& obj0 = points[0];
+
+#ifdef USE_THREAD_RAND
+        IZ_UINT targetLevel0 = levels[0];
+#else
+        double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
+        int n = _mm_cvttsd_si32(_mm_load_sd(&f));
+        n = table[n];
+
+        IZ_UINT targetLevel = n / step;
+#endif
+
+        //targetLevel = IZ_MIN(targetLevel, level - 1);
+
+        m_octree.getMortonNumberByLevel(
+            mortonNumber0,
+            obj0.pos,
+            targetLevel0);
+
+#if 0
+        auto idx = m_octree.getIndex(mortonNumber);
+
+        auto node = m_octree.getNode(idx, IZ_TRUE);
+#else
+        auto node0 = m_octree.getNodeByMortonNumber(mortonNumber0, IZ_TRUE);
+#endif
+
+        IZ_ASSERT(node0->isContain(obj0));
+
+        node0->add(obj0);
+
+        m_acceptedNum++;
+        points++;
+        levels++;
+        loopCnt--;
     }
 
 #ifdef USE_THREAD_RAND
@@ -324,12 +400,50 @@ void Writer::procFlush()
     auto list = m_octree.getNodes();
     auto num = m_octree.getNodeCount();
 
+#if 0
     for (IZ_UINT i = 0; i < num; i++) {
         Node* node = list[i];
         if (node) {
             node->flush();
         }
     }
+#else
+    int loopCnt = num;
+
+    while (loopCnt >= 4)
+    {
+        Node* node0 = list[0];
+        Node* node1 = list[1];
+        Node* node2 = list[2];
+        Node* node3 = list[3];
+
+        if (node0) {
+            node0->flush();
+        }
+        if (node1) {
+            node1->flush();
+        }
+        if (node2) {
+            node2->flush();
+        }
+        if (node3) {
+            node3->flush();
+        }
+
+        list += 4;
+        loopCnt -= 4;
+    }
+
+    while (loopCnt > 0) {
+        Node* node0 = list[0];
+        if (node0) {
+            node0->flush();
+        }
+
+        list++;
+        loopCnt--;
+    }
+#endif
 }
 
 void Writer::storeDirectly(izanagi::threadmodel::CThreadPool& threadPool)
@@ -390,7 +504,7 @@ void Writer::close(izanagi::threadmodel::CThreadPool& threadPool)
     auto list = m_octree.getNodes();
     auto num = m_octree.getNodeCount();
 
-#if 0
+#if 1
     for (IZ_UINT i = 0; i < num; i++) {
         Node* node = list[i];
         if (node) {
