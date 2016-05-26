@@ -96,6 +96,8 @@ private:
   CHAR* last_error;
   CHAR* last_warning;
 
+  static const U32 ReadVtxNum = 100000;
+
   U8* m_buffer{ nullptr };
   U32 m_bufferSize{ 0 };
   U32 m_bufferPos{ 0 };

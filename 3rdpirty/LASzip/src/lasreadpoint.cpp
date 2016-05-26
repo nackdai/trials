@@ -156,7 +156,7 @@ BOOL LASreadPoint::setup(U32 num_items, const LASitem* items, const LASzip* lasz
   }
 
   m_vtxSize = point_size;
-  m_bufferSize = m_vtxSize * 1000;
+  m_bufferSize = m_vtxSize * ReadVtxNum;
   m_buffer = new U8[m_bufferSize];
 
   if (dec)
@@ -430,7 +430,8 @@ BOOL LASreadPoint::read(U8* const * point)
         }
 
         if (isEOF) {
-            throw EOF;
+            //throw EOF;
+            return FALSE;
         }
 #endif
     }
