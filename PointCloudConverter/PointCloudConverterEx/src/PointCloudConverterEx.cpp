@@ -6,6 +6,7 @@
 #include <string>
 #include "proxy.h"
 #include "Writer.h"
+#include "Reader.h"
 #include "Config.h"
 
 void dispUsage()
@@ -87,100 +88,14 @@ int _tmain(int argc, _TCHAR* argv[])
 
     izanagi::math::CMathRand::Init(st.wMilliseconds);
 
-#if 0
-#if 0
-    int limit = 80;
-    int cnt = 0;
-
-    for (cnt = 0; cnt < limit; cnt++) {
-        int i = cnt;
-
-        if (i > 0 && i % 10 == 0) {
-            izanagi::_OutputDebugString("\n");
-        }
-
-        int n = i;
-        n -= limit / 2;
-
-        float theta = IZ_MATH_PI * n / float(limit);
-        float s = sinf(theta);
-
-        s = (s + 1.0f) * 0.5f;
-        s *= 100.0f;
-        int ns = (int)s;
-
-        izanagi::_OutputDebugString("%d, ", ns);
-    }
-
-    izanagi::_OutputDebugString("\n");
-
-    for (int i = cnt; i < 101; i++) {
-        izanagi::_OutputDebugString("100, ");
-    }
-#elif 0
-    int limit = 50;
-    int cnt = 0;
-
-    float a = 100.0f / (limit * limit);
-
-    for (cnt = 0; cnt < limit; cnt++) {
-        int i = cnt;
-
-        if (i > 0 && i % 10 == 0) {
-            izanagi::_OutputDebugString("\n");
-        }
-
-        int x = i;
-
-        int y = -a * (x - limit) * (x - limit) + 100;
-
-        izanagi::_OutputDebugString("%d, ", y);
-    }
-
-    izanagi::_OutputDebugString("\n");
-
-    for (int i = cnt; i < 101; i++) {
-        izanagi::_OutputDebugString("100, ");
-    }
-#else
-    int limit = 50;
-    int cnt = 0;
-
-    for (cnt = 0; cnt < limit; cnt++) {
-        int i = cnt;
-
-        if (i > 0 && i % 10 == 0) {
-            izanagi::_OutputDebugString("\n");
-        }
-
-        int x = i;
-
-        float t = i / (float)limit;
-
-        float v = (i == limit
-            ? 1.0f
-            : -pow(2.0f, -10.0f * t) + 1.0f);
-
-        int y = (int)(v * 100.0f);
-
-        izanagi::_OutputDebugString("%d, ", y);
-    }
-
-    izanagi::_OutputDebugString("\n");
-
-    for (int i = cnt; i < 101; i++) {
-        izanagi::_OutputDebugString("100, ");
-    }
-#endif
-#endif
-
     Node::BasePath = option.outDir;
 
     // Limit max depth.
     int maxDepth = IZ_MIN(option.depth, 4);
 
     // TODO
-    auto reader = (Potree::LASPointReader*)Proxy::createPointReader(option.inFile);
+    //auto reader = (Potree::LASPointReader*)Proxy::createPointReader(option.inFile);
+    auto reader = new Reader(option.inFile.c_str());
 
     if (!reader) {
         // TODO
@@ -257,25 +172,35 @@ int _tmain(int argc, _TCHAR* argv[])
 
     izanagi::sys::CTimer timer;
 
+#if 0
     while (reader->readNextPoint()) {
         Point& pt = writer.getNextPoint();
         reader->GetPoint<Point>(pt);
-#if 0
-        pt.pos[0] *= scale;
-        pt.pos[1] *= scale;
-        pt.pos[2] *= scale;
-#endif
-        pt.rgba[3] = 0xff;
 
         pointNum++;
         storeNum++;
         flushNum++;
+#else
+    while (true) {
+        auto buffer = writer.getBuffer();
+        auto num = reader->readNextPoint(buffer, sizeof(Point) * STORE_LIMIT);
+
+        if (num == 0) {
+            break;
+        }
+
+        writer.m_registeredNum += num;
+
+        pointNum += num;
+        storeNum += num;
+        flushNum += num;
+#endif
 
         if (storeNum == STORE_LIMIT) {
-            //timer.Begin();
+            timer.Begin();
             writer.store(threadPool);
-            //auto time = timer.End();
-            //times[Type::Store] += time;
+            auto time = timer.End();
+            times[Type::Store] += time;
             //LOG("Store - %f(ms)\n", time);
 
             storeNum = 0;
@@ -283,10 +208,10 @@ int _tmain(int argc, _TCHAR* argv[])
         if (flushNum == FLUSH_LIMIT) {
             printf("%d\n", pointNum);
 
-            //timer.Begin();
+            timer.Begin();
             writer.flush(threadPool);
-            //auto time = timer.End();
-            //times[Type::Flush] += time;
+            auto time = timer.End();
+            times[Type::Flush] += time;
             //LOG("Flush - %f(ms)\n", time);
 
             flushNum = 0;

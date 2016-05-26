@@ -9,7 +9,7 @@
 
 //#define USE_STL_VECTOR
 
-#define ENABLE_HALF_FLOAT
+//#define ENABLE_HALF_FLOAT
 
 struct Point {
     float pos[3];

@@ -16,6 +16,9 @@
     <ClCompile Include="src\PointCloudConverterEx.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Reader.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\SPCDFormat.h" />
@@ -38,6 +41,9 @@
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\MortonNumberTable.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Reader.h">
       <Filter>include</Filter>
     </ClInclude>
   </ItemGroup>

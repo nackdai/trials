@@ -75,7 +75,8 @@ bool Node::add(const Point& vtx)
     pt.rgba[2] = vtx.rgba[2];
     pt.rgba[3] = 0xff;
 #else
-    m_vtx[Node::CurIdx][pos] = vtx;
+    //m_vtx[Node::CurIdx][pos] = vtx;
+    memcpy(&m_vtx[Node::CurIdx][pos], &vtx, sizeof(vtx));
 #endif
 
     ++pos;

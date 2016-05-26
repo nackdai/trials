@@ -200,6 +200,7 @@ Node* Octree::createNode(const MortonNumber& mortonNumber)
     auto idx = mortonNumber.number;
     auto level = mortonNumber.level;
 
+#if 0
     auto node = m_nodesHash[level][idx];
 
     if (node) {
@@ -207,6 +208,10 @@ Node* Octree::createNode(const MortonNumber& mortonNumber)
     }
 
     node = new Node();
+#else
+    Node* node = new Node();
+#endif
+
     node->initialize(mortonNumber.number, level);
 
     // Set AABB.

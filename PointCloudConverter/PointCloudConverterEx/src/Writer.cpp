@@ -16,7 +16,7 @@ void Writer::Worker::start(std::function<void(void)> func)
 {
     m_runThread = true;
 
-    m_waitMain.Set();
+    //m_waitMain.Set();
 
     m_func = func;
 
@@ -62,6 +62,11 @@ void Writer::Worker::join()
     }
 }
 
+void Writer::Worker::setMain()
+{
+    m_waitMain.Set();
+}
+
 ///////////////////////////////////////////////////////
 
 Writer::Writer(
@@ -88,11 +93,15 @@ Writer::Writer(
     m_flush.start([&] {
         procFlush();
     });
+
+    m_flush.setMain();
 #endif
 
     m_store.start([&] {
         procStore();
     });
+
+    m_store.setMain();
 
 #ifdef USE_THREAD_RAND
     m_rand.start([&] {
@@ -223,16 +232,21 @@ void Writer::procStore(bool runRand/*= true*/)
 
     while (loopCnt >= 4)
     {
-        const auto& obj0 = points[0];
-        const auto& obj1 = points[1];
-        const auto& obj2 = points[2];
-        const auto& obj3 = points[3];
+        auto idx0 = loopCnt - 1;
+        auto idx1 = loopCnt - 2;
+        auto idx2 = loopCnt - 3;
+        auto idx3 = loopCnt - 4;
+
+        const auto& obj0 = points[idx0];
+        const auto& obj1 = points[idx1];
+        const auto& obj2 = points[idx2];
+        const auto& obj3 = points[idx3];
 
 #ifdef USE_THREAD_RAND
-        IZ_UINT targetLevel0 = levels[0];
-        IZ_UINT targetLevel1 = levels[1];
-        IZ_UINT targetLevel2 = levels[2];
-        IZ_UINT targetLevel3 = levels[3];
+        IZ_UINT targetLevel0 = levels[idx0];
+        IZ_UINT targetLevel1 = levels[idx1];
+        IZ_UINT targetLevel2 = levels[idx2];
+        IZ_UINT targetLevel3 = levels[idx3];
 #else
         double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
         int n = _mm_cvttsd_si32(_mm_load_sd(&f));
@@ -277,18 +291,20 @@ void Writer::procStore(bool runRand/*= true*/)
         node2->add(obj2);
         node3->add(obj3);
 
-        m_acceptedNum += 4;
-        points += 4;
-        levels += 4;
+        //m_acceptedNum += 4;
+        //points += 4;
+        //levels += 4;
         loopCnt -= 4;
     }
 
     while (loopCnt > 0)
     {
-        const auto& obj0 = points[0];
+        auto idx0 = loopCnt - 1;
+
+        const auto& obj0 = points[idx0];
 
 #ifdef USE_THREAD_RAND
-        IZ_UINT targetLevel0 = levels[0];
+        IZ_UINT targetLevel0 = levels[idx0];
 #else
         double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
         int n = _mm_cvttsd_si32(_mm_load_sd(&f));
@@ -316,9 +332,9 @@ void Writer::procStore(bool runRand/*= true*/)
 
         node0->add(obj0);
 
-        m_acceptedNum++;
-        points++;
-        levels++;
+        //m_acceptedNum++;
+        //points++;
+        //levels++;
         loopCnt--;
     }
 

@@ -44,6 +44,11 @@ public:
     void storeDirectly(izanagi::threadmodel::CThreadPool& threadPool);
     void flushDirectly(izanagi::threadmodel::CThreadPool& threadPool);
 
+    void* getBuffer()
+    {
+        return m_objects[m_curIdx];
+    }
+
 private:
     void procStore(bool runRand = true);
     void procFlush();
@@ -74,6 +79,8 @@ public:
         void wait(bool reset = false);
 
         void join();
+
+        void setMain();
 
     private:
         std::string m_tag;
