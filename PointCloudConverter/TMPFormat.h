@@ -4,11 +4,6 @@
 #include <stdint.h>
 #include "SPCDFormat.h"
 
-struct Point {
-    float pos[3];
-    uint8_t rgba[4];
-};
-
 struct TMPHeader {
     uint32_t fileSize;
 

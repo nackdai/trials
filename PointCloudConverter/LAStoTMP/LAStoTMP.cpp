@@ -3,6 +3,11 @@
 
 #include "TMPFormat.h"
 
+struct Point {
+    float pos[3];
+    uint8_t rgba[4];
+};
+
 int main(int argc, char* argv[])
 {
     if (argc < 3) {
