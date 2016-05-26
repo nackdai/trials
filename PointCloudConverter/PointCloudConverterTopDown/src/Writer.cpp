@@ -230,15 +230,10 @@ void Writer::procStore(bool runRand/*= true*/)
         const auto& obj3 = points[3];
 
 #ifdef USE_THREAD_RAND
-        //IZ_UINT targetLevel0 = levels[0];
-        //IZ_UINT targetLevel1 = levels[1];
-        //IZ_UINT targetLevel2 = levels[2];
-        //IZ_UINT targetLevel3 = levels[3];
-
-        IZ_UINT targetLevel0 = level-1;
-        IZ_UINT targetLevel1 = level-1;
-        IZ_UINT targetLevel2 = level-1;
-        IZ_UINT targetLevel3 = level-1;
+        IZ_UINT targetLevel0 = levels[0];
+        IZ_UINT targetLevel1 = levels[1];
+        IZ_UINT targetLevel2 = levels[2];
+        IZ_UINT targetLevel3 = levels[3];
 #else
         double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
         int n = _mm_cvttsd_si32(_mm_load_sd(&f));
@@ -358,28 +353,25 @@ void Writer::procRand()
 
 void Writer::flush(izanagi::threadmodel::CThreadPool& threadPool)
 {
-#ifdef USE_THREAD_FLUSH
 #ifdef USE_THREAD_STORE
     m_store.wait();
 #else
     izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));
 #endif
 
+#ifdef USE_THREAD_FLUSH
     m_flush.wait(true);
+
+    Node::CurIdx = 1 - Node::CurIdx;
 
     m_flush.set();
 #else
-
-#ifdef USE_THREAD_STORE
-    m_store.wait();
-#else
-    izanagi::threadmodel::CParallel::waitFor(m_storeTasks, COUNTOF(m_storeTasks));
-#endif
-
     izanagi::threadmodel::CParallel::waitFor(m_flushTasks, COUNTOF(m_flushTasks));
 
     auto nodes = m_octree.getNodes();
     auto num = m_octree.getNodeCount();
+
+    Node::CurIdx = 1 - Node::CurIdx;
     
     izanagi::threadmodel::CParallel::For(
         threadPool,
@@ -479,6 +471,8 @@ void Writer::flushDirectly(izanagi::threadmodel::CThreadPool& threadPool)
 {
 #ifdef USE_THREAD_FLUSH
     m_flush.wait();
+
+    Node::CurIdx = 1 - Node::CurIdx;
 
     procFlush();
 #else

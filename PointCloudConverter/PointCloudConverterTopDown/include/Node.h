@@ -43,6 +43,8 @@ public:
 private:
     static uint32_t s_ID;
 
+    static std::atomic<uint32_t> CurIdx;
+
 public:
     Node();
     virtual ~Node() {}
@@ -109,8 +111,6 @@ private:
     ExportPoint m_vtx[2][FLUSH_LIMIT];
     uint32_t m_pos[2];
 #endif
-
-    std::atomic<uint32_t> m_curIdx{ 0 };
 
     uint32_t m_totalNum{ 0 };
 };

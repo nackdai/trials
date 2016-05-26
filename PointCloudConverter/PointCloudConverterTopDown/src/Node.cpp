@@ -9,6 +9,8 @@ uint32_t Node::s_ID = 0;
 
 float Node::Scale = 1.0f;
 
+std::atomic<uint32_t> Node::CurIdx = 0;
+
 std::vector<bool> IsOpened(1000);
 
 Node::Node()
@@ -26,12 +28,12 @@ bool Node::add(const Point& vtx)
 #ifdef USE_STL_VECTOR
     m_vtx[m_curIdx].push_back(vtx);
 #else
-    IZ_ASSERT(m_pos[m_curIdx] < FLUSH_LIMIT);
+    IZ_ASSERT(m_pos[Node::CurIdx] < FLUSH_LIMIT);
     
-    auto& pos = m_pos[m_curIdx];
+    auto& pos = m_pos[Node::CurIdx];
 
 #ifdef ENABLE_HALF_FLOAT
-    auto& pt = m_vtx[m_curIdx][pos];
+    auto& pt = m_vtx[Node::CurIdx][pos];
 
     uint32_t* pf = (uint32_t*)vtx.pos;
 
@@ -56,7 +58,7 @@ bool Node::add(const Point& vtx)
     pt.rgba[2] = vtx.rgba[2];
     pt.rgba[3] = 0xff;
 #else
-    m_vtx[m_curIdx][pos] = vtx;
+    m_vtx[Node::CurIdx][pos] = vtx;
 #endif
 
     ++pos;
@@ -66,12 +68,11 @@ bool Node::add(const Point& vtx)
 
 void Node::flush()
 {
-    uint32_t idx = m_curIdx;
+    uint32_t idx = 1 - Node::CurIdx;
 #ifndef USE_STL_VECTOR
     uint32_t num = m_pos[idx];
     m_pos[idx] = 0;
 #endif
-    m_curIdx = 1 - m_curIdx;
 
 #ifdef USE_STL_VECTOR
     if (m_vtx[idx].size() == 0) {
