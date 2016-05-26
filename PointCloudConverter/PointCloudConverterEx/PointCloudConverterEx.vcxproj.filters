@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Writer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Node.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Octree.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PointCloudConverterEx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\SPCDFormat.h" />
+    <ClInclude Include="include\Config.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Node.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stdafx.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\targetver.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Writer.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Octree.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MortonNumberTable.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{1094dce5-1114-4242-9361-933e5e6f77f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{871e168a-9de3-4ff2-8fe4-24d007c1911d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
