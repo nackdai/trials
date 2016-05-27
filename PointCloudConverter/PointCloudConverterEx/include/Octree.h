@@ -66,6 +66,8 @@ public:
     // Get node by morton number.
     Node* getNode(const MortonNumber& mortonNumber);
 
+    Node* getNode(IZ_UINT idx);
+
     // Get count of nodes which the octree has.
     IZ_UINT getNodeCount() const
     {

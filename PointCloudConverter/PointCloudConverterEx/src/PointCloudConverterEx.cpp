@@ -75,6 +75,7 @@ bool Option::parse(int argc, _TCHAR* argv[])
     return true;
 }
 
+#if 1
 int _tmain(int argc, _TCHAR* argv[])
 {
     Option option;
@@ -182,8 +183,11 @@ int _tmain(int argc, _TCHAR* argv[])
         flushNum++;
 #else
     while (true) {
+        timer.Begin();
         auto buffer = writer.getBuffer();
         auto num = reader->readNextPoint(buffer, sizeof(Point) * STORE_LIMIT);
+        auto t = timer.End();
+        times[Type::Get] += t;
 
         if (num == 0) {
             break;
@@ -219,25 +223,25 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     if (storeNum) {
-        //timer.Begin();
+        timer.Begin();
         writer.storeDirectly(threadPool);
-        //auto time = timer.End();
-        //times[Type::Store] += time;
-        //LOG("StoreDirectly - %f(ms)\n", time);
+        auto time = timer.End();
+        times[Type::Store] += time;
+        LOG("StoreDirectly - %f(ms)\n", time);
     }
 
     if (flushNum) {
-        //timer.Begin();
+        timer.Begin();
         writer.flushDirectly(threadPool);
-        //auto time = timer.End();
-        //times[Type::Flush] += time;
-        //LOG("FlushDirectly - %f(ms)\n", time);
+        auto time = timer.End();
+        times[Type::Flush] += time;
+        LOG("FlushDirectly - %f(ms)\n", time);
     }
 
-    //timer.Begin();
+    timer.Begin();
     writer.close(threadPool);
-    //auto time = timer.End();
-    //times[Type::Close] += time;
+    auto time = timer.End();
+    times[Type::Close] += time;
     //LOG("Close - %f(ms)\n", time);
 
     writer.terminate();
@@ -262,4 +266,224 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	return 0;
 }
+#else
+int _tmain(int argc, _TCHAR* argv[])
+{
+    Option option;
+    if (!option.parse(argc, argv)) {
+        dispUsage();
+        return 1;
+    }
 
+    SYSTEMTIME st;
+    GetSystemTime(&st);
+
+    izanagi::math::CMathRand::Init(st.wMilliseconds);
+
+    Node::BasePath = option.outDir;
+
+    // Limit max depth.
+    int maxDepth = IZ_MIN(option.depth, 4);
+
+    Reader* readers[4];
+    readers[0] = new Reader(option.inFile.c_str());
+
+    auto num = readers[0]->numPoints();
+    auto step = num / COUNTOF(readers);
+    readers[0]->setLimit(step);
+    num -= step;
+
+    for (int i = 1; i < COUNTOF(readers); i++) {
+        readers[i] = new Reader(option.inFile.c_str());
+        if (i < COUNTOF(readers) - 1) {
+            readers[i]->setLimit(step);
+        }
+        else {
+            readers[i]->setLimit(num);
+        }
+        num -= step;
+    }
+
+    izanagi::CSimpleMemoryAllocator allocator;
+
+    izanagi::threadmodel::CThreadPool threadPool;
+    threadPool.Init(&allocator, 4);
+
+    izanagi::threadmodel::CParallelFor parallelTasks[4];
+
+    auto aabb = readers[0]->getAABB();
+    IZ_ASSERT(aabb.isValid());
+
+    // If specified scale is zero, compute scale.
+    float scale = option.scale;
+
+    if (scale <= 0.0f) {
+        auto len = aabb.size.length();
+
+        if (len > 100000.0f) {
+            scale = 0.01f;
+        }
+        else if (len > 10000.0f) {
+            scale = 0.1f;
+        }
+        else if (len < 10.0f) {
+            scale = 100.0f;
+        }
+        else {
+            scale = 1.0f;
+        }
+    }
+
+    Node::Scale = scale;
+
+    aabb.size = aabb.max - aabb.min;
+
+    aabb.makeCubic();
+
+    Writer* writers[4];
+
+    for (int i = 0; i < COUNTOF(writers); i++) {
+        writers[i] = new Writer(
+            &allocator,
+            aabb,
+            maxDepth);
+    }
+
+    std::atomic<uint64_t> pointNum = 0;
+    uint64_t storeNums[4] = { 0 };
+    std::atomic<int64_t> storeNum = 0;
+    std::atomic<uint64_t> flushNum = 0;
+
+    enum Type {
+        Read,
+        Store,
+        Flush,
+        Merge,
+        Close,
+        Add,
+        Num,
+    };
+
+    IZ_FLOAT times[Type::Num] = { 0.0f };
+
+    izanagi::sys::CTimer timerEntire;
+    timerEntire.Begin();
+
+    izanagi::sys::CTimer timer;
+
+    while (true) {
+        izanagi::threadmodel::CParallel::For(
+            threadPool,
+            parallelTasks,
+            0, 4,
+            [&] (IZ_UINT idx) {
+            auto writer = writers[idx];
+            auto reader = readers[idx];
+
+            auto buffer = writer->getBuffer();
+            auto num = reader->readNextPoint(buffer, sizeof(Point) * STORE_LIMIT);
+
+            if (num == 0) {
+                return;
+            }
+
+            writer->m_registeredNum += num;
+
+            pointNum += num;
+            storeNums[idx] += num;
+            storeNum += num;
+            flushNum += num;
+
+            if (storeNums[idx] == STORE_LIMIT) {
+                writer->store();
+                storeNums[idx] = 0;
+                storeNum -= num;
+            }
+            if (flushNum >= FLUSH_LIMIT) {
+                return;
+            }
+        });
+
+        timer.Begin();
+        izanagi::threadmodel::CParallel::waitFor(parallelTasks, COUNTOF(parallelTasks));
+        auto time = timer.End();
+        times[Type::Store] += time;
+        LOG("Store - %f(ms)\n", time);
+
+        timer.Begin();
+        writers[0]->merge(
+            &writers[1],
+            COUNTOF(writers) - 1,
+            threadPool);
+        time = timer.End();
+        times[Type::Merge] += time;
+        LOG("Merge - %f(ms)\n", time);
+
+        printf("%d\n", pointNum);
+
+        timer.Begin();
+        writers[0]->flush(threadPool);
+        time = timer.End();
+        times[Type::Flush] += time;
+        LOG("Flush - %f(ms)\n", time);
+
+        flushNum = 0;
+    }
+
+    if (storeNum) {
+        //timer.Begin();
+        for (int i = 0; i < COUNTOF(writers); i++) {
+            writers[i]->storeDirectly(threadPool);
+        }
+        //auto time = timer.End();
+        //times[Type::Store] += time;
+        //LOG("StoreDirectly - %f(ms)\n", time);
+    }
+
+    if (flushNum) {
+        writers[0]->merge(
+            &writers[1],
+            COUNTOF(writers) - 1,
+            threadPool);
+
+        //timer.Begin();
+        writers[0]->flushDirectly(threadPool);
+        //auto time = timer.End();
+        //times[Type::Flush] += time;
+        //LOG("FlushDirectly - %f(ms)\n", time);
+    }
+
+    //timer.Begin();
+    writers[0]->close(threadPool);
+    //auto time = timer.End();
+    //times[Type::Close] += time;
+    //LOG("Close - %f(ms)\n", time);
+
+    for (int i = 0; i < COUNTOF(writers); i++) {
+        writers[i]->terminate();
+        delete writers[i];
+    }
+
+    auto timeEntire = timerEntire.End();
+    izanagi::_OutputDebugString("Time * %f(ms)\n", timeEntire);
+
+    for (int i = 0; i < COUNTOF(readers); i++) {
+        readers[i]->close();
+        delete readers[i];
+    }
+
+    threadPool.WaitEmpty();
+    threadPool.Terminate();
+
+    izanagi::_OutputDebugString("FlushedNum [%d]\n", Node::FlushedNum);
+
+    izanagi::_OutputDebugString("Read - %f(ms)\n", times[Type::Read]);
+    izanagi::_OutputDebugString("Merge - %f(ms)\n", times[Type::Merge]);
+    izanagi::_OutputDebugString("Add - %f(ms)\n", times[Type::Add]);
+    izanagi::_OutputDebugString("Store - %f(ms)\n", times[Type::Store]);
+    izanagi::_OutputDebugString("Flush - %f(ms)\n", times[Type::Flush]);
+    izanagi::_OutputDebugString("Close - %f(ms)\n", times[Type::Close]);
+
+    return 0;
+}
+#endif

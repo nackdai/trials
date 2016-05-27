@@ -1,6 +1,6 @@
 #include "Writer.h"
 
-static int table[] = {
+static uint32_t table[] = {
 #if 0
 #include "sintbl.dat"
 #elif 0
@@ -88,6 +88,15 @@ Writer::Writer(
         izanagi::math::CVector4(min.x, min.y, min.z),
         izanagi::math::CVector4(max.x, max.y, max.z),
         depth);
+
+    auto level = m_octree.getMaxLevel();
+
+    auto step = 100 / level;
+    step++;
+
+    for (uint32_t i = 0; i < COUNTOF(table); i++) {
+        table[i] /= step;
+    }
 
 #ifdef USE_THREAD_FLUSH
     m_flush.start([&] {
@@ -198,6 +207,28 @@ void Writer::store(izanagi::threadmodel::CThreadPool& threadPool)
         m_acceptedNum++;
     });
 #endif
+}
+
+void Writer::store()
+{
+    auto num = m_registeredNum;
+
+    if (num == 0) {
+        return;
+    }
+
+#ifdef USE_THREAD_RAND
+    m_rand.wait();
+#endif
+
+    m_temporary = m_objects[m_curIdx];
+
+    m_willStoreNum = m_registeredNum;
+    m_registeredNum = 0;
+
+    m_curIdx = 1 - m_curIdx;
+
+    procStore();
 }
 
 void Writer::terminate()
@@ -357,7 +388,8 @@ void Writer::procRand()
         double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
         int n = _mm_cvttsd_si32(_mm_load_sd(&f));
 
-        m_levels[i] = table[n] / step;
+        //m_levels[i] = table[n] / step;
+        m_levels[i] = table[n];
     }
 #endif
 }
@@ -529,4 +561,137 @@ void Writer::close(izanagi::threadmodel::CThreadPool& threadPool)
     });
     izanagi::threadmodel::CParallel::waitFor(m_flushTasks, COUNTOF(m_flushTasks));
 #endif
+}
+
+void Writer::merge(
+    Writer* writer[],
+    uint32_t num,
+    izanagi::threadmodel::CThreadPool& threadPool)
+{
+    auto curIdx = Node::CurIdx.load();
+
+    auto nodeNum = m_octree.getNodeCount();
+
+    auto src = m_octree.getNodes();
+
+    Node** dst[4] = { nullptr };
+
+    for (uint32_t i = 0; i < num; i++) {
+        dst[i] = writer[i]->m_octree.getNodes();
+    }
+
+    izanagi::threadmodel::CParallel::For(
+        threadPool,
+        m_flushTasks,
+        0, nodeNum,
+        [&](IZ_UINT idx)
+    {
+        Node* node = src[idx];
+
+        Node* d0 = dst[0][idx];
+        Node* d1 = dst[1][idx];
+        Node* d2 = dst[2][idx];
+        //Node* d3 = dst[3][idx];
+        Node* d3 = nullptr;
+
+        if (node) {
+            auto s = node->m_vtx[curIdx];
+            auto& pos = node->m_pos[curIdx];
+
+            s += pos;
+
+            if (d0) {
+                auto d = d0->m_vtx[curIdx];
+                auto n = d0->m_pos[curIdx];
+                memcpy(s, d, sizeof(Point) * n);
+                pos += n;
+                s += n;
+            }
+            if (d1) {
+                auto d = d1->m_vtx[curIdx];
+                auto n = d1->m_pos[curIdx];
+                memcpy(s, d, sizeof(Point) * n);
+                pos += n;
+                s += n;
+            }
+            if (d2) {
+                auto d = d2->m_vtx[curIdx];
+                auto n = d2->m_pos[curIdx];
+                memcpy(s, d, sizeof(Point) * n);
+                pos += n;
+                s += n;
+            }
+            if (d3) {
+                auto d = d3->m_vtx[curIdx];
+                auto n = d3->m_pos[curIdx];
+                memcpy(s, d, sizeof(Point) * n);
+                pos += n;
+                s += n;
+            }
+        }
+        else if (d0 || d1 || d2 || d3) {
+            node = m_octree.getNode(idx);
+            bool isMerged = false;
+
+            auto s = node->m_vtx[curIdx];
+            auto& pos = node->m_pos[curIdx];
+
+            s += pos;
+
+            if (d0) {
+                if (!isMerged) {
+                    node->set(d0);
+                    isMerged = true;
+                }
+
+                auto d = d0->m_vtx[curIdx];
+                auto n = d0->m_pos[curIdx];
+                memcpy(s, d, sizeof(Point) * n);
+                pos += n;
+                s += n;
+            }
+            if (d1) {
+                if (!isMerged) {
+                    node->set(d1);
+                    isMerged = true;
+                }
+
+                auto d = d1->m_vtx[curIdx];
+                auto n = d1->m_pos[curIdx];
+                memcpy(s, d, sizeof(Point) * n);
+                pos += n;
+                s += n;
+            }
+            if (d2) {
+                if (!isMerged) {
+                    node->set(d2);
+                    isMerged = true;
+                }
+
+                auto d = d2->m_vtx[curIdx];
+                auto n = d2->m_pos[curIdx];
+                memcpy(s, d, sizeof(Point) * n);
+                pos += n;
+                s += n;
+            }
+            if (d3) {
+                if (!isMerged) {
+                    node->set(d3);
+                    isMerged = true;
+                }
+
+                auto d = d3->m_vtx[curIdx];
+                auto n = d3->m_pos[curIdx];
+                memcpy(s, d, sizeof(Point) * n);
+                pos += n;
+                s += n;
+            }
+
+            IZ_ASSERT(node->m_aabb.isValid())
+        }
+    });
+
+    izanagi::threadmodel::CParallel::waitFor(
+        m_flushTasks,
+        COUNTOF(m_flushTasks));
 }

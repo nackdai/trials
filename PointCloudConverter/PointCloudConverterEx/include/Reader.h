@@ -24,6 +24,8 @@ public:
 
     uint32_t readNextPoint(void* buffer, uint32_t size);
 
+    uint32_t readNextPointEx(void* buffer, uint32_t size);
+
     template <typename _POINT>
     void GetPoint(_POINT& p)
     {
@@ -40,6 +42,13 @@ public:
 
     Potree::AABB getAABB();
 
+    void seek(uint32_t idx);
+
+    void setLimit(uint32_t limit)
+    {
+        m_limit = limit;
+    }
+
     const TMPHeader& getHeader()
     {
         return m_header;
@@ -54,6 +63,9 @@ private:
 
     uint32_t m_pos{ BUFFER_NUM };
     uint32_t m_pointNum{ 0 };
+
+    uint32_t m_limit{ 0 };
+    uint32_t m_readPointNum{ 0 };
 
     bool m_isEOF{ false };
 };

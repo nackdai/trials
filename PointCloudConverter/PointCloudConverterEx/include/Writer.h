@@ -34,6 +34,7 @@ public:
     }
 
     void store(izanagi::threadmodel::CThreadPool& threadPool);
+    void store();
 
     void terminate();
 
@@ -48,6 +49,11 @@ public:
     {
         return m_objects[m_curIdx];
     }
+
+    void merge(
+        Writer* writer[],
+        uint32_t num,
+        izanagi::threadmodel::CThreadPool& threadPool);
 
 private:
     void procStore(bool runRand = true);

@@ -75,8 +75,8 @@ bool Node::add(const Point& vtx)
     pt.rgba[2] = vtx.rgba[2];
     pt.rgba[3] = 0xff;
 #else
-    //m_vtx[Node::CurIdx][pos] = vtx;
-    memcpy(&m_vtx[Node::CurIdx][pos], &vtx, sizeof(vtx));
+    m_vtx[Node::CurIdx][pos] = vtx;
+    //memcpy(&m_vtx[Node::CurIdx][pos], &vtx, sizeof(vtx));
 #endif
 
     ++pos;
@@ -120,6 +120,12 @@ void Node::flush()
 
         IZ_ASSERT(m_fp);
         IsOpened[id] = true;
+
+        // NOTE
+        // http://www.cc.u-tokyo.ac.jp/support/press/news/VOL8/No5/data_no1_0609.pdf
+        // サイズが大きいと、fclose時にフラッシュに時間がかかり、逆に遅くなる.
+        // そのため、効果はほとんどなかった...
+        //setvbuf(m_fp, NULL, _IOFBF, 512 * 1024);
 
         // ヘッダー分空ける.
         fseek(m_fp, sizeof(SPCDHeader), SEEK_SET);

@@ -8,13 +8,14 @@
 #define MINOR_VERSION   (0)
 #define REVISION        (1)
 
-#if 0
+#if 1
 #define LOG(fmt, ...) izanagi::_OutputDebugString(fmt, __VA_ARGS__)
 #else
 #define LOG(fmt, ...)
 #endif
 
 static const uint32_t STORE_LIMIT = 10000;
-static const uint32_t FLUSH_LIMIT = 1000000;
+//static const uint32_t FLUSH_LIMIT = 1000000;
+static const uint32_t FLUSH_LIMIT = 200000;
 
 #endif    // #if !defined(__CONFIG_H__)

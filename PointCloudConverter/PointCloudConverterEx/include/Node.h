@@ -32,6 +32,7 @@ using ExportPoint = Point;
 
 class Node {
     friend class Writer;
+    friend class Octree;
 
 public:
     static std::string BasePath;
@@ -72,6 +73,13 @@ public:
 
     void flush();
     void close();
+
+    void set(Node* node)
+    {
+        m_aabb = node->m_aabb;
+        m_mortonNumber = node->m_mortonNumber;
+        m_level = node->m_level;
+    }
 
 private:
     uint32_t m_id{ 0 };

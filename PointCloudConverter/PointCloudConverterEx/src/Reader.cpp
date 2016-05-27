@@ -43,6 +43,30 @@ uint32_t Reader::readNextPoint(void* buffer, uint32_t size)
     return pointNum;
 }
 
+
+uint32_t Reader::readNextPointEx(void* buffer, uint32_t size)
+{
+    if (m_isEOF) {
+        return 0;
+    }
+
+    auto readBytes = fread(buffer, 1, size, m_fp);
+
+    if (readBytes != size) {
+        m_isEOF = true;
+    }
+
+    uint32_t pointNum = readBytes / sizeof(Point);
+
+    if (m_readPointNum + pointNum > m_limit) {
+        m_isEOF = true;
+        m_readPointNum += pointNum;
+        pointNum = m_readPointNum - m_limit;
+    }
+
+    return pointNum;
+}
+
 void Reader::close()
 {
     if (m_fp) {
@@ -65,4 +89,10 @@ Potree::AABB Reader::getAABB()
     aabb.size = aabb.max - aabb.min;
 
     return std::move(aabb);
+}
+
+void Reader::seek(uint32_t idx)
+{
+    uint32_t offset = sizeof(Point) * idx;
+    fseek(m_fp, offset, SEEK_SET);
 }

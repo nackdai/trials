@@ -156,9 +156,19 @@ void Octree::getMortonNumberByLevel(
 
     U.m = _mm_mul_ps(sub, m_divUnits[level].m);
 
+#if 1
     int iX = _mm_cvttss_si32(_mm_load_ss(&U.v[0]));
     int iY = _mm_cvttss_si32(_mm_load_ss(&U.v[1]));
     int iZ = _mm_cvttss_si32(_mm_load_ss(&U.v[2]));
+#else
+    int iX = _mm_cvtt_ss2si(U.m);
+    
+    auto m = _mm_shuffle_ps(U.m, U.m, _MM_SHUFFLE(0, 3, 2, 1));
+    int iY = _mm_cvtt_ss2si(m);
+
+    m = _mm_shuffle_ps(m, m, _MM_SHUFFLE(0, 3, 2, 1));
+    int iZ = _mm_cvtt_ss2si(m);
+#endif
 
     ret.number = mortonEncode_LUT(iX, iY, iZ);
     IZ_ASSERT(ret.number < m_nodesNum[level]);
@@ -189,6 +199,21 @@ Node* Octree::getNode(const MortonNumber& mortonNumber)
         // If there is no node, create a new node.
         ret = createNode(mortonNumber);
         m_nodesHash[level][idx] = ret;
+    }
+
+    return ret;
+}
+
+Node* Octree::getNode(IZ_UINT idx)
+{
+    Node* ret = m_nodes[idx];
+
+    if (!ret) {
+        ret = new Node();
+        m_nodes[idx] = ret;
+
+        ret->m_pos[0] = 0;
+        ret->m_pos[1] = 0;
     }
 
     return ret;
