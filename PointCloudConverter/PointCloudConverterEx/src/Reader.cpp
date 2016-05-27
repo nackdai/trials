@@ -26,6 +26,8 @@ bool Reader::readNextPoint()
     return true;
 }
 
+#include "izSystem.h"
+
 uint32_t Reader::readNextPoint(void* buffer, uint32_t size)
 {
     if (m_isEOF) {

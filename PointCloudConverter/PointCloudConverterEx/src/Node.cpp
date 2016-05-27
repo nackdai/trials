@@ -5,7 +5,7 @@ std::string Node::BasePath("./");
 
 std::atomic<uint32_t> Node::FlushedNum = 0;
 
-uint32_t Node::s_ID = 0;
+std::atomic<uint32_t> Node::s_ID = 0;
 
 float Node::Scale = 1.0f;
 
@@ -75,8 +75,12 @@ bool Node::add(const Point& vtx)
     pt.rgba[2] = vtx.rgba[2];
     pt.rgba[3] = 0xff;
 #else
+    izanagi::sys::CTimer timer;
+    timer.Begin();
     m_vtx[Node::CurIdx][pos] = vtx;
     //memcpy(&m_vtx[Node::CurIdx][pos], &vtx, sizeof(vtx));
+    auto t = timer.End();
+    m_setvaluetime += t;
 #endif
 
     ++pos;
@@ -142,6 +146,8 @@ void Node::flush()
     m_totalNum += num;
 
     FlushedNum += num;
+
+    izanagi::sys::CTimer timer;
 
     fwrite(src, size, 1, m_fp);
 

@@ -75,7 +75,7 @@ bool Option::parse(int argc, _TCHAR* argv[])
     return true;
 }
 
-#if 1
+#if 0
 int _tmain(int argc, _TCHAR* argv[])
 {
     Option option;
@@ -264,6 +264,21 @@ int _tmain(int argc, _TCHAR* argv[])
     izanagi::_OutputDebugString("Flush - %f(ms)\n", times[Type::Flush]);
     izanagi::_OutputDebugString("Close - %f(ms)\n", times[Type::Close]);
 
+    auto nodes = writer.m_octree.getNodes();
+    auto cnt = writer.m_octree.getNodeCount();
+
+    float setvaluetime = 0.0f;
+
+    for (int i = 0; i < cnt; i++) {
+        auto node = nodes[i];
+
+        if (node) {
+            setvaluetime += node->m_setvaluetime;
+        }
+    }
+
+    izanagi::_OutputDebugString("SetValue - %f(ms)\n", setvaluetime);
+
 	return 0;
 }
 #else
@@ -352,7 +367,8 @@ int _tmain(int argc, _TCHAR* argv[])
     std::atomic<uint64_t> pointNum = 0;
     uint64_t storeNums[4] = { 0 };
     std::atomic<int64_t> storeNum = 0;
-    std::atomic<uint64_t> flushNum = 0;
+    uint64_t flushNums[4] = { 0 };
+    std::atomic<int64_t> flushNum = 0;
 
     enum Type {
         Read,
@@ -371,64 +387,46 @@ int _tmain(int argc, _TCHAR* argv[])
 
     izanagi::sys::CTimer timer;
 
-    while (true) {
-        izanagi::threadmodel::CParallel::For(
-            threadPool,
-            parallelTasks,
-            0, 4,
-            [&] (IZ_UINT idx) {
-            auto writer = writers[idx];
-            auto reader = readers[idx];
+    izanagi::threadmodel::CParallel::For(
+        threadPool,
+        parallelTasks,
+        0, 4,
+        [&] (IZ_UINT idx)
+    {
+        auto writer = writers[idx];
+        auto reader = readers[idx];
 
-            auto buffer = writer->getBuffer();
-            auto num = reader->readNextPoint(buffer, sizeof(Point) * STORE_LIMIT);
+        auto buffer = writer->getBuffer();
+        auto num = reader->readNextPoint(buffer, sizeof(Point) * STORE_LIMIT);
 
-            if (num == 0) {
-                return;
-            }
+        if (num == 0) {
+            return;
+        }
 
-            writer->m_registeredNum += num;
+        writer->m_registeredNum += num;
 
-            pointNum += num;
-            storeNums[idx] += num;
-            storeNum += num;
-            flushNum += num;
+        pointNum += num;
+        storeNums[idx] += num;
+        storeNum += num;
+        flushNums[idx] += num;
+        flushNum += num;
 
-            if (storeNums[idx] == STORE_LIMIT) {
-                writer->store();
-                storeNums[idx] = 0;
-                storeNum -= num;
-            }
-            if (flushNum >= FLUSH_LIMIT) {
-                return;
-            }
-        });
+        if (storeNums[idx] == STORE_LIMIT) {
+            writer->store();
+            storeNums[idx] = 0;
+            storeNum -= num;
+        }
+        if (flushNum >= FLUSH_LIMIT) {
+            izanagi::_OutputDebugString("%d\n", pointNum);
+            writer->flush();
+            flushNums[idx] = 0;
+            flushNum -= num;
+        }
+    });
 
-        timer.Begin();
-        izanagi::threadmodel::CParallel::waitFor(parallelTasks, COUNTOF(parallelTasks));
-        auto time = timer.End();
-        times[Type::Store] += time;
-        LOG("Store - %f(ms)\n", time);
-
-        timer.Begin();
-        writers[0]->merge(
-            &writers[1],
-            COUNTOF(writers) - 1,
-            threadPool);
-        time = timer.End();
-        times[Type::Merge] += time;
-        LOG("Merge - %f(ms)\n", time);
-
-        printf("%d\n", pointNum);
-
-        timer.Begin();
-        writers[0]->flush(threadPool);
-        time = timer.End();
-        times[Type::Flush] += time;
-        LOG("Flush - %f(ms)\n", time);
-
-        flushNum = 0;
-    }
+    izanagi::threadmodel::CParallel::waitFor(
+        parallelTasks,
+        COUNTOF(parallelTasks));
 
     if (storeNum) {
         //timer.Begin();
@@ -441,20 +439,19 @@ int _tmain(int argc, _TCHAR* argv[])
     }
 
     if (flushNum) {
-        writers[0]->merge(
-            &writers[1],
-            COUNTOF(writers) - 1,
-            threadPool);
-
         //timer.Begin();
-        writers[0]->flushDirectly(threadPool);
+        for (int i = 0; i < COUNTOF(writers); i++) {
+            writers[i]->flushDirectly(threadPool);
+        }
         //auto time = timer.End();
         //times[Type::Flush] += time;
         //LOG("FlushDirectly - %f(ms)\n", time);
     }
 
     //timer.Begin();
-    writers[0]->close(threadPool);
+    for (int i = 0; i < COUNTOF(writers); i++) {
+        writers[i]->close(threadPool);
+    }
     //auto time = timer.End();
     //times[Type::Close] += time;
     //LOG("Close - %f(ms)\n", time);

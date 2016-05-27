@@ -39,6 +39,7 @@ public:
     void terminate();
 
     void flush(izanagi::threadmodel::CThreadPool& threadPool);
+    void flush();
 
     void close(izanagi::threadmodel::CThreadPool& threadPool);
 
@@ -64,14 +65,14 @@ private:
 public:
     Octree m_octree;
 
-    Point m_objects[2][STORE_LIMIT];
+    __declspec(align(16)) Point m_objects[2][STORE_LIMIT];
 
     uint32_t m_registeredNum{ 0 };
     uint32_t m_willStoreNum{ 0 };
 
     uint32_t m_curIdx{ 0 };
 
-    Point* m_temporary{ nullptr };
+    __declspec(align(16)) Point* m_temporary{ nullptr };
 
     class Worker {
     public:

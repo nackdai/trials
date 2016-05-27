@@ -42,7 +42,7 @@ public:
     static float Scale;
 
 private:
-    static uint32_t s_ID;
+    static std::atomic<uint32_t> s_ID;
 
     static std::atomic<uint32_t> CurIdx;
 
@@ -81,7 +81,8 @@ public:
         m_level = node->m_level;
     }
 
-private:
+//private:
+public:
     uint32_t m_id{ 0 };
 
     FILE* m_fp{ nullptr };
@@ -91,7 +92,7 @@ private:
 #ifdef USE_STL_VECTOR
     std::vector<Point> m_vtx[2];
 #else
-    ExportPoint m_vtx[2][FLUSH_LIMIT];
+    __declspec(align(16)) ExportPoint m_vtx[2][FLUSH_LIMIT];
     uint32_t m_pos[2];
 #endif
 
@@ -99,6 +100,8 @@ private:
 
     IZ_UINT m_mortonNumber{ 0 };
     IZ_UINT8 m_level{ 0 };
+
+    float m_setvaluetime{ 0.0f };
 };
 
 #endif    // #if !defined(__NODE_H__)

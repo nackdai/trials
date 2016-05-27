@@ -430,6 +430,22 @@ void Writer::flush(izanagi::threadmodel::CThreadPool& threadPool)
 #endif
 }
 
+void Writer::flush()
+{
+    Node::CurIdx = 1 - Node::CurIdx;
+
+    auto nodes = m_octree.getNodes();
+    auto num = m_octree.getNodeCount();
+
+    for (uint32_t i = 0; i < num; i++) {
+        auto node = nodes[i];
+
+        if (node) {
+            node->flush();
+        }
+    }
+}
+
 void Writer::procFlush()
 {
     auto list = m_octree.getNodes();
