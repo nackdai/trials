@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "potree", "potree\potree.vcxproj", "{948D0F23-F2AB-4186-AC66-7C53ED99567B}"
 EndProject
@@ -16,6 +16,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointCloudConverterTD", "Po
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LAStoTMP", "LAStoTMP\LAStoTMP.vcxproj", "{297CAF88-959D-4C05-9423-02EB2AB63C18}"
+	ProjectSection(ProjectDependencies) = postProject
+		{948D0F23-F2AB-4186-AC66-7C53ED99567B} = {948D0F23-F2AB-4186-AC66-7C53ED99567B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointCloudConverterEx", "PointCloudConverterEx\PointCloudConverterEx.vcxproj", "{B7F5A799-8460-41E8-8908-A4240D222894}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -73,8 +76,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

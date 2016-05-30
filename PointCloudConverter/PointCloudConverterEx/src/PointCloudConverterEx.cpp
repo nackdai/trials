@@ -75,7 +75,7 @@ bool Option::parse(int argc, _TCHAR* argv[])
     return true;
 }
 
-#if 0
+#ifdef MAIN_THREAD_WRITER
 int _tmain(int argc, _TCHAR* argv[])
 {
     Option option;
@@ -366,9 +366,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     std::atomic<uint64_t> pointNum = 0;
     uint64_t storeNums[4] = { 0 };
-    std::atomic<int64_t> storeNum = 0;
     uint64_t flushNums[4] = { 0 };
-    std::atomic<int64_t> flushNum = 0;
 
     enum Type {
         Read,
@@ -387,74 +385,73 @@ int _tmain(int argc, _TCHAR* argv[])
 
     izanagi::sys::CTimer timer;
 
+#if 1
     izanagi::threadmodel::CParallel::For(
         threadPool,
         parallelTasks,
         0, 4,
         [&] (IZ_UINT idx)
+#else
+    int idx = 0;
+#endif
     {
         auto writer = writers[idx];
         auto reader = readers[idx];
 
-        auto buffer = writer->getBuffer();
-        auto num = reader->readNextPoint(buffer, sizeof(Point) * STORE_LIMIT);
+        auto& storeNum = storeNums[idx];
+        auto& flushNum = flushNums[idx];
 
-        if (num == 0) {
-            return;
+        while (true) {
+            auto buffer = writer->getBuffer();
+            auto num = reader->readNextPointEx(buffer, sizeof(Point) * STORE_LIMIT);
+
+            if (num == 0) {
+                if (storeNum > 0) {
+                    writer->store();
+                    storeNum = 0;
+                }
+                if (flushNum > 0) {
+                    izanagi::_OutputDebugString("%d\n", pointNum);
+                    writer->flush();
+                    flushNum = 0;
+                }
+
+                break;
+            }
+
+            writer->m_registeredNum += num;
+
+            pointNum += num;
+            storeNum += num;
+            flushNum += num;
+
+            if (flushNum == FLUSH_LIMIT) {
+                izanagi::_OutputDebugString("%d\n", pointNum);
+                writer->flush();
+                flushNum = 0;
+            }
+            if (storeNum == STORE_LIMIT) {
+                writer->store();
+                storeNum = 0;
+            }
         }
-
-        writer->m_registeredNum += num;
-
-        pointNum += num;
-        storeNums[idx] += num;
-        storeNum += num;
-        flushNums[idx] += num;
-        flushNum += num;
-
-        if (storeNums[idx] == STORE_LIMIT) {
-            writer->store();
-            storeNums[idx] = 0;
-            storeNum -= num;
-        }
-        if (flushNum >= FLUSH_LIMIT) {
-            izanagi::_OutputDebugString("%d\n", pointNum);
-            writer->flush();
-            flushNums[idx] = 0;
-            flushNum -= num;
-        }
+#if 1
     });
+#else
+    }
+#endif
 
     izanagi::threadmodel::CParallel::waitFor(
         parallelTasks,
         COUNTOF(parallelTasks));
 
-    if (storeNum) {
-        //timer.Begin();
-        for (int i = 0; i < COUNTOF(writers); i++) {
-            writers[i]->storeDirectly(threadPool);
-        }
-        //auto time = timer.End();
-        //times[Type::Store] += time;
-        //LOG("StoreDirectly - %f(ms)\n", time);
-    }
-
-    if (flushNum) {
-        //timer.Begin();
-        for (int i = 0; i < COUNTOF(writers); i++) {
-            writers[i]->flushDirectly(threadPool);
-        }
-        //auto time = timer.End();
-        //times[Type::Flush] += time;
-        //LOG("FlushDirectly - %f(ms)\n", time);
-    }
-
-    //timer.Begin();
+    timer.Begin();
     for (int i = 0; i < COUNTOF(writers); i++) {
         writers[i]->close(threadPool);
     }
-    //auto time = timer.End();
-    //times[Type::Close] += time;
-    //LOG("Close - %f(ms)\n", time);
+    auto time = timer.End();
+    times[Type::Close] += time;
+    LOG("Close - %f(ms)\n", time);
 
     for (int i = 0; i < COUNTOF(writers); i++) {
         writers[i]->terminate();

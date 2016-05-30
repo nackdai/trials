@@ -11,6 +11,8 @@
 
 //#define ENABLE_HALF_FLOAT
 
+//#define MAIN_THREAD_WRITER
+
 struct Point {
     float pos[3];
     union {

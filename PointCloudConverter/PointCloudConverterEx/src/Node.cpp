@@ -5,6 +5,7 @@ std::string Node::BasePath("./");
 
 std::atomic<uint32_t> Node::FlushedNum = 0;
 
+izanagi::sys::CSpinLock g_locker;
 std::atomic<uint32_t> Node::s_ID = 0;
 
 float Node::Scale = 1.0f;
@@ -15,6 +16,7 @@ std::vector<bool> IsOpened(1000);
 
 Node::Node()
 {
+    //izanagi::sys::Lock lock(g_locker);
     m_id = s_ID;
     s_ID++;
 
@@ -75,12 +77,8 @@ bool Node::add(const Point& vtx)
     pt.rgba[2] = vtx.rgba[2];
     pt.rgba[3] = 0xff;
 #else
-    izanagi::sys::CTimer timer;
-    timer.Begin();
     m_vtx[Node::CurIdx][pos] = vtx;
     //memcpy(&m_vtx[Node::CurIdx][pos], &vtx, sizeof(vtx));
-    auto t = timer.End();
-    m_setvaluetime += t;
 #endif
 
     ++pos;
@@ -90,7 +88,12 @@ bool Node::add(const Point& vtx)
 
 void Node::flush()
 {
+#ifdef MAIN_THREAD_WRITER
     uint32_t idx = 1 - Node::CurIdx;
+#else
+    uint32_t idx = 0;
+#endif
+
 #ifndef USE_STL_VECTOR
     uint32_t num = m_pos[idx];
     m_pos[idx] = 0;

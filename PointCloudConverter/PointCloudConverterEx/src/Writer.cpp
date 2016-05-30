@@ -69,6 +69,8 @@ void Writer::Worker::setMain()
 
 ///////////////////////////////////////////////////////
 
+static bool s_initTable = false;
+
 Writer::Writer(
     izanagi::IMemoryAllocator* allocator,
     const Potree::AABB& aabb,
@@ -89,13 +91,17 @@ Writer::Writer(
         izanagi::math::CVector4(max.x, max.y, max.z),
         depth);
 
-    auto level = m_octree.getMaxLevel();
+    if (!s_initTable) {
+        auto level = m_octree.getMaxLevel();
 
-    auto step = 100 / level;
-    step++;
+        auto step = 100 / level;
+        step++;
 
-    for (uint32_t i = 0; i < COUNTOF(table); i++) {
-        table[i] /= step;
+        for (uint32_t i = 0; i < COUNTOF(table); i++) {
+            table[i] /= step;
+        }
+
+        s_initTable = true;
     }
 
 #ifdef USE_THREAD_FLUSH
@@ -432,7 +438,7 @@ void Writer::flush(izanagi::threadmodel::CThreadPool& threadPool)
 
 void Writer::flush()
 {
-    Node::CurIdx = 1 - Node::CurIdx;
+    //Node::CurIdx = 1 - Node::CurIdx;
 
     auto nodes = m_octree.getNodes();
     auto num = m_octree.getNodeCount();

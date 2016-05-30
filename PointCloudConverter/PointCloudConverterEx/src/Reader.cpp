@@ -62,8 +62,11 @@ uint32_t Reader::readNextPointEx(void* buffer, uint32_t size)
 
     if (m_readPointNum + pointNum > m_limit) {
         m_isEOF = true;
+        pointNum = m_limit - m_readPointNum;
+        m_readPointNum = m_limit;
+    }
+    else {
         m_readPointNum += pointNum;
-        pointNum = m_readPointNum - m_limit;
     }
 
     return pointNum;
