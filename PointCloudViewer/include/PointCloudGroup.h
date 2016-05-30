@@ -3,6 +3,8 @@
 
 #include "izSampleKit.h"
 
+//#define ENABLE_HALF_FLOAT
+
 class AABB {
 public:
     AABB() {}

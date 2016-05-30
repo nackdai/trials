@@ -17,8 +17,11 @@ namespace {
         uint32_t size = 0;
 
         if ((fmt & VtxFormat::Position) > 0) {
-            //size += sizeof(float) * 3;
+#ifdef ENABLE_HALF_FLOAT
             size += sizeof(IZ_UINT16) * 4;
+#else
+            size += sizeof(float) * 3;
+#endif
         }
         if ((fmt & VtxFormat::Color) > 0) {
             size += sizeof(uint8_t) * 4;
@@ -40,14 +43,20 @@ namespace {
         if ((fmt & VtxFormat::Position) > 0) {
             elem[pos].Stream = 0;
             elem[pos].Offset = offset;
-            //elem[pos].Type = izanagi::graph::E_GRAPH_VTX_DECL_TYPE_FLOAT3;
+#ifdef ENABLE_HALF_FLOAT
             elem[pos].Type = izanagi::graph::E_GRAPH_VTX_DECL_TYPE_FLOAT16_4;
+#else
+            elem[pos].Type = izanagi::graph::E_GRAPH_VTX_DECL_TYPE_FLOAT3;
+#endif
             elem[pos].Usage = izanagi::graph::E_GRAPH_VTX_DECL_USAGE_POSITION;
             elem[pos].UsageIndex = 0;
 
             pos++;
-            //offset += sizeof(float) * 3;
+#ifdef ENABLE_HALF_FLOAT
             offset += sizeof(IZ_UINT16) * 4;
+#else
+            offset += sizeof(float) * 3;
+#endif
         }
         if ((fmt & VtxFormat::Color) > 0) {
             elem[pos].Stream = 0;
