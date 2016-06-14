@@ -147,7 +147,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     aabb.makeCubic();
 
-    Writer writer(
+    Writer* writer = new Writer(
         &allocator,
         aabb,
         maxDepth);
@@ -184,7 +184,7 @@ int _tmain(int argc, _TCHAR* argv[])
 #else
     while (true) {
         timer.Begin();
-        auto buffer = writer.getBuffer();
+        auto buffer = writer->getBuffer();
         auto num = reader->readNextPoint(buffer, sizeof(Point) * STORE_LIMIT);
         auto t = timer.End();
         times[Type::Get] += t;
@@ -193,7 +193,7 @@ int _tmain(int argc, _TCHAR* argv[])
             break;
         }
 
-        writer.m_registeredNum += num;
+        writer->m_registeredNum += num;
 
         pointNum += num;
         storeNum += num;
@@ -202,7 +202,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
         if (storeNum == STORE_LIMIT) {
             timer.Begin();
-            writer.store(threadPool);
+            writer->store(threadPool);
             auto time = timer.End();
             times[Type::Store] += time;
             //LOG("Store - %f(ms)\n", time);
@@ -213,7 +213,7 @@ int _tmain(int argc, _TCHAR* argv[])
             printf("%d\n", pointNum);
 
             timer.Begin();
-            writer.flush(threadPool);
+            writer->flush(threadPool);
             auto time = timer.End();
             times[Type::Flush] += time;
             //LOG("Flush - %f(ms)\n", time);
@@ -224,7 +224,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
     if (storeNum) {
         timer.Begin();
-        writer.storeDirectly(threadPool);
+        writer->storeDirectly(threadPool);
         auto time = timer.End();
         times[Type::Store] += time;
         LOG("StoreDirectly - %f(ms)\n", time);
@@ -232,19 +232,19 @@ int _tmain(int argc, _TCHAR* argv[])
 
     if (flushNum) {
         timer.Begin();
-        writer.flushDirectly(threadPool);
+        writer->flushDirectly(threadPool);
         auto time = timer.End();
         times[Type::Flush] += time;
         LOG("FlushDirectly - %f(ms)\n", time);
     }
 
     timer.Begin();
-    writer.close(threadPool);
+    writer->close(threadPool);
     auto time = timer.End();
     times[Type::Close] += time;
     //LOG("Close - %f(ms)\n", time);
 
-    writer.terminate();
+    writer->terminate();
 
     auto timeEntire = timerEntire.End();
     izanagi::_OutputDebugString("Time * %f(ms)\n", timeEntire);
@@ -264,20 +264,15 @@ int _tmain(int argc, _TCHAR* argv[])
     izanagi::_OutputDebugString("Flush - %f(ms)\n", times[Type::Flush]);
     izanagi::_OutputDebugString("Close - %f(ms)\n", times[Type::Close]);
 
-    auto nodes = writer.m_octree.getNodes();
-    auto cnt = writer.m_octree.getNodeCount();
+    auto avg = Writer::StoreTime / Node::FlushedNum;
+    izanagi::_OutputDebugString("Store * Point - %f(ms)\n", Writer::StoreTime);
+    izanagi::_OutputDebugString("Store / Point - %f(ms)\n", avg);
 
-    float setvaluetime = 0.0f;
+    avg = Node::AddTime / Node::FlushedNum;
+    izanagi::_OutputDebugString("Add * Point - %f(ms)\n", Node::AddTime);
+    izanagi::_OutputDebugString("Add / Point - %f(ms)\n", avg);
 
-    for (int i = 0; i < cnt; i++) {
-        auto node = nodes[i];
-
-        if (node) {
-            setvaluetime += node->m_setvaluetime;
-        }
-    }
-
-    izanagi::_OutputDebugString("SetValue - %f(ms)\n", setvaluetime);
+    delete writer;
 
 	return 0;
 }
@@ -411,7 +406,7 @@ int _tmain(int argc, _TCHAR* argv[])
                     storeNum = 0;
                 }
                 if (flushNum > 0) {
-                    izanagi::_OutputDebugString("%d\n", pointNum);
+                    //izanagi::_OutputDebugString("%d\n", pointNum);
                     writer->flush();
                     flushNum = 0;
                 }
@@ -426,7 +421,7 @@ int _tmain(int argc, _TCHAR* argv[])
             flushNum += num;
 
             if (flushNum == FLUSH_LIMIT) {
-                izanagi::_OutputDebugString("%d\n", pointNum);
+                //izanagi::_OutputDebugString("%d\n", pointNum);
                 writer->flush();
                 flushNum = 0;
             }

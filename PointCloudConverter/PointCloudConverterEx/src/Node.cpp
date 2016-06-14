@@ -10,6 +10,9 @@ std::atomic<uint32_t> Node::s_ID = 0;
 
 float Node::Scale = 1.0f;
 
+izanagi::sys::CSpinLock Locker;
+float Node::AddTime = 0.0f;
+
 std::atomic<uint32_t> Node::CurIdx = 0;
 
 std::vector<bool> IsOpened(1000);
@@ -77,8 +80,37 @@ bool Node::add(const Point& vtx)
     pt.rgba[2] = vtx.rgba[2];
     pt.rgba[3] = 0xff;
 #else
+#if 0
+    float* dst = m_vtx[Node::CurIdx][pos].pos;
+
+    __m128 v = _mm_load_ps(vtx.pos);
+
+    izanagi::sys::CTimer timer;
+    timer.Begin();
+
+    _mm_store_ps(dst, v);
+
+    auto t = timer.End();
+
+    {
+        izanagi::sys::Lock lock(Locker);
+        Node::AddTime += t;
+    }
+#else
+    //izanagi::sys::CTimer timer;
+    //timer.Begin();
+
     m_vtx[Node::CurIdx][pos] = vtx;
     //memcpy(&m_vtx[Node::CurIdx][pos], &vtx, sizeof(vtx));
+    //m_vtx[Node::CurIdx][pos].m = vtx.m;
+
+    //auto t = timer.End();
+
+    {   
+        //izanagi::sys::Lock lock(Locker);
+        //Node::AddTime += t;
+    }
+#endif
 #endif
 
     ++pos;

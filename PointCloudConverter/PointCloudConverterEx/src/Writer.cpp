@@ -69,6 +69,8 @@ void Writer::Worker::setMain()
 
 ///////////////////////////////////////////////////////
 
+float Writer::StoreTime = 0.0f;
+
 static bool s_initTable = false;
 
 Writer::Writer(
@@ -267,6 +269,15 @@ void Writer::procStore(bool runRand/*= true*/)
     MortonNumber mortonNumber2;
     MortonNumber mortonNumber3;
 
+    IZ_UINT targetLevel0 = level - 1;
+    IZ_UINT targetLevel1 = level - 1;
+    IZ_UINT targetLevel2 = level - 1;
+    IZ_UINT targetLevel3 = level - 1;
+
+    izanagi::sys::CTimer timer;
+    timer.Begin();
+
+#if 1
     while (loopCnt >= 4)
     {
         auto idx0 = loopCnt - 1;
@@ -280,10 +291,10 @@ void Writer::procStore(bool runRand/*= true*/)
         const auto& obj3 = points[idx3];
 
 #ifdef USE_THREAD_RAND
-        IZ_UINT targetLevel0 = levels[idx0];
-        IZ_UINT targetLevel1 = levels[idx1];
-        IZ_UINT targetLevel2 = levels[idx2];
-        IZ_UINT targetLevel3 = levels[idx3];
+        //targetLevel0 = levels[idx0];
+        //targetLevel1 = levels[idx1];
+        //targetLevel2 = levels[idx2];
+        //targetLevel3 = levels[idx3];
 #else
         double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
         int n = _mm_cvttsd_si32(_mm_load_sd(&f));
@@ -294,6 +305,7 @@ void Writer::procStore(bool runRand/*= true*/)
 
         //targetLevel = IZ_MIN(targetLevel, level - 1);
 
+#if 1
         m_octree.getMortonNumberByLevel(
             mortonNumber0,
             obj0.pos,
@@ -322,6 +334,12 @@ void Writer::procStore(bool runRand/*= true*/)
 
         auto node3 = m_octree.getNode(mortonNumber3);
         IZ_ASSERT(node3->isContain(obj3));
+#else
+        auto node0 = m_octree.getNode(obj0.pos, targetLevel0);
+        auto node1 = m_octree.getNode(obj1.pos, targetLevel1);
+        auto node2 = m_octree.getNode(obj2.pos, targetLevel2);
+        auto node3 = m_octree.getNode(obj3.pos, targetLevel3);
+#endif
 
         node0->add(obj0);
         node1->add(obj1);
@@ -333,6 +351,7 @@ void Writer::procStore(bool runRand/*= true*/)
         //levels += 4;
         loopCnt -= 4;
     }
+#endif
 
     while (loopCnt > 0)
     {
@@ -341,7 +360,8 @@ void Writer::procStore(bool runRand/*= true*/)
         const auto& obj0 = points[idx0];
 
 #ifdef USE_THREAD_RAND
-        IZ_UINT targetLevel0 = levels[idx0];
+        //IZ_UINT targetLevel0 = levels[idx0];
+        IZ_UINT targetLevel0 = level - 1;
 #else
         double f = izanagi::math::CMathRand::GetRandFloat() * 100.0;
         int n = _mm_cvttsd_si32(_mm_load_sd(&f));
@@ -352,6 +372,7 @@ void Writer::procStore(bool runRand/*= true*/)
 
         //targetLevel = IZ_MIN(targetLevel, level - 1);
 
+#if 1
         m_octree.getMortonNumberByLevel(
             mortonNumber0,
             obj0.pos,
@@ -364,6 +385,9 @@ void Writer::procStore(bool runRand/*= true*/)
 #else
         auto node0 = m_octree.getNode(mortonNumber0);
 #endif
+#else
+        auto node0 = m_octree.getNode(obj0.pos, targetLevel0);
+#endif
 
         IZ_ASSERT(node0->isContain(obj0));
 
@@ -374,6 +398,9 @@ void Writer::procStore(bool runRand/*= true*/)
         //levels++;
         loopCnt--;
     }
+
+    auto t = timer.End();
+    Writer::StoreTime += t;
 
 #ifdef USE_THREAD_RAND
     if (runRand) {

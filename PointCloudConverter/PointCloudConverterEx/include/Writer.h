@@ -16,6 +16,9 @@
 
 class Writer {
 public:
+    static float StoreTime;
+
+public:
     Writer(
         izanagi::IMemoryAllocator* allocator,
         const Potree::AABB& aabb,

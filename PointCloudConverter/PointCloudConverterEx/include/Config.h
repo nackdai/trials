@@ -14,8 +14,11 @@
 #define LOG(fmt, ...)
 #endif
 
+//static const uint32_t STORE_LIMIT = 10000;
 static const uint32_t STORE_LIMIT = 10000;
 //static const uint32_t FLUSH_LIMIT = 1000000;
 static const uint32_t FLUSH_LIMIT = 200000;
+
+#define MAIN_THREAD_WRITER
 
 #endif    // #if !defined(__CONFIG_H__)

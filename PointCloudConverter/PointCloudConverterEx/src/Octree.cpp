@@ -189,8 +189,8 @@ Node* Octree::getNode(const MortonNumber& mortonNumber)
     auto idx = mortonNumber.number;
     auto level = mortonNumber.level;
 
-    VRETURN_NULL(idx < m_nodesNum[level]);
-
+    //VRETURN_NULL(idx < m_nodesNum[level]);
+    IZ_ASSERT(idx < m_nodesNum[level]);
     IZ_ASSERT(m_nodes != nullptr);
 
     Node* ret = m_nodesHash[level][idx];

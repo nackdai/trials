@@ -8,17 +8,18 @@
 #include "Config.h"
 
 //#define USE_STL_VECTOR
-
 //#define ENABLE_HALF_FLOAT
 
-//#define MAIN_THREAD_WRITER
-
-struct Point {
-    float pos[3];
-    union {
-        IZ_COLOR color;
-        IZ_UINT8 rgba[4];
+__declspec(align(16))
+union Point {
+    struct {
+        float pos[3];
+        union {
+            IZ_COLOR color;
+            IZ_UINT8 rgba[4];
+        };
     };
+    __m128 m;
 };
 
 struct HalfPoint {
@@ -42,6 +43,8 @@ public:
     static std::atomic<uint32_t> FlushedNum;
 
     static float Scale;
+
+    static float AddTime;
 
 private:
     static std::atomic<uint32_t> s_ID;
