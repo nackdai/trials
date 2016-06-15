@@ -8,12 +8,15 @@
 #include "Config.h"
 
 //#define USE_STL_VECTOR
-//#define ENABLE_HALF_FLOAT
+#define ENABLE_HALF_FLOAT
 
 __declspec(align(16))
 union Point {
     struct {
-        float pos[3];
+        union {
+            float pos[3];
+            uint32_t posi[3];
+        };
         union {
             IZ_COLOR color;
             IZ_UINT8 rgba[4];
@@ -24,7 +27,10 @@ union Point {
 
 struct HalfPoint {
     IZ_UINT16 pos[4];
-    IZ_UINT8 rgba[4];
+    union {
+        IZ_COLOR color;
+        IZ_UINT8 rgba[4];
+    };
 };
 
 #ifdef ENABLE_HALF_FLOAT
@@ -32,6 +38,14 @@ using ExportPoint = HalfPoint;
 #else
 using ExportPoint = Point;
 #endif
+
+class HalfFloat {
+public:
+    static uint16_t basetable[512];
+    static uint8_t shifttable[512];
+
+    static void genTable();
+};
 
 class Node {
     friend class Writer;

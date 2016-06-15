@@ -1,6 +1,56 @@
 #include "Node.h"
 #include "izSystem.h"
 
+/////////////////////////////////////////////////////
+
+uint16_t HalfFloat::basetable[512] = { 0 };
+uint8_t HalfFloat::shifttable[512] = { 0 };
+
+void HalfFloat::genTable()
+{
+    // NOTE
+    // ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf
+
+    int32_t e;
+
+    for (uint32_t i = 0; i < 256; ++i){
+        e = i - 127;
+
+        if (e < -24) { // Very small numbers map to zero
+            basetable[i | 0x000] = 0x0000;
+            basetable[i | 0x100] = 0x8000;
+            shifttable[i | 0x000] = 24;
+            shifttable[i | 0x100] = 24;
+        }
+        else if (e < -14) { // Small numbers map to denorms
+            basetable[i | 0x000] = (0x0400 >> (-e - 14));
+            basetable[i | 0x100] = (0x0400 >> (-e - 14)) | 0x8000;
+            shifttable[i | 0x000] = -e - 1;
+            shifttable[i | 0x100] = -e - 1;
+        }
+        else if (e <= 15) { // Normal numbers just lose precision
+            basetable[i | 0x000] = ((e + 15) << 10);
+            basetable[i | 0x100] = ((e + 15) << 10) | 0x8000;
+            shifttable[i | 0x000] = 13;
+            shifttable[i | 0x100] = 13;
+        }
+        else if (e < 128) { // Large numbers map to Infinity
+            basetable[i | 0x000] = 0x7C00;
+            basetable[i | 0x100] = 0xFC00;
+            shifttable[i | 0x000] = 24;
+            shifttable[i | 0x100] = 24;
+        }
+        else { // Infinity and NaN's stay Infinity and NaN's
+            basetable[i | 0x000] = 0x7C00;
+            basetable[i | 0x100] = 0xFC00;
+            shifttable[i | 0x000] = 13;
+            shifttable[i | 0x100] = 13;
+        }
+    }
+}
+
+/////////////////////////////////////////////////////
+
 std::string Node::BasePath("./");
 
 std::atomic<uint32_t> Node::FlushedNum = 0;
@@ -35,18 +85,18 @@ bool Node::add(const Point& vtx)
 #else
     IZ_ASSERT(m_pos[Node::CurIdx] < FLUSH_LIMIT);
     
-    auto& pos = m_pos[Node::CurIdx];
+    auto pos = m_pos[Node::CurIdx];
 
 #ifdef ENABLE_HALF_FLOAT
     auto& pt = m_vtx[Node::CurIdx][pos];
-
-    uint32_t* pf = (uint32_t*)vtx.pos;
 
     // NOTE
     // float -> half
     // ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf
 
 #if 0
+    uint32_t* pf = (uint32_t*)vtx.pos;
+
     auto i = _mm_setr_epi32(pf[0], pf[1], pf[2], 0);
     auto f0 = _mm_srli_epi32(i, 16);
     auto f2 = _mm_srli_epi32(i, 13);
@@ -61,24 +111,51 @@ bool Node::add(const Point& vtx)
     pt.pos[0] = (f0.m128i_u32[0] & 0x8000) | (f1.m128i_u32[0] & 0x7c00) | (f2.m128i_u32[0] & 0x03ff);
     pt.pos[1] = (f0.m128i_u32[1] & 0x8000) | (f1.m128i_u32[1] & 0x7c00) | (f2.m128i_u32[1] & 0x03ff);
     pt.pos[2] = (f0.m128i_u32[2] & 0x8000) | (f1.m128i_u32[2] & 0x7c00) | (f2.m128i_u32[2] & 0x03ff);
-#else
-    uint32_t f = pf[0];
+#elif 0
+    //uint32_t* pf = (uint32_t*)vtx.pos;
+
+    //uint32_t f = pf[0];
+    uint32_t f = vtx.posi[0];
     pt.pos[0] = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
 
-    f = pf[1];
+    //f = pf[1];
+    f = vtx.posi[1];
     pt.pos[1] = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
 
-    f = pf[2];
+    //f = pf[2];
+    f = vtx.posi[2];
     pt.pos[2] = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
+#else
+    // TODO
+    // ƒe[ƒuƒ‹‚ÌŒvŽZŒ‹‰Ê‚Æ’ÊíŒvŽZ‚ÌŒ‹‰Ê‚ªˆê’v‚µ‚È‚¢...
+
+    uint32_t f = vtx.posi[0];
+    pt.pos[0] = HalfFloat::basetable[(f >> 23) & 0x1ff] + ((f & 0x007fffff) >> HalfFloat::shifttable[(f >> 23) & 0x1ff]);
+
+    //uint16_t h = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
+    //IZ_ASSERT(pt.pos[0] == h);
+    
+    f = vtx.posi[1];
+    pt.pos[1] = HalfFloat::basetable[(f >> 23) & 0x1ff] + ((f & 0x007fffff) >> HalfFloat::shifttable[(f >> 23) & 0x1ff]);
+
+    //h = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
+    //IZ_ASSERT(pt.pos[1] == h);
+
+    f = vtx.posi[2];
+    pt.pos[2] = HalfFloat::basetable[(f >> 23) & 0x1ff] + ((f & 0x007fffff) >> HalfFloat::shifttable[(f >> 23) & 0x1ff]);
+
+    //h = ((f >> 16) & 0x8000) | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00) | ((f >> 13) & 0x03ff);
+    //IZ_ASSERT(pt.pos[2] == h);
 #endif
 
+    // NOTE
+    // Set W value (1.0f) in the vertex shader.
+#if 0
     static const uint16_t HalfFloatOne = 15360;
     pt.pos[3] = HalfFloatOne;
+#endif
 
-    pt.rgba[0] = vtx.rgba[0];
-    pt.rgba[1] = vtx.rgba[1];
-    pt.rgba[2] = vtx.rgba[2];
-    pt.rgba[3] = 0xff;
+    pt.color = vtx.color;
 #else
 #if 0
     float* dst = m_vtx[Node::CurIdx][pos].pos;
@@ -113,7 +190,7 @@ bool Node::add(const Point& vtx)
 #endif
 #endif
 
-    ++pos;
+    ++m_pos[Node::CurIdx];
 #endif
     return true;
 }
