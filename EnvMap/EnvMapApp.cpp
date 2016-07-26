@@ -75,7 +75,7 @@ IZ_BOOL CEnvMapApp::InitInternal(
     // カメラ
     camera.Init(
         izanagi::math::CVector4(0.0f, 0.0f,  0.0f, 1.0f),
-        izanagi::math::CVector4(0.0f, 0.0f, -1.0f, 1.0f),
+        izanagi::math::CVector4(0.0f, 0.0f,  1.0f, 1.0f),
         izanagi::math::CVector4(0.0f, 1.0f,  0.0f, 1.0f),
         1.0f,
         500.0f,
@@ -158,10 +158,68 @@ void CEnvMapApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
 
     device->SetShaderProgram(m_shd);
 
-    auto mtxW2C = camera.GetParam().mtxW2C;
-
     auto hL2W = m_shd->GetHandleByName("g_mL2W");
     m_shd->SetMatrix(device, hL2W, m_L2W);
+
+#if 1
+    // Left
+    {
+        device->SetViewport(
+            izanagi::graph::SViewport(
+            0, 0,
+            SCREEN_WIDTH / 2, SCREEN_HEIGHT));
+
+        izanagi::CVectorCamera cameraL;
+
+        izanagi::StereoCamera::getCamera(
+            izanagi::StereoCamera::Eye::Left,
+            6.0f,
+            cameraL,
+            camera);
+
+        auto mtxW2C = cameraL.GetParam().mtxW2C;
+
+        auto hW2C = m_shd->GetHandleByName("g_mW2C");
+        m_shd->SetMatrix(device, hW2C, mtxW2C);
+
+        auto hEye = m_shd->GetHandleByName("g_vEye");
+        m_shd->SetVector(device, hEye, cameraL.GetParam().pos);
+
+        m_Cube->Render(device);
+    }
+
+    // Right
+    {
+        device->SetViewport(
+            izanagi::graph::SViewport(
+            SCREEN_WIDTH / 2, 0,
+            SCREEN_WIDTH / 2, SCREEN_HEIGHT));
+
+        izanagi::CVectorCamera cameraR;
+
+        izanagi::StereoCamera::getCamera(
+            izanagi::StereoCamera::Eye::Right,
+            6.0f,
+            cameraR,
+            camera);
+
+        auto mtxW2C = cameraR.GetParam().mtxW2C;
+
+        auto hW2C = m_shd->GetHandleByName("g_mW2C");
+        m_shd->SetMatrix(device, hW2C, mtxW2C);
+
+        auto hEye = m_shd->GetHandleByName("g_vEye");
+        m_shd->SetVector(device, hEye, cameraR.GetParam().pos);
+
+        m_Cube->Render(device);
+    }
+
+    device->SetViewport(
+        izanagi::graph::SViewport(
+        0, 0,
+        SCREEN_WIDTH, SCREEN_HEIGHT));
+#else
+    auto mtxW2C = camera.GetParam().mtxW2C;
 
     auto hW2C = m_shd->GetHandleByName("g_mW2C");
     m_shd->SetMatrix(device, hW2C, mtxW2C);
@@ -170,6 +228,7 @@ void CEnvMapApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
     m_shd->SetVector(device, hEye, camera.GetParam().pos);
 
     m_Cube->Render(device);
+#endif
 
     if (device->Begin2D()) {
         izanagi::CDebugFont* debugFont = GetDebugFont();
