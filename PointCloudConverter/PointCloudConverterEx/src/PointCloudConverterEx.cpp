@@ -152,6 +152,8 @@ int _tmain(int argc, _TCHAR* argv[])
         aabb,
         maxDepth);
 
+    HalfFloat::genTable();
+
     uint64_t pointNum = 0;
     uint64_t storeNum = 0;
     uint64_t flushNum = 0;

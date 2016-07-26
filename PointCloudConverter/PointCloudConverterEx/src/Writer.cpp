@@ -259,8 +259,8 @@ void Writer::procStore(bool runRand/*= true*/)
     auto step = 100 / level;
     step++;
 
-    auto points = m_temporary;
-    auto levels = m_levels;
+    Point* __restrict points = m_temporary;
+    uint32_t* __restrict levels = m_levels;
 
     int loopCnt = m_willStoreNum;
 
@@ -285,10 +285,10 @@ void Writer::procStore(bool runRand/*= true*/)
         auto idx2 = loopCnt - 3;
         auto idx3 = loopCnt - 4;
 
-        const auto& obj0 = points[idx0];
-        const auto& obj1 = points[idx1];
-        const auto& obj2 = points[idx2];
         const auto& obj3 = points[idx3];
+        const auto& obj2 = points[idx2];
+        const auto& obj1 = points[idx1];
+        const auto& obj0 = points[idx0];
 
 #ifdef USE_THREAD_RAND
         //targetLevel0 = levels[idx0];
@@ -323,16 +323,16 @@ void Writer::procStore(bool runRand/*= true*/)
             obj3.pos,
             targetLevel3);
 
-        auto node0 = m_octree.getNode(mortonNumber0);
+        Node* __restrict node0 = m_octree.getNode(mortonNumber0);
         IZ_ASSERT(node0->isContain(obj0));
 
-        auto node1 = m_octree.getNode(mortonNumber1);
+        Node* __restrict node1 = m_octree.getNode(mortonNumber1);
         IZ_ASSERT(node1->isContain(obj1));
 
-        auto node2 = m_octree.getNode(mortonNumber2);
+        Node* __restrict node2 = m_octree.getNode(mortonNumber2);
         IZ_ASSERT(node2->isContain(obj2));
 
-        auto node3 = m_octree.getNode(mortonNumber3);
+        Node* __restrict node3 = m_octree.getNode(mortonNumber3);
         IZ_ASSERT(node3->isContain(obj3));
 #else
         auto node0 = m_octree.getNode(obj0.pos, targetLevel0);
@@ -383,7 +383,7 @@ void Writer::procStore(bool runRand/*= true*/)
 
         auto node = m_octree.getNode(idx, IZ_TRUE);
 #else
-        auto node0 = m_octree.getNode(mortonNumber0);
+        Node* __restrict node0 = m_octree.getNode(mortonNumber0);
 #endif
 #else
         auto node0 = m_octree.getNode(obj0.pos, targetLevel0);
@@ -396,7 +396,7 @@ void Writer::procStore(bool runRand/*= true*/)
         //m_acceptedNum++;
         //points++;
         //levels++;
-        loopCnt--;
+        --loopCnt;
     }
 
     auto t = timer.End();

@@ -32,6 +32,8 @@ void Octree::getPosFromMortonNumber(
     outZ = getBit(outZ);
 }
 
+static __m128i mask;
+
 /** Initialize octree.
 */
 IZ_BOOL Octree::initialize(
@@ -39,6 +41,11 @@ IZ_BOOL Octree::initialize(
     const izanagi::math::SVector4& vMax,
     IZ_UINT level)
 {
+    mask.m128i_u32[0] = 0xff;
+    mask.m128i_u32[1] = 0xff;
+    mask.m128i_u32[2] = 0xff;
+    mask.m128i_u32[3] = 0;
+
     // ƒŒƒxƒ‹‚ðŒˆ‚ß‚é.
     m_level = IZ_MIN(MAX_LEVEL, level);
     m_level = (m_level == 0 ? MAX_LEVEL : m_level);
@@ -111,13 +118,15 @@ void Octree::clear()
 }
 
 namespace {
-    inline uint32_t mortonEncode_LUT(unsigned int x, unsigned int y, unsigned int z)
+    //inline uint32_t mortonEncode_LUT(unsigned int x, unsigned int y, unsigned int z)
+    inline uint32_t mortonEncode_LUT(const __m128i i)
     {
         // NOTE
         // http://www.forceflow.be/2013/10/07/morton-encodingdecoding-through-bit-interleaving-implementations/
 
         uint32_t answer = 0;
 
+#if 0
         // we start by shifting the third byte, since we only look at the first 21 bits
         answer = morton256_z[(z >> 16) & 0xFF] |
             morton256_y[(y >> 16) & 0xFF] |
@@ -133,6 +142,30 @@ namespace {
             morton256_z[(z)& 0xFF] |
             morton256_y[(y)& 0xFF] |
             morton256_x[(x)& 0xFF];
+#else
+        auto i0 = _mm_srai_epi32(i, 16);
+        auto i1 = _mm_srai_epi32(i, 8);
+
+        auto ii0 = _mm_and_si128(i0, mask);
+        auto ii1 = _mm_and_si128(i1, mask);
+        auto ii2 = _mm_and_si128(i, mask);
+
+        // we start by shifting the third byte, since we only look at the first 21 bits
+        answer = morton256_z[ii0.m128i_u32[2]] |
+            morton256_y[ii0.m128i_u32[1]] |
+            morton256_x[ii0.m128i_u32[0]];
+
+        // shifting second byte
+        answer = answer << 24 | morton256_z[ii1.m128i_u32[2]] |
+            morton256_y[ii1.m128i_u32[1]] |
+            morton256_x[ii1.m128i_u32[0]];
+
+        // first byte
+        answer = answer << 12 |
+            morton256_z[ii2.m128i_u32[2]] |
+            morton256_y[ii2.m128i_u32[1]] |
+            morton256_x[ii2.m128i_u32[0]];
+#endif
 
         return answer;
     }
@@ -157,9 +190,14 @@ void Octree::getMortonNumberByLevel(
     U.m = _mm_mul_ps(sub, m_divUnits[level].m);
 
 #if 1
+    auto i = _mm_cvttps_epi32(U.m);
+    ret.number = mortonEncode_LUT(i);
+#elif 1
     int iX = _mm_cvttss_si32(_mm_load_ss(&U.v[0]));
     int iY = _mm_cvttss_si32(_mm_load_ss(&U.v[1]));
     int iZ = _mm_cvttss_si32(_mm_load_ss(&U.v[2]));
+
+    ret.number = mortonEncode_LUT(iX, iY, iZ);
 #else
     int iX = _mm_cvtt_ss2si(U.m);
     
@@ -168,12 +206,17 @@ void Octree::getMortonNumberByLevel(
 
     m = _mm_shuffle_ps(m, m, _MM_SHUFFLE(0, 3, 2, 1));
     int iZ = _mm_cvtt_ss2si(m);
-#endif
 
     ret.number = mortonEncode_LUT(iX, iY, iZ);
+#endif
+
     IZ_ASSERT(ret.number < m_nodesNum[level]);
 
 #if 0
+    int iX = i.m128i_i32[0];
+    int iY = i.m128i_i32[1];
+    int iZ = i.m128i_i32[2];
+
     auto n = separeteBit(iX);
     n |= separeteBit(iY) << 1;
     n |= separeteBit(iZ) << 2;
@@ -193,7 +236,7 @@ Node* Octree::getNode(const MortonNumber& mortonNumber)
     IZ_ASSERT(idx < m_nodesNum[level]);
     IZ_ASSERT(m_nodes != nullptr);
 
-    Node* ret = m_nodesHash[level][idx];
+    Node* __restrict ret = m_nodesHash[level][idx];
 
     if (!ret) {
         // If there is no node, create a new node.
@@ -234,9 +277,10 @@ Node* Octree::createNode(const MortonNumber& mortonNumber)
 
     node = new Node();
 #else
-    Node* node = new Node();
+    Node* __restrict node = new Node();
 #endif
 
+#if 1
     node->initialize(mortonNumber.number, level);
 
     // Set AABB.
@@ -245,10 +289,6 @@ Node* Octree::createNode(const MortonNumber& mortonNumber)
         getPosFromMortonNumber(
             mortonNumber,
             posX, posY, posZ);
-
-        izanagi::col::MortonNumber tmp;
-        tmp.number = mortonNumber.number;
-        tmp.level = mortonNumber.level;
 
         auto& size = m_units[level];
 
@@ -266,6 +306,7 @@ Node* Octree::createNode(const MortonNumber& mortonNumber)
         auto& aabb = node->getAABB();
         aabb.initialize(minPos, maxPos);
     }
+#endif
 
     return node;
 }

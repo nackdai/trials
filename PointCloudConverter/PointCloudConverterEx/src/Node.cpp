@@ -111,7 +111,7 @@ bool Node::add(const Point& vtx)
     pt.pos[0] = (f0.m128i_u32[0] & 0x8000) | (f1.m128i_u32[0] & 0x7c00) | (f2.m128i_u32[0] & 0x03ff);
     pt.pos[1] = (f0.m128i_u32[1] & 0x8000) | (f1.m128i_u32[1] & 0x7c00) | (f2.m128i_u32[1] & 0x03ff);
     pt.pos[2] = (f0.m128i_u32[2] & 0x8000) | (f1.m128i_u32[2] & 0x7c00) | (f2.m128i_u32[2] & 0x03ff);
-#elif 0
+#elif 1
     //uint32_t* pf = (uint32_t*)vtx.pos;
 
     //uint32_t f = pf[0];
