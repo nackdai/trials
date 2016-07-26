@@ -388,7 +388,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OGL|x64'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -411,6 +411,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\DynamicStream\bufferlock.h" />
     <ClInclude Include="..\..\DynamicStream\DynamicStreamApp.h" />
+    <ClInclude Include="..\..\DynamicStream\wglext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\DynamicStream\bufferlock.cpp" />

@@ -45,8 +45,8 @@
 copy /B /Y ..\..\..\izanagi\External\glew\bin\Release\$(PlatformName)\glew32*.dll ..\..\$(ProjectName)</Command>
     </PreBuildEvent>
     <Lib>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\izanagi\External\freeglut\$(Platform)\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
 </Project>

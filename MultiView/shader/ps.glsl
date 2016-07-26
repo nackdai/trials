@@ -9,5 +9,5 @@ varying vec2 var_TexCoord_0;
 
 void main()
 {
-    gl_FragColor = texture2D(s0, var_TexCoord_0.xy) * var_Color;
+    gl_FragColor = texture2D(s0, var_TexCoord_0.xy).bgra * var_Color;
 }

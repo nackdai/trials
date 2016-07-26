@@ -29,6 +29,9 @@
     <ClInclude Include="..\..\DynamicStream\bufferlock.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DynamicStream\wglext.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\DynamicStream\shader\ps.glsl">

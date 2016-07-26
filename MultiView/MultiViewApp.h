@@ -27,17 +27,29 @@ protected:
     // 描画.
     virtual void RenderInternal(izanagi::graph::CGraphicsDevice* device);
 
+    void RenderDefaultStereo(izanagi::graph::CGraphicsDevice* device);
+    void RenderAdvancedStereo(izanagi::graph::CGraphicsDevice* device);
+
     virtual IZ_BOOL OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key) override;
 
 private:
-    izanagi::CDebugMesh* m_Mesh;
+    static const IZ_UINT MeshNum = 10000;
 
-    izanagi::CImage* m_Img;
+    izanagi::CDebugMesh* m_Mesh[MeshNum];
+    izanagi::math::SMatrix44 m_L2W[MeshNum];
+
+    izanagi::CImage* m_Img[10];
 
     izanagi::graph::CVertexShader* m_vs{ nullptr };
     izanagi::graph::CPixelShader* m_ps{ nullptr };
-
     izanagi::graph::CShaderProgram* m_shd{ nullptr };
+
+    izanagi::graph::CVertexShader* m_vs_default{ nullptr };
+    izanagi::graph::CPixelShader* m_ps_default{ nullptr };
+    izanagi::graph::CShaderProgram* m_shd_default{ nullptr };
+
+    IZ_BOOL m_enableAdvanced{ IZ_FALSE };
+    IZ_INT m_curNum{ 5000 };
 };
 
 #endif    // #if !defined(__MULTI_VIEW_APP_H__)

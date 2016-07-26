@@ -29,6 +29,12 @@
     <ClInclude Include="..\..\RenderPointSprite\PlyReader.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\RenderPointSprite\TMPFormat.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RenderPointSprite\SPCDFormat.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\RenderPointSprite\shader\psWeightSplat.glsl">

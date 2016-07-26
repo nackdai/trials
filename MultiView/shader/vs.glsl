@@ -9,6 +9,7 @@ attribute vec4 texcoord_0;
 varying vec4 var_Color;
 varying vec2 var_TexCoord_0;
 
+uniform mat4 mtxL2W;
 uniform mat4 mtxW2C;
 
 vec2 EyeClipEdge = vec2(1.0, -1.0);
@@ -19,7 +20,7 @@ vec2 EyeOffsetScale = vec2(0.5, -0.5);
 
 void main()
 {
-    gl_Position = mtxW2C * position;
+    gl_Position = mtxW2C * mtxL2W * position;
 
     gl_ClipDistance[0] = dot(gl_Position, vec4(EyeClipEdge[gl_InstanceID], 0.0, 0.0, 1.0));
     gl_CullDistance[0] = gl_ClipDistance[0];

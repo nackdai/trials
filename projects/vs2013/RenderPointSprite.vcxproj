@@ -388,7 +388,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_OGL|x64'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -416,6 +416,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\RenderPointSprite\PlyReader.h" />
     <ClInclude Include="..\..\RenderPointSprite\RenderPointSpriteApp.h" />
+    <ClInclude Include="..\..\RenderPointSprite\SPCDFormat.h" />
+    <ClInclude Include="..\..\RenderPointSprite\TMPFormat.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\RenderPointSprite\shader\ps.glsl" />

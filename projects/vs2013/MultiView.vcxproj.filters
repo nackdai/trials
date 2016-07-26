@@ -34,6 +34,9 @@
     <None Include="..\..\MultiView\shader\vs.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="..\..\MultiView\shader\vs_default.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\..\izanagi\Media\earth.xml">
