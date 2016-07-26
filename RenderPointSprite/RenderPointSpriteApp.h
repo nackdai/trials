@@ -32,6 +32,8 @@ protected:
 private:
     void initPly(izanagi::graph::CGraphicsDevice* device);
 
+    void initTmp(izanagi::graph::CGraphicsDevice* device);
+
     void initShaders(izanagi::graph::CGraphicsDevice* device);
 
     izanagi::graph::CShaderProgram* initShader(
@@ -77,6 +79,8 @@ private:
         None,
     };
     Mode m_mode{ Mode::Default };
+
+    float m_PointSize{ 1.0f };
 };
 
 #endif    // #if !defined(__RENDER_POINT_SPRITE_APP_H__)

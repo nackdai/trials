@@ -1,6 +1,8 @@
 #include "RenderPointSpriteApp.h"
 #include "PlyReader.h"
 
+#include "TMPFormat.h"
+
 RenderPointSpriteApp::RenderPointSpriteApp()
 {
 }
@@ -28,7 +30,8 @@ IZ_BOOL RenderPointSpriteApp::InitInternal(
         (IZ_FLOAT)device->GetBackBufferWidth() / device->GetBackBufferHeight());
     camera.Update();
 
-    initPly(device);
+    //initPly(device);
+    initTmp(device);
 
     {
         izanagi::graph::SVertexElement elems[] = {
@@ -86,6 +89,51 @@ void RenderPointSpriteApp::initPly(izanagi::graph::CGraphicsDevice* device)
             plyVtx.color[1],
             plyVtx.color[2],
             plyVtx.color[3]);
+
+        vtx++;
+    }
+
+    m_vb->Unlock(device);
+}
+
+void RenderPointSpriteApp::initTmp(izanagi::graph::CGraphicsDevice* device)
+{
+    izanagi::CFileInputStream in;
+    //auto res = in.Open("data/Stairs.tmp");
+    //auto res = in.Open("data/elevator.tmp");
+    auto res = in.Open("data/HGV.tmp");
+    IZ_ASSERT(res);
+
+    TMPHeader header;
+
+    in.Read(&header, 0, sizeof(header));
+
+    m_pointNum = header.vtxNum;
+
+    m_vb = device->CreateVertexBuffer(
+        sizeof(Vertex),
+        m_pointNum,
+        izanagi::graph::E_GRAPH_RSC_USAGE_STATIC);
+
+    Vertex* vtx;
+    auto pitch = m_vb->Lock(device, 0, 0, (void**)&vtx, IZ_FALSE);
+
+    struct {
+        float pos[3];
+        IZ_COLOR color;
+    } tmp;
+
+    static const float scale = 100.0f;
+
+    for (uint32_t i = 0; i < m_pointNum; i++) {
+        in.Read(&tmp, 0, sizeof(tmp));
+
+        vtx->pos[0] = -tmp.pos[0] * scale;
+        vtx->pos[1] = tmp.pos[1] * scale;
+        vtx->pos[2] = tmp.pos[2] * scale;
+        vtx->pos[3] = 1.0f;
+
+        vtx->color = tmp.color;
 
         vtx++;
     }
@@ -237,6 +285,7 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
 #endif
     }
 
+#if 1
     if (device->Begin2D()) {
         static const char* mode[Mode::None] = {
             "Default",
@@ -254,10 +303,17 @@ void RenderPointSpriteApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
             IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0xff),
             mode[m_mode]);
 
+        font->DBPrint(
+            device,
+            0, 60,
+            IZ_COLOR_RGBA(0xff, 0xff, 0xff, 0xff),
+            "Size:%f", m_PointSize);
+
         font->End();
 
         device->End2D();
     }
+#endif
 }
 
 void RenderPointSpriteApp::renderScene(
@@ -282,9 +338,8 @@ void RenderPointSpriteApp::renderScene(
 
     izanagi::math::CVector4 screen(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 
-    IZ_FLOAT pointSize = 2.5f;
     auto hSize = shd->GetHandleByName("size");
-    shd->SetFloat(device, hSize, pointSize);
+    shd->SetFloat(device, hSize, m_PointSize);
 
     auto hMtxW2C = shd->GetHandleByName("mtxW2C");
     shd->SetMatrixArrayAsVectorArray(device, hMtxW2C, &mtxW2C, 4);
@@ -426,6 +481,14 @@ IZ_BOOL RenderPointSpriteApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
     else if (key == izanagi::sys::E_KEYBOARD_BUTTON_DOWN) {
         mode--;
         m_mode = (Mode)(mode < 0 ? Mode::None - 1 : mode);
+    }
+    else if (key == izanagi::sys::E_KEYBOARD_BUTTON_LEFT) {
+        m_PointSize -= 0.1f;
+        m_PointSize = (m_PointSize < 0.5f ? 0.5f : m_PointSize);
+    }
+    else if (key == izanagi::sys::E_KEYBOARD_BUTTON_RIGHT) {
+        m_PointSize += 0.1f;
+        m_PointSize = (m_PointSize > 7.5f ? 7.5f : m_PointSize);
     }
 
     return IZ_TRUE;
