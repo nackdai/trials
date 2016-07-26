@@ -18,6 +18,10 @@ vec2 EyeOffsetScale = vec2(0.5, -0.5);
 // NOTE
 // https://docs.google.com/presentation/d/19x9XDjUvkW_9gsfsMQzt3hZbRNziVsoCEHOn4AercAc/mobilepresent?slide=id.g5791d9ed1_015
 
+// gl_CullDistance
+// http://www.slideshare.net/Mark_Kilgard/opengl-45-update-for-nvidia-gpus
+// p40.
+
 void main()
 {
     gl_Position = mtxW2C * mtxL2W * position;
