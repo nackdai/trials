@@ -16,7 +16,7 @@ CSampleApp::CSampleApp()
     m_ScreenHeight = 1;
 
     m_Flags.onLBtn = IZ_FALSE;
-    m_Flags.onLBtn = IZ_FALSE;
+    m_Flags.onRBtn = IZ_FALSE;
 }
 
 CSampleApp::~CSampleApp()
@@ -240,13 +240,13 @@ void CSampleApp::Render()
 }
 
 // V同期.
-void CSampleApp::Present()
+void CSampleApp::Present(void* nativeParam)
 {
     IZ_ASSERT(m_Device != IZ_NULL);
-    m_Device->Present();
+    m_Device->Present(nativeParam);
 }
 
-void CSampleApp::Idle()
+void CSampleApp::Idle(void* nativeParam)
 {
     GetTimer(0).Begin();
     GetTimer(1).Begin();
@@ -256,7 +256,7 @@ void CSampleApp::Idle()
 
     GetTimer(1).End();
 
-    Present();
+    Present(nativeParam);
 
     GetTimer(0).End();
 }
