@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\SingleImageStereo\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SingleImageStereo\SingleImageStereoApp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\SingleImageStereo\shader\fs_equirect.glsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\SingleImageStereo\shader\vs_equirect.glsl">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="asset">
+      <UniqueIdentifier>{1c5e53ac-c5b7-4daa-8919-d21dd7ddca5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{2aaa0e8b-2745-440f-824d-9dc1071e4b43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{b48bed9d-a27a-468e-9278-9039c7cdb47a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{87cdfcb0-8d7c-4db5-8b59-1db47863d91d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\..\izanagi\Media\EnvMap.xml">
+      <Filter>asset</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\SingleImageStereo\SingleImageStereoApp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
