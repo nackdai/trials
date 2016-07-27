@@ -264,11 +264,25 @@ void FoveatedRenderingApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         IZ_FALSE);
 
     {
-        device->SetTexture(0, m_rt);
-
         auto shd = m_shdFilter.m_shd;
 
         device->SetShaderProgram(shd);
+
+        m_rt->SetFilter(
+            izanagi::graph::E_GRAPH_TEX_FILTER_POINT,
+            izanagi::graph::E_GRAPH_TEX_FILTER_POINT,
+            izanagi::graph::E_GRAPH_TEX_FILTER_NONE);
+        m_rt->SetAddress(
+            izanagi::graph::E_GRAPH_TEX_ADDRESS_CLAMP,
+            izanagi::graph::E_GRAPH_TEX_ADDRESS_CLAMP);
+
+        device->SetTexture(0, m_rt);
+        auto hTex0 = shd->GetHandleByName("s0");
+        CALL_GL_API(glUniform1i(hTex0, 0));
+
+        device->SetTexture(1, m_mask);
+        auto hTex1 = shd->GetHandleByName("s1");
+        CALL_GL_API(glUniform1i(hTex1, 1));
 
         auto hInvScr = shd->GetHandleByName("invScreen");
         izanagi::math::CVector4 invScr(1.0f / SCREEN_WIDTH, 1.0f / SCREEN_HEIGHT, 0, 0);
