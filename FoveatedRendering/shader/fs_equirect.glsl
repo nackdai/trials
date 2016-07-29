@@ -13,6 +13,8 @@ varying vec3 uv;
 
 uniform vec4 invScreen;
 
+uniform bool canFoveated;
+
 void main()
 {
     vec3 ref = normalize(uv);
@@ -23,12 +25,19 @@ void main()
     // [-pi, pi] -> [0, 2pi]
     float phi = atan(ref.x, ref.z) + MATH_PI;
 
-    // Normalize [0, 1]
-    vec2 uv = vec2(phi / MATH_PI2, 1.0 - theta / MATH_PI);
-    gl_FragColor = texture2D(s0, uv);
+    if (canFoveated) {
+        // Normalize [0, 1]
+        vec2 uv = vec2(phi / MATH_PI2, theta / MATH_PI);
+        gl_FragColor = texture2D(s0, uv);
 
-    vec2 maskuv = gl_FragCoord.xy * invScreen.xy;
-    vec4 mask = texture2D(s1, maskuv);
+        vec2 maskuv = gl_FragCoord.xy * invScreen.xy;
+        vec4 mask = texture2D(s1, maskuv);
 
-    gl_FragColor.rgb *= mask.r;
+        gl_FragColor.rgb *= mask.r;
+    }
+    else {
+        // Normalize [0, 1]
+        vec2 uv = vec2(phi / MATH_PI2, 1 - theta / MATH_PI);
+        gl_FragColor = texture2D(s0, uv);
+    }
 }

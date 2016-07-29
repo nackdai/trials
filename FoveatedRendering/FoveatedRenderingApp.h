@@ -27,6 +27,9 @@ protected:
     // 描画.
     virtual void RenderInternal(izanagi::graph::CGraphicsDevice* device);
 
+    void FoveatedRender(izanagi::graph::CGraphicsDevice* device);
+    void DefaultRender(izanagi::graph::CGraphicsDevice* device);
+
     virtual IZ_BOOL OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key);
 
 private:
@@ -62,7 +65,9 @@ private:
     izanagi::graph::CRenderTarget* m_rt{ nullptr };
     izanagi::graph::CRenderTarget* m_depth{ nullptr };
 
-    static const IZ_INT m_Idx = 1;
+    bool m_canFoveated{ false };
+
+    static const IZ_INT m_Idx = 3;
 };
 
 #endif    // #if !defined(__FOVEATED_RENDERING_APP_H__)

@@ -186,19 +186,64 @@ namespace {
 // 描画.
 void FoveatedRenderingApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
 {
+    if (m_canFoveated) {
+        FoveatedRender(device);
+    }
+    else {
+        DefaultRender(device);
+    }
+
+    if (device->Begin2D()) {
+        izanagi::CDebugFont* debugFont = GetDebugFont();
+
+        debugFont->Begin(device, 0, izanagi::CDebugFont::FONT_SIZE * 2);
+
+        debugFont->DBPrint(
+            device,
+            "%s\n",
+            m_canFoveated ? "Foveated" : "Default");
+
+        debugFont->End();
+
+        device->End2D();
+    }
+}
+
+void FoveatedRenderingApp::DefaultRender(izanagi::graph::CGraphicsDevice* device)
+{
     izanagi::sample::CSampleCamera& camera = GetCamera();
 
-    static IZ_INT texIdx[] = {
-        1,
-        3,
-        4,
-    };
+    device->SetTexture(0, m_Img->GetTexture(m_Idx));
+    device->SetTexture(1, m_mask);
 
-    static IZ_CHAR* name[] = {
-        "Cube",
-        "Latitude-Longitude",
-        "Angular",
-    };
+    auto shd = m_shdDrawCube.m_shd;
+
+    device->SetShaderProgram(shd);
+
+    auto hL2W = shd->GetHandleByName("g_mL2W");
+    shd->SetMatrix(device, hL2W, m_L2W);
+
+    auto mtxW2C = camera.GetParam().mtxW2C;
+
+    auto hW2C = shd->GetHandleByName("g_mW2C");
+    shd->SetMatrix(device, hW2C, mtxW2C);
+
+    auto hEye = shd->GetHandleByName("g_vEye");
+    shd->SetVector(device, hEye, camera.GetParam().pos);
+
+    auto hInvScr = shd->GetHandleByName("invScreen");
+    izanagi::math::CVector4 invScr(1.0f / SCREEN_WIDTH, 1.0f / SCREEN_HEIGHT, 0, 0);
+    shd->SetVector(device, hInvScr, invScr);
+
+    auto hCanFoveated = shd->GetHandleByName("canFoveated");
+    shd->SetBool(device, hCanFoveated, false);
+
+    m_Cube->Render(device);
+}
+
+void FoveatedRenderingApp::FoveatedRender(izanagi::graph::CGraphicsDevice* device)
+{
+    izanagi::sample::CSampleCamera& camera = GetCamera();
 
     device->BeginScene(
         &m_mask, 1,
@@ -230,7 +275,7 @@ void FoveatedRenderingApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         m_depth,
         izanagi::graph::E_GRAPH_CLEAR_FLAG_ALL);
     {
-        device->SetTexture(0, m_Img->GetTexture(texIdx[m_Idx]));
+        device->SetTexture(0, m_Img->GetTexture(m_Idx));
         device->SetTexture(1, m_mask);
 
         auto shd = m_shdDrawCube.m_shd;
@@ -251,6 +296,9 @@ void FoveatedRenderingApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         auto hInvScr = shd->GetHandleByName("invScreen");
         izanagi::math::CVector4 invScr(1.0f / SCREEN_WIDTH, 1.0f / SCREEN_HEIGHT, 0, 0);
         shd->SetVector(device, hInvScr, invScr);
+
+        auto hCanFoveated = shd->GetHandleByName("canFoveated");
+        shd->SetBool(device, hCanFoveated, true);
 
         m_Cube->Render(device);
     }
@@ -290,24 +338,12 @@ void FoveatedRenderingApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
 
         CALL_GL_API(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
-
-    if (device->Begin2D()) {
-        izanagi::CDebugFont* debugFont = GetDebugFont();
-
-        debugFont->Begin(device, 0, izanagi::CDebugFont::FONT_SIZE * 2);
-
-        debugFont->DBPrint(
-            device, 
-            "%s\n",
-            name[m_Idx]);
-
-        debugFont->End();
-
-        device->End2D();
-    }
 }
 
 IZ_BOOL FoveatedRenderingApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
 {
+    if (key == izanagi::sys::E_KEYBOARD_BUTTON_RETURN) {
+        m_canFoveated = !m_canFoveated;
+    }
     return IZ_TRUE;
 }
