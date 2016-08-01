@@ -91,7 +91,8 @@ IZ_BOOL SingleImageStereoApp::InitInternal(
             izanagi::graph::E_GRAPH_PIXEL_FMT_D24S8);
     }
 
-    IZ_FLOAT aspect = (IZ_FLOAT)m_StereoScreenWidth / SCREEN_HEIGHT;
+    //IZ_FLOAT aspect = (IZ_FLOAT)m_StereoScreenWidth / SCREEN_HEIGHT;
+    IZ_FLOAT aspect = (IZ_FLOAT)SCREEN_WIDTH / SCREEN_HEIGHT;
     IZ_FLOAT verticalFOV = izanagi::math::CMath::Deg2Rad(60.0f);
     IZ_FLOAT screenDist = SCREEN_HEIGHT / (2.0f * tanf(verticalFOV * 0.5f));
     IZ_FLOAT horizontalFOV = 2.0f * atanf(m_StereoScreenWidth / (2.0f * screenDist));
