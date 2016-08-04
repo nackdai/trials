@@ -208,6 +208,9 @@ void HiddenAreaMeshApp::RenderInternal(izanagi::graph::CGraphicsDevice* device)
                 izanagi::graph::E_GRAPH_RS_ZENABLE,
                 IZ_FALSE);
             device->SetRenderState(
+                izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+                IZ_FALSE);
+            device->SetRenderState(
                 izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_RGB,
                 IZ_FALSE);
             device->SetRenderState(
