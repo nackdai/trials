@@ -21,7 +21,7 @@ void main()
     float phi = atan(ref.x, ref.z) + MATH_PI;
 
     // Normalize [0, 1]
-    vec2 uv = vec2(phi / MATH_PI2, 1.0 - theta / MATH_PI);
+    vec2 uv = vec2(phi / MATH_PI2, theta / MATH_PI);
 
     gl_FragColor = texture2D(s0, uv);
 }

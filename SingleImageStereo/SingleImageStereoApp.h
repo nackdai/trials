@@ -4,7 +4,7 @@
 #include "izSampleKit.h"
 
 static const IZ_UINT SCREEN_WIDTH = 1280;
-static const IZ_UINT SCREEN_HEIGHT = 720;
+static const IZ_UINT SCREEN_HEIGHT = 800;
 
 class SingleImageStereoApp: public izanagi::sample::CSampleApp {
 public:
@@ -46,7 +46,7 @@ private:
     // 瞳孔間距離.
     static const IZ_FLOAT IPD;
 
-    IZ_FLOAT m_StereoScreenWidth{ 0.0f };
+    IZ_UINT m_StereoScreenWidth{ 0.0f };
 
     static const IZ_INT m_Idx = 1;
 };
