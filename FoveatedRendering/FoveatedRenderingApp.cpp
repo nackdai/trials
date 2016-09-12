@@ -193,6 +193,7 @@ void FoveatedRenderingApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
         DefaultRender(device);
     }
 
+#if 1
     if (device->Begin2D()) {
         izanagi::CDebugFont* debugFont = GetDebugFont();
 
@@ -207,6 +208,7 @@ void FoveatedRenderingApp::RenderInternal(izanagi::graph::CGraphicsDevice* devic
 
         device->End2D();
     }
+#endif
 }
 
 void FoveatedRenderingApp::DefaultRender(izanagi::graph::CGraphicsDevice* device)
@@ -336,6 +338,9 @@ void FoveatedRenderingApp::FoveatedRender(izanagi::graph::CGraphicsDevice* devic
         izanagi::math::CVector4 invScr(1.0f / SCREEN_WIDTH, 1.0f / SCREEN_HEIGHT, 0, 0);
         shd->SetVector(device, hInvScr, invScr);
 
+        auto hDisable = shd->GetHandleByName("isFilter");
+        shd->SetBool(device, hDisable, m_isFilter);
+
         CALL_GL_API(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
     }
 }
@@ -344,6 +349,9 @@ IZ_BOOL FoveatedRenderingApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)
 {
     if (key == izanagi::sys::E_KEYBOARD_BUTTON_RETURN) {
         m_canFoveated = !m_canFoveated;
+    }
+    else if (key == izanagi::sys::E_KEYBOARD_BUTTON_SPACE) {
+        m_isFilter = !m_isFilter;
     }
     return IZ_TRUE;
 }

@@ -66,6 +66,7 @@ private:
     izanagi::graph::CRenderTarget* m_depth{ nullptr };
 
     bool m_canFoveated{ false };
+    bool m_isFilter{ true };
 
     static const IZ_INT m_Idx = 3;
 };
