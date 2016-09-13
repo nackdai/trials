@@ -24,6 +24,9 @@
     <None Include="..\..\FoveatedRendering\shader\fs_filter.glsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="..\..\FoveatedRendering\shader\fs_filter_out.glsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="asset">

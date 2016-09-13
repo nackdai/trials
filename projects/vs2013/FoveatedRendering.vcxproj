@@ -384,6 +384,7 @@
   <ItemGroup>
     <None Include="..\..\FoveatedRendering\shader\fs_equirect.glsl" />
     <None Include="..\..\FoveatedRendering\shader\fs_filter.glsl" />
+    <None Include="..\..\FoveatedRendering\shader\fs_filter_out.glsl" />
     <None Include="..\..\FoveatedRendering\shader\fs_radicaldensitymask.glsl" />
     <None Include="..\..\FoveatedRendering\shader\vs_2dscreen.glsl" />
     <None Include="..\..\FoveatedRendering\shader\vs_equirect.glsl" />

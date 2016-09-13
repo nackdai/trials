@@ -113,6 +113,10 @@ IZ_BOOL FoveatedRenderingApp::InitInternal(
         device,
         "shader/vs_2dscreen.glsl",
         "shader/fs_filter.glsl");
+    m_shdFilterOut.Init(
+        device,
+        "shader/vs_2dscreen.glsl",
+        "shader/fs_filter_out.glsl");
 
     IZ_FLOAT aspect = (IZ_FLOAT)SCREEN_WIDTH / SCREEN_HEIGHT;
     IZ_FLOAT verticalFOV = izanagi::math::CMath::Deg2Rad(60.0f);
@@ -145,6 +149,7 @@ void FoveatedRenderingApp::ReleaseInternal()
     m_shdMakeMask.Release();
     m_shdDrawCube.Release();
     m_shdFilter.Release();
+    m_shdFilterOut.Release();
 
     SAFE_RELEASE(m_mask);
 
@@ -245,6 +250,12 @@ void FoveatedRenderingApp::DefaultRender(izanagi::graph::CGraphicsDevice* device
 
 void FoveatedRenderingApp::FoveatedRender(izanagi::graph::CGraphicsDevice* device)
 {
+    RenderFoveatedCenter(device);
+    RenderFoveatedOutside(device);
+}
+
+void FoveatedRenderingApp::RenderFoveatedCenter(izanagi::graph::CGraphicsDevice* device)
+{
     izanagi::sample::CSampleCamera& camera = GetCamera();
 
     device->BeginScene(
@@ -314,6 +325,18 @@ void FoveatedRenderingApp::FoveatedRender(izanagi::graph::CGraphicsDevice* devic
         IZ_FALSE);
 
     {
+        auto vp = device->GetViewport();
+
+        int w = 960;
+        int x = (SCREEN_WIDTH - w) / 2;
+
+        int h = 540;
+        int y = (SCREEN_HEIGHT - h) / 2;
+
+        int p = 3;
+
+        device->SetViewport(izanagi::graph::SViewport(x - p, y - p, w + 2 * p, h + 2 * p));
+
         auto shd = m_shdFilter.m_shd;
 
         device->SetShaderProgram(shd);
@@ -342,7 +365,111 @@ void FoveatedRenderingApp::FoveatedRender(izanagi::graph::CGraphicsDevice* devic
         shd->SetBool(device, hDisable, m_isFilter);
 
         CALL_GL_API(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+
+        device->SetViewport(vp);
     }
+}
+
+void FoveatedRenderingApp::RenderFoveatedOutside(izanagi::graph::CGraphicsDevice* device)
+{
+    {
+        int w = 960;
+        int x = (SCREEN_WIDTH - w) / 2;
+
+        int h = 540;
+        int y = (SCREEN_HEIGHT - h) / 2;
+
+        int p = 3;
+
+        device->Begin2D();
+        {
+            device->SetRenderState(
+                izanagi::graph::E_GRAPH_RS_STENCIL_ENABLE,
+                IZ_TRUE);
+
+            // 描画範囲にステンシル１を付加する.
+            device->SetStencilFunc(
+                izanagi::graph::E_GRAPH_CMP_FUNC_ALWAYS,
+                1,
+                0xffffffff);
+
+            // これから描画するもののステンシル値にすべて１タグをつける.
+            device->SetStencilOp(
+                izanagi::graph::E_GRAPH_STENCIL_OP_REPLACE,
+                izanagi::graph::E_GRAPH_STENCIL_OP_REPLACE,
+                izanagi::graph::E_GRAPH_STENCIL_OP_REPLACE);
+
+            // カラー・デプスバッファに書き込みしない.
+            device->SetRenderState(
+                izanagi::graph::E_GRAPH_RS_ZENABLE,
+                IZ_FALSE);
+            device->SetRenderState(
+                izanagi::graph::E_GRAPH_RS_ZWRITEENABLE,
+                IZ_FALSE);
+            device->SetRenderState(
+                izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_RGB,
+                IZ_FALSE);
+            device->SetRenderState(
+                izanagi::graph::E_GRAPH_RS_COLORWRITEENABLE_A,
+                IZ_FALSE);
+
+            device->Draw2DRect(
+                izanagi::CIntRect(x - p, y - p, w + 2 * p, h + 2 * p),
+                0xffffffff);
+        }
+        device->End2D();
+    }
+
+    {
+        device->SetRenderState(
+            izanagi::graph::E_GRAPH_RS_STENCIL_ENABLE,
+            IZ_TRUE);
+
+        // 0と一致する場合にテストを通す.
+        device->SetStencilFunc(
+            izanagi::graph::E_GRAPH_CMP_FUNC_EQUAL,
+            0,
+            0xffffffff);
+
+        // ステンシルは書き換えない.
+        device->SetStencilOp(
+            izanagi::graph::E_GRAPH_STENCIL_OP_KEEP,
+            izanagi::graph::E_GRAPH_STENCIL_OP_KEEP,
+            izanagi::graph::E_GRAPH_STENCIL_OP_KEEP);
+    }
+
+    auto shd = m_shdFilterOut.m_shd;
+
+    device->SetShaderProgram(shd);
+
+    m_rt->SetFilter(
+        izanagi::graph::E_GRAPH_TEX_FILTER_POINT,
+        izanagi::graph::E_GRAPH_TEX_FILTER_POINT,
+        izanagi::graph::E_GRAPH_TEX_FILTER_NONE);
+    m_rt->SetAddress(
+        izanagi::graph::E_GRAPH_TEX_ADDRESS_CLAMP,
+        izanagi::graph::E_GRAPH_TEX_ADDRESS_CLAMP);
+
+    device->SetTexture(0, m_rt);
+    auto hTex0 = shd->GetHandleByName("s0");
+    CALL_GL_API(glUniform1i(hTex0, 0));
+
+    device->SetTexture(1, m_mask);
+    auto hTex1 = shd->GetHandleByName("s1");
+    CALL_GL_API(glUniform1i(hTex1, 1));
+
+    auto hInvScr = shd->GetHandleByName("invScreen");
+    izanagi::math::CVector4 invScr(1.0f / SCREEN_WIDTH, 1.0f / SCREEN_HEIGHT, 0, 0);
+    shd->SetVector(device, hInvScr, invScr);
+
+    auto hDisable = shd->GetHandleByName("isFilter");
+    shd->SetBool(device, hDisable, m_isFilter);
+
+    CALL_GL_API(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
+
+    device->SetRenderState(
+        izanagi::graph::E_GRAPH_RS_STENCIL_ENABLE,
+        IZ_FALSE);
 }
 
 IZ_BOOL FoveatedRenderingApp::OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key)

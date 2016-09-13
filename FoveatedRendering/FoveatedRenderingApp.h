@@ -28,6 +28,10 @@ protected:
     virtual void RenderInternal(izanagi::graph::CGraphicsDevice* device);
 
     void FoveatedRender(izanagi::graph::CGraphicsDevice* device);
+
+    void RenderFoveatedCenter(izanagi::graph::CGraphicsDevice* device);
+    void RenderFoveatedOutside(izanagi::graph::CGraphicsDevice* device);
+
     void DefaultRender(izanagi::graph::CGraphicsDevice* device);
 
     virtual IZ_BOOL OnKeyDown(izanagi::sys::E_KEYBOARD_BUTTON key);
@@ -57,6 +61,7 @@ private:
     Shader m_shdMakeMask;
     Shader m_shdDrawCube;
     Shader m_shdFilter;
+    Shader m_shdFilterOut;
 
     izanagi::math::SMatrix44 m_L2W;
 
