@@ -325,8 +325,6 @@ void FoveatedRenderingApp::RenderFoveatedCenter(izanagi::graph::CGraphicsDevice*
         IZ_FALSE);
 
     {
-        auto vp = device->GetViewport();
-
         int w = 960;
         int x = (SCREEN_WIDTH - w) / 2;
 
@@ -335,7 +333,11 @@ void FoveatedRenderingApp::RenderFoveatedCenter(izanagi::graph::CGraphicsDevice*
 
         int p = 3;
 
-        device->SetViewport(izanagi::graph::SViewport(x - p, y - p, w + 2 * p, h + 2 * p));
+        device->SetRenderState(
+            izanagi::graph::E_GRAPH_RS_SCISSORTESTENABLE,
+            IZ_TRUE);
+        device->SetScissorTestRect(
+            izanagi::CIntRect(x - p, y - p, w + 2 * p, h + 2 * p));
 
         auto shd = m_shdFilter.m_shd;
 
@@ -366,7 +368,9 @@ void FoveatedRenderingApp::RenderFoveatedCenter(izanagi::graph::CGraphicsDevice*
 
         CALL_GL_API(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4));
 
-        device->SetViewport(vp);
+        device->SetRenderState(
+            izanagi::graph::E_GRAPH_RS_SCISSORTESTENABLE,
+            IZ_FALSE);
     }
 }
 
